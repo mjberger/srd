@@ -1,0 +1,60 @@
+\documentclass[12pt]{article}
+
+\setlength{\parskip}{1ex}
+\addtolength{\textwidth}{.8in}
+\addtolength{\textheight}{.2in}
+\setlength{\oddsidemargin}{.2in}
+%\usepackage{showkeys}
+
+\usepackage{graphicx,amsmath,amssymb,wrapfig,color,amsfonts}
+\usepackage[section]{placeins}
+%\usepackage{showkeys}
+\usepackage{enumitem}
+
+\newcommand{\SWE}{shallow water equations }
+\newcommand{\onehalf}{\frac{1}{2}}
+%\newcommand{\pr}[1]{\frac{\partial #1}{\partial m}}
+\newcommand{\pr}[1]{{#1}_m}
+\newcommand{\rhot}{\widetilde{\rho}}
+\newcommand{\rhoh}{\widehat{\rho}}
+\newcommand{\ut}{\widetilde{u}}
+\newcommand{\uh}{\widehat{u}}
+\newcommand{\wt}{\widetilde{w}}
+\newcommand{\wh}{\widehat{w}}
+\newcommand{\pt}{\widetilde{p}}
+\newcommand{\ph}{\widehat{p}}
+\newcommand{\htil}{\widetilde{h}}
+\newcommand{\hh}{\widehat{h}}
+\newcommand{\commentout}[1]{}
+
+\begin{document}
+
+\title{A State Redistribution Algorithm for Cut Cells}
+\author{Marsha Berger\footnote{Courant Institute, New York University, 251 Mercer St.,
+NY, NY 10012}  \hspace{1in} Andrew Giuliani $^*$}
+
+\maketitle
+
+\begin{abstract}
+\end{abstract}
+
+\input{intro.tex}
+
+\input{alg.tex}
+
+\input{compResults.tex}
+
+\input{Conclusions}
+
+
+
+%\subsection*{Acknowledgments} 
+
+
+
+\bibliography{/Users/berger/references}
+\bibliographystyle{plain}
+
+
+
+\end{document}
