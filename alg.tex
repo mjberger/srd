@@ -2,7 +2,7 @@
 \begin{enumerate}[label=Step \arabic*:]
     \item \textit{Compute one forward Euler update}
     \begin{equation} 
-    \hat{U}_i = U^n_i - \frac{\Delta t}{h_i}\sum \int_{\partial \Omega_{i,j}} \mathbf{F}_{i,j} \cdot \mathbf{n}_{i,j}~dl,\tag{\ref{eq:scheme}}
+    \hat{U}_i = U^n_i - \frac{\Delta t}{h_i}\sum \int_{\partial \Omega_{i,j}} \mathbf{F}_{i,j} \cdot \mathbf{n}_{i,j}~dl,\ref{eq:scheme}
     \end{equation}
 	\item \textit{Compute the solution average on each merging tile}, i.e.,
 	\begin{equation}\label{eq:q_avg1}
