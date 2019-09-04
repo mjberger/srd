@@ -2,11 +2,11 @@
 \begin{enumerate}[label=Step \arabic*:]
     \item \textit{Compute one forward Euler update}
     \begin{equation} 
-    \bar{U}_i = U^n_i - \frac{\Delta t}{h_i}\sum F_{i,j} \cdot l_{i,j},\tag{\ref{eq:scheme}}
+    \hat{U}_i = U^n_i - \frac{\Delta t}{h_i}\sum \int_{\partial \Omega_{i,j}} \mathbf{F}_{i,j} \cdot \mathbf{n}_{i,j}~dl,\tag{\ref{eq:scheme}}
     \end{equation}
 	\item \textit{Compute the solution average on each merging tile}, i.e.,
 	\begin{equation}\label{eq:q_avg1}
-	    \hat Q_i =  \frac{1}{\hat V_i}\sum_{k = N_i}\frac{h_k}{N_k} \tilde U_k.
+	    \hat Q_i =  \frac{1}{\hat V_i}\sum_{k = N_i}\frac{h_k}{N_k} \hat U_k.
 	\end{equation}
 \item \textit{Determine a polynomial reconstruction $\hat q_i(x)$ on each merging tile}, where
 \begin{equation}\label{eq:qi}
