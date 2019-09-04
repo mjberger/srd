@@ -2,7 +2,7 @@
 \section{Finite volume method}
 We pair a standard finite volume method with the state redistribution method in order to relax the strict time step restriction that can result from excessively small cells. 
 \begin{equation} 
-\hat U_i = U^n_i - \frac{\Delta t}{h_i}\sum_{j} \int_{\partial \Omega_{i,j}} \mathbf{F}_{i,j} \cdot \mathbf{n}_{i,j}~dl,\label{eq:scheme}
+(U_i)_t =  - \frac{1}{h_i}\sum_{j} \int_{\partial \Omega_{i,j}} \mathbf{F}_{i,j} \cdot \mathbf{n}_{i,j}~dl,\label{eq:scheme}
 \end{equation}
 where $U^n_i$ is the solution average on cell $i$, $h_i$ is the size of cell $i$, and $\mathbf{F}_{i,j} = \mathbf{F}^*(u^n_{i},u^n_{j})$ and $u^n_{i}(x,y)$ is a polynomial reconstruction of the solution on cell $i$ of the form
 \begin{equation}\label{eq:uhat}
