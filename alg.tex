@@ -10,7 +10,7 @@
 	\end{equation}
 \item \textit{Determine a polynomial reconstruction $\hat q_i(x)$ on each merging tile}, where
 \begin{equation}\label{eq:qi}
-\frac{1}{\hat V_j}\sum_{k \in M_j}\frac{1}{N_k}\int_{\Omega_k} \hat q_i(x)~d\Omega_i = \hat Q_j \quad \forall j \in R_i,
+\frac{1}{\hat V_j}\sum_{k \in M_j}\frac{1}{N_k}\int_{\Omega_k} \hat q_i(x)~d\Omega_k = \hat Q_j \quad \forall j \in R_i,
 \end{equation}
 where $R_i$ is the set of indices of neighborhoods used for reconstruction on merging neighborhood $i$ of the form
 \begin{equation}\label{eq:q}
@@ -23,7 +23,7 @@ $\hat x_i$, $\hat y_i$ is the weighted centroid of merging neighborhood $i$. $\h
 
 \item \textit{Set the solution averages at $t^{n+1}$}, i.e., the average at $t^{n+1}$ on cell $i$ is given by
 	\begin{equation}\label{eq:final_update}
-	U^{n+1}_i =  \frac{1}{h_i}\sum_{k \in M_{i}}\frac{1}{N_i}\int_{\Omega_k} \hat q_k(x)~d\Omega_i,
+	U^{n+1}_i =  \frac{1}{h_i}\sum_{k \in M_{i}}\frac{1}{N_i}\int_{\Omega_i} \hat q_k(x)~d\Omega_i,
 	\end{equation}
 	where $M_i$ is a set of merging tile indices to which cell $i$ belongs.
 \end{enumerate}
