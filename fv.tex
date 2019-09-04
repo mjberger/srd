@@ -2,7 +2,7 @@
 \section{Finite volume method}
 We use the finite volume spatial discretization 
 \begin{equation} \label{eq:fv}
-(U_i)_t =  - \frac{1}{h_i}\sum_{j} \int_{\partial \Omega_{i,j}} \mathbf{F}_{i,j} \cdot \mathbf{n}_{i,j}~dl,
+\frac{d}{dt}(U_i) =  - \frac{1}{h_i}\sum_{j} \int_{\partial \Omega_{i,j}} \mathbf{F}_{i,j} \cdot \mathbf{n}_{i,j}~dl,
 \end{equation}
 where $\mathbf{n}_{i,j}$ is the normal on the face shared by cells $i$ and $j$, $\mathbf{F}_{i,j} = \mathbf{F}^*(u^n_{i},u^n_{j})$ and $u^n_{i}(x,y)$ is a polynomial reconstruction of the solution on cell $i$ of the form
 \begin{equation}\label{eq:u}
@@ -13,8 +13,9 @@ where $\mathbf{n}_{i,j}$ is the normal on the face shared by cells $i$ and $j$, 
 	     + \frac{1}{2}\gamma_{i, xyy}\left[ \frac{(x -  x_i) (y -  y_i)^2 }{\Delta x \Delta y ^2} -  M_{i,xyy}\right]+ \frac{1}{6}\gamma_{i, yyy}\left[ \frac{(y -  y_i)^3 }{\Delta y^3} -  M_{i,yyy}\right],
 \end{aligned}
 \end{equation}
-and $ x_i$, $ y_i$ is the centroid of cell $i$. $ \sigma_{i,x}$, $ \sigma_{i,y}$, $ \delta_{i,xx}$, $ \delta_{i,xy}$, $ \delta_{i,yy}$, are the first and second derivatives, and $  M_{i,xx}$, $ M_{i,xy}$,  $ M_{i,yy}$ are geometric constants. We find the first and second derivatives of the polynomial reconstruction that satisfy the following in a least squares sense
+and $ x_i$, $ y_i$ is the centroid of cell $i$. $\sigma_{i,x}$, $ \sigma_{i,y}$, $ \delta_{i,xx}$, $ \delta_{i,xy}$, $ \delta_{i,yy}$, $ \gamma_{i,xxx}$, $ \gamma_{i,xxy}$, $ \gamma_{i,xyy}$, $ \gamma_{i,yyy}$, are the first, second, and third derivatives, and $  M_{i,xx}$, $ M_{i,xy}$,  $ M_{i,yy}$ are geometric constants. We find the derivatives of the polynomial reconstruction that satisfy the following in a least squares sense
 \begin{equation}\label{eq:qi}
 \frac{1}{ V_j}\int_{\Omega_j} u_i(x)~d\Omega_j = U_j \quad \forall j \in R_i,
 \end{equation}
-where $R_i$ is the set of indices of neighborhoods used for reconstruction on merging neighborhood $i$.  The surface integral in \eqref{eq:fv} is evaluated using a Gaussian quadrature rule of degree $p$, where $p$ is the degree of the polynomial reconstruction.
+where $R_i$ is the set of indices of neighborhoods used for reconstruction on merging neighborhood $i$.  The surface integral in \eqref{eq:fv} is evaluated using a Gaussian quadrature rule of degree $p$, where $p$ is the degree of the polynomial reconstruction.  \eqref{eq:fv} is advanced in time using a Runge-Kutta scheme of order $p+1$.
+\subsection{Limiting on non-coordinate aligned meshes}
