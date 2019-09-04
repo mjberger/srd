@@ -4,7 +4,7 @@
     \begin{equation} 
     \hat{U}_i = U^n_i - \frac{\Delta t}{h_i}\sum \int_{\partial \Omega_{i,j}} \mathbf{F}_{i,j} \cdot \mathbf{n}_{i,j}~dl,\label{eq:scheme}
     \end{equation}
-	\item \textit{Compute the solution average on each merging tile}, i.e.,
+	\item \textit{Compute the solution average on each merging tile}
 	\begin{equation}\label{eq:q_avg1}
 	    \hat Q_i =  \frac{1}{\hat V_i}\sum_{k \in M_i}\frac{h_k}{N_k} \hat U_k.
 	\end{equation}
@@ -12,11 +12,7 @@
 	\begin{equation}\label{eq:modV}
 	\hat V_i = \sum_{k \in M_i}\frac{h_k}{N_k}
 	\end{equation}
-\item \textit{Determine a polynomial reconstruction $\hat q_i(x)$ on each merging tile}, where
-\begin{equation}\label{eq:qi}
-\frac{1}{\hat V_j}\sum_{k \in M_j}\frac{1}{N_k}\int_{\Omega_k} \hat q_i(x)~d\Omega_k = \hat Q_j \quad \forall j \in R_i,
-\end{equation}
-where $R_i$ is the set of indices of neighborhoods used for reconstruction on merging neighborhood $i$ of the form
+\item \textit{Determine a polynomial reconstruction $\hat q_i(x)$ on each merging tile of the form}
 \begin{equation}\label{eq:q}
 \begin{aligned}
 	    \hat q_i(x,y) = \hat Q_{i} + \hat \sigma_{i,x}\frac{x-\hat x_i}{\Delta x} +  \hat \sigma_{i,y}\frac{y-\hat y_i}{\Delta y} + \frac{1}{2}\hat \delta_{i, xx}\left[ \frac{(x - \hat x_i)^2 }{\Delta x^2} - \hat M_{i,xx}\right]\\
@@ -25,9 +21,14 @@ where $R_i$ is the set of indices of neighborhoods used for reconstruction on me
 	     + \frac{1}{2}\hat \gamma_{i, xyy}\left[ \frac{(x -  \hat x_i) (y -  \hat y_i)^2 }{\Delta x \Delta y ^2} -  \hat M_{i,xyy}\right]+ \frac{1}{6}\hat \gamma_{i, yyy}\left[ \frac{(y -  \hat y_i)^3 }{\Delta y^3} -  \hat M_{i,yyy}\right],
 \end{aligned}
 \end{equation}
-$\hat x_i$, $\hat y_i$ is the weighted centroid of merging neighborhood $i$. $\hat \sigma_{i,x}$, $\hat \sigma_{i,y}$, $\hat \delta_{i,xx}$, $\hat \delta_{i,xy}$, $\hat \delta_{i,yy}$, are the first and second derivatives, and $ \hat M_{i,xx}$, $\hat M_{i,xy}$,  $\hat M_{i,yy}$ are geometric constants. 
+$\hat x_i$, $\hat y_i$ is the weighted centroid of merging neighborhood $i$. $\hat \sigma_{i,x}$, $\hat \sigma_{i,y}$, $\hat \delta_{i,xx}$, $\hat \delta_{i,xy}$, $\hat \delta_{i,yy}$, are the first and second derivatives, and $ \hat M_{i,xx}$, $\hat M_{i,xy}$,  $\hat M_{i,yy}$ are geometric constants.  The reconstruction satisfies
+\begin{equation}\label{eq:qi}
+\frac{1}{\hat V_j}\sum_{k \in M_j}\frac{1}{N_k}\int_{\Omega_k} \hat q_i(x)~d\Omega_k = \hat Q_j \quad \forall j \in R_i,
+\end{equation}
+where $R_i$ is the set of indices of neighborhoods used for reconstruction on merging neighborhood $i$ of the form
 
-\item \textit{Set the solution averages at $t^{n+1}$}, i.e., the average at $t^{n+1}$ on cell $i$ is given by
+
+\item \textit{Set the solution averages at $t^{n+1}$}
 	\begin{equation}\label{eq:final_update}
 	U^{n+1}_i =  \frac{1}{h_i}\sum_{k \in M_{i}}\frac{1}{N_i}\int_{\Omega_i} \hat q_k(x)~d\Omega_i,
 	\end{equation}
