@@ -1,0 +1,57 @@
+
+\section{Finite volume method}
+We pair a standard finite volume method with the state redistribution method in order to relax the strict time step restriction that can result from excessively small cells.  We first describe the finite volume method with constant, linear, and quadratic reconstructions.  
+\begin{equation} 
+\hat U_i = U^n_i - \frac{\Delta t}{h_i}\sum_{j}\mathbf{F}_{i,j} \cdot l_{i,j},\label{eq:scheme}
+\end{equation}
+where $U^n_i$ is the solution average on cell $i$, $h_i$ is the size of cell $i$, and $\mathbf{F}_{i,j} = \mathbf{F}(\textbf{u}^n_{i}(\mathbf{x}_{i,j}))$ is a polynomial reconstruction of the solution on cell $i$.
+\section{First order}
+The second order scheme uses a linear reconstruction of the form
+$$
+u^n_i = U^n_i.
+$$
+\section{Second order}
+The second order scheme uses a linear reconstruction of the form
+	$$
+	u^n_i(x) = U^n_{i} + \sigma^n_{i}\frac{x-x_i}{h_i},
+	$$
+ 	The slope of the linear reconstruction, $\sigma^n_{i}$, can be determined from, e.g., 
+ 	\begin{equation}\label{eq:cd_scheme}
+ 	    \sigma^n_{i} = h_i\frac{U^n_{i+1} - U^n_{i-1}}{x_{i+1} - x_{i-1}}.
+ 	\end{equation}
+ \subsubsection{Limiting}
+We can also use the limited slope
+\begin{equation}\label{eq:u_second_order_limiter}
+\sigma^n_i = \text{minmod}\left(2(U^n_{i} - U^n_{i-1}), \frac{h_i}{x_{i+1} - x_{i-1}}(U^n_{i+1} - U^n_{i-1}), 2(U^n_{i+1} - U^n_{i})\right).
+\end{equation}
+ \section{Third order}
+The second order scheme uses a quadratic reconstruction of the form
+	\begin{equation}
+	u^n_i(x) = U^n_{i} + \sigma^n_{i}\frac{x-x_i}{h_i} + \frac{1}{2}\delta^n_{i} \left[\frac{(x-x_i)^2 }{h_i^2}- \frac{1}{12} \right],\label{eq:up}
+	\end{equation}
+	where $\sigma^n_{i}$, $\delta^n_{i}$ are the coefficients of the quadratic reconstruction on cell $i$ and $x_i$ is the centroid of cell $i$.  For example, these coefficients could be computed by solving
+	\begin{align}
+	 \frac{1}{h_{i-1}}\int^{x_{i-\frac{1}{2}}}_{x_{i-\frac{3}{2}}}u^n_i(x) ~dx &= U^n_{i-1}, \label{eq:u1}\\
+% 	 \frac{1}{h_i}\int^{x_{i+\frac{1}{2}}}_{x_{i-\frac{1}{2}}} u^n_i(x) ~dx &= U^n_{i}, \label{eq:u2}\\
+	 \frac{1}{h_{i+1}}\int^{x_{i+\frac{3}{2}}}_{x_{i+\frac{1}{2}}}u^n_i(x) ~dx &= U^n_{i+1}. \label{eq:u3},
+	\end{align}
+	which is a system of two equations in two unknowns, $\sigma^n_{i}$, $\delta^n_{i}$.  Substituting \eqref{eq:up} into \eqref{eq:u1} and \eqref{eq:u3}, we obtain
+	\begin{align}
+	  \sigma^n_{i}\frac{x_{i-1}-x_i}{h_i} +  \frac{1}{2}\delta^n_{i}\left(\frac{(x_{i-1}-x_i)^2}{h_i^2}+\frac{1}{12}\frac{h_{i-1}^2}{h_i^2} - \frac{1}{12}\right)  &= U^n_{i-1}-U^n_i, \label{eq:uu1}\\
+	 \sigma^n_{i}\frac{x_{i+1}-x_i}{h_i} +   \frac{1}{2}\delta^n_{i} \left(\frac{(x_{i+1}-x_i)^2}{h_i^2}+\frac{1}{12}\frac{h_{i+1}^2}{h_i^2} - \frac{1}{12}\right) &= U^n_{i+1}-U^n_i, \label{eq:uu3}
+	\end{align}
+	Solving for $\sigma^n_i/h_i$ and $\delta^n_i/h_i^2$, which are $\frac{du^n_i}{dx}(x_i)$ and $\frac{d^2u^n_i}{dx^2}(x_i)$, respectively, we obtain
+	\begin{align}
+	    \frac{du^n_i}{dx}(x_i) = \frac{\sigma^n_i}{h_i}= \frac{h_{i-1}+\frac{h_i}{2}}{h_{i+1}+h_i+h_{i-1}}D_{+}U^n_i+\frac{h_{i+1}+\frac{h_i}{2}}{h_{i+1}+h_i+h_{i-1}}D_{-}U^n_i,\\
+	    \frac{d^2u^n_i}{dx^2}(x_i) = \frac{\delta^n_i}{h_i^2}=\frac{3}{h_{i+1}+h_i+h_{i-1}}D_{+}U^n_i -\frac{3}{h_{i+1}+h_i+h_{i-1}}D_{-}U^n_i,
+	\end{align}
+	where $D_{+}U^n_i = \frac{U^n_{i+1} - U^n_i}{(h_i + h_{i+1})/2}$ and $D_{-}U^n_i = \frac{U^n_{i} - U^n_{-1}}{(h_{i-1} + h_{i})/2}$.
+	On a uniform grid, we have
+	$$
+	\frac{du^n_i}{dx}(x_i) = \frac{U^n_{i+1} - U^n_{i-1}}{2h},
+	$$
+	and
+	$$
+	\frac{d^2u^n_i}{dx^2}(x_i) = \frac{U^n_{i+1} - 2U^n_i + U^n_{i-1}}{h^2}.
+	$$
+	On both uniform and nonuniform grids, quadratic solutions are reconstructed exactly.
