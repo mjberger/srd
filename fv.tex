@@ -1,10 +1,10 @@
 
 \section{Finite volume method}
-We pair a standard finite volume method with the state redistribution method in order to relax the strict time step restriction that can result from excessively small cells. 
+We use the finite volume spatial discretization 
 \begin{equation} 
 (U_i)_t =  - \frac{1}{h_i}\sum_{j} \int_{\partial \Omega_{i,j}} \mathbf{F}_{i,j} \cdot \mathbf{n}_{i,j}~dl,\label{eq:scheme}
 \end{equation}
-where $U^n_i$ is the solution average on cell $i$, $h_i$ is the size of cell $i$, and $\mathbf{F}_{i,j} = \mathbf{F}^*(u^n_{i},u^n_{j})$ and $u^n_{i}(x,y)$ is a polynomial reconstruction of the solution on cell $i$ of the form
+where $\mathbf{n}_{i,j}$ is the normal on the face shared by cells $i$ and $j$, $\mathbf{F}_{i,j} = \mathbf{F}^*(u^n_{i},u^n_{j})$ and $u^n_{i}(x,y)$ is a polynomial reconstruction of the solution on cell $i$ of the form
 \begin{equation}\label{eq:uhat}
 \begin{aligned}
 	    u^n_i(x,y) = U^n_{i} +  \sigma_{i,x}\frac{x- x_i}{\Delta x} +   \sigma_{i,y}\frac{y- y_i}{\Delta y} + \frac{1}{2} \delta_{i, xx}\left[ \frac{(x -  x_i)^2 }{\Delta x^2} -  M_{i,xx}\right]\\
