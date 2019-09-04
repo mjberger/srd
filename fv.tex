@@ -11,4 +11,9 @@ where $U^n_i$ is the solution average on cell $i$, $h_i$ is the size of cell $i$
 	    + \delta_{i, xy}\left[ \frac{(x -  x_i) (y -  y_i) }{\Delta x \Delta y} -  M_{i,xy}\right] + \frac{1}{2} \delta_{i, yy}\left[ \frac{(y -  y_i)^2 }{\Delta y^2} -   M_{i,yy}\right],
 \end{aligned}
 \end{equation}
-and $ x_i$, $ y_i$ is the centroid of cell $i$. $ \sigma_{i,x}$, $ \sigma_{i,y}$, $ \delta_{i,xx}$, $ \delta_{i,xy}$, $ \delta_{i,yy}$, are the first and second derivatives, and $  M_{i,xx}$, $ M_{i,xy}$,  $ M_{i,yy}$ are geometric constants. 
+and $ x_i$, $ y_i$ is the centroid of cell $i$. $ \sigma_{i,x}$, $ \sigma_{i,y}$, $ \delta_{i,xx}$, $ \delta_{i,xy}$, $ \delta_{i,yy}$, are the first and second derivatives, and $  M_{i,xx}$, $ M_{i,xy}$,  $ M_{i,yy}$ are geometric constants. We find the first and second derivatives of the polynomial reconstruction that satisfy the following in a least squares sense
+\begin{equation}\label{eq:qi}
+\frac{1}{ V_j}\int_{\Omega_j} u_i(x)~d\Omega_j = U_j \quad \forall j \in R_i,
+\end{equation}
+where $R_i$ is the set of indices of neighborhoods used for reconstruction on merging neighborhood $i$
+
