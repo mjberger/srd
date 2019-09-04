@@ -2,7 +2,7 @@
 \begin{enumerate}[label=Step \arabic*:]
     \item \textit{Compute one forward Euler update}
     \begin{equation} 
-    \hat{U}_i = U^n_i - \frac{\Delta t}{h_i}\sum \int_{\partial \Omega_{i,j}} \mathbf{F}_{i,j} \cdot \mathbf{n}_{i,j}~dl,\ref{eq:scheme}
+    \hat{U}_i = U^n_i - \frac{\Delta t}{h_i}\sum \int_{\partial \Omega_{i,j}} \mathbf{F}_{i,j} \cdot \mathbf{n}_{i,j}~dl,\label{eq:scheme}
     \end{equation}
 	\item \textit{Compute the solution average on each merging tile}, i.e.,
 	\begin{equation}\label{eq:q_avg1}
@@ -16,7 +16,9 @@ where $R_i$ is the set of indices of neighborhoods used for reconstruction on me
 \begin{equation}\label{eq:q}
 \begin{aligned}
 	    \hat q_i(x,y) = \hat Q_{i} + \hat \sigma_{i,x}\frac{x-\hat x_i}{\Delta x} +  \hat \sigma_{i,y}\frac{y-\hat y_i}{\Delta y} + \frac{1}{2}\hat \delta_{i, xx}\left[ \frac{(x - \hat x_i)^2 }{\Delta x^2} - \hat M_{i,xx}\right]\\
-	    +\hat \delta_{i, xy}\left[ \frac{(x - \hat x_i) (y - \hat y_i) }{\Delta x \Delta y} - \hat M_{i,xy}\right] + \frac{1}{2}\hat \delta_{i, yy}\left[ \frac{(y - \hat y_i)^2 }{\Delta y^2} -  \hat M_{i,yy}\right],
+	    +\hat \delta_{i, xy}\left[ \frac{(x - \hat x_i) (y - \hat y_i) }{\Delta x \Delta y} - \hat M_{i,xy}\right] + \frac{1}{2}\hat \delta_{i, yy}\left[ \frac{(y - \hat y_i)^2 }{\Delta y^2} -  \hat M_{i,yy}\right]\\
+	    + \frac{1}{6}\hat\gamma_{i, xxx}\left[ \frac{(x -  \hat x_i)^3 }{\Delta x^3} -  \hat M_{i,xxx}\right] + \frac{1}{2}\hat \gamma_{i, xxy}\left[ \frac{(x - \hat x_i)^2 (y -  \hat y_i) }{\Delta x^2 \Delta y} -  \hat M_{i,xxy}\right]\\
+	     + \frac{1}{2}\hat \gamma_{i, xyy}\left[ \frac{(x -  \hat x_i) (y -  \hat y_i)^2 }{\Delta x \Delta y ^2} -  \hat M_{i,xyy}\right]+ \frac{1}{6}\hat \gamma_{i, yyy}\left[ \frac{(y -  \hat y_i)^3 }{\Delta y^3} -  \hat M_{i,yyy}\right],
 \end{aligned}
 \end{equation}
 $\hat x_i$, $\hat y_i$ is the weighted centroid of merging neighborhood $i$. $\hat \sigma_{i,x}$, $\hat \sigma_{i,y}$, $\hat \delta_{i,xx}$, $\hat \delta_{i,xy}$, $\hat \delta_{i,yy}$, are the first and second derivatives, and $ \hat M_{i,xx}$, $\hat M_{i,xy}$,  $\hat M_{i,yy}$ are geometric constants. 
