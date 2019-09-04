@@ -27,7 +27,7 @@
 	     + \frac{1}{2}\hat \gamma_{i, xyy}\left[ \frac{(x -  \hat x_i) (y -  \hat y_i)^2 }{\Delta x \Delta y ^2} -  \hat M_{i,xyy}\right]+ \frac{1}{6}\hat \gamma_{i, yyy}\left[ \frac{(y -  \hat y_i)^3 }{\Delta y^3} -  \hat M_{i,yyy}\right],
 \end{aligned}
 \end{equation}
-$\hat x_i$, $\hat y_i$ is the weighted centroid of merging neighborhood $i$. $\hat \sigma_{i,x}$, $\hat \sigma_{i,y}$, $\hat \delta_{i,xx}$, $\hat \delta_{i,xy}$, $\hat \delta_{i,yy}$, are the first and second derivatives, and $ \hat M_{i,xx}$, $\hat M_{i,xy}$,  $\hat M_{i,yy}$ are geometric constants.  The reconstruction satisfies
+$\hat x_i$, $\hat y_i$ is the weighted centroid of merging neighborhood $i$. $\hat \sigma_{i,x}$, $\hat \sigma_{i,y}$, $\hat \delta_{i,xx}$, $\hat \delta_{i,xy}$, $\hat \delta_{i,yy}$, $ \hat \gamma_{i,xxx}$, $\hat  \gamma_{i,xxy}$, $\hat  \gamma_{i,xyy}$, $\hat  \gamma_{i,yyy}$ are the first, second, and third derivatives, and $ \hat M_{i,xx}$, $\hat M_{i,xy}$,  $\hat M_{i,yy}$ are geometric constants.  The reconstruction satisfies
 \begin{equation}\label{eq:qi}
 \frac{1}{\hat V_j}\sum_{k \in M_j}\frac{1}{N_k}\int_{\Omega_k} \hat q_i(x)~d\Omega_k = \hat Q_j \quad \forall j \in R_i,
 \end{equation}
@@ -42,9 +42,13 @@ where $R_i$ is the set of indices of neighborhoods used for reconstruction on me
 \end{enumerate}
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 	
 >>>>>>> 24c148c2036f79f1e4abeafe2870a359216dcb34
 =======
+=======
+\subsection{Limiting on merging neighborhoods}
+>>>>>>> 4fdf4847e6b3d0f7475f597ac4b20f9254d9dcc3
 
 
 
