@@ -1,4 +1,4 @@
-\section{The State Redistribution Algorithm}\label{srdAlg}
+\section{The State Redistribution Algorithm}\label{sec:srdAlg}
 \begin{enumerate}[label=Step \arabic*:]
     \item \textit{Compute one forward Euler update}
     \begin{equation} 
@@ -6,7 +6,11 @@
     \end{equation}
 	\item \textit{Compute the solution average on each merging tile}, i.e.,
 	\begin{equation}\label{eq:q_avg1}
-	    \hat Q_i =  \frac{1}{\hat V_i}\sum_{k = N_i}\frac{h_k}{N_k} \hat U_k.
+	    \hat Q_i =  \frac{1}{\hat V_i}\sum_{k \in M_i}\frac{h_k}{N_k} \hat U_k.
+	\end{equation}
+	where $M_i$ is the set of indices of cells in the merging neighborhood $i$, 
+	\begin{equation}\label{eq:modV}
+	\hat V_i = \sum_{k \in M_i}\frac{h_k}{N_k}
 	\end{equation}
 \item \textit{Determine a polynomial reconstruction $\hat q_i(x)$ on each merging tile}, where
 \begin{equation}\label{eq:qi}
@@ -29,5 +33,8 @@ $\hat x_i$, $\hat y_i$ is the weighted centroid of merging neighborhood $i$. $\h
 	\end{equation}
 	where $M_i$ is a set of merging tile indices to which cell $i$ belongs.
 \end{enumerate}
+
+
+
 
 	
