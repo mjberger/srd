@@ -1,0 +1,33 @@
+\section{Conservation}
+From the first, second, and third order state redistribution algorithms in Section \ref{sec:srdAlg}, the mass of the numerical solution at $t^{n+1}$ is
+\begin{equation}\label{eq:total_mass}
+\mathcal{M}^{n+1} = \sum^N_{i=1} h_i U^{n+1}_i.
+\end{equation}
+From the definition of $U^{n+1}_i$ in \eqref{eq:final_update}, the above can also be written as a sum of mass contributions from each merging neighborhood, i.e.,
+\begin{equation}\label{eq:total_mass2}
+\mathcal{M}^{n+1} = \sum^N_{i=1} \hat{\mathcal{M}}_i,
+\end{equation}
+where the mass contribution of merging neighborhood $i$ is
+\begin{equation}\label{eq:mi}
+\hat{\mathcal{M}}_i = \sum_{k \in M_i}\frac{1}{N_k} \int_{\Omega_k}\hat q_i(x) ~d\Omega_k,
+\end{equation}
+and $\hat q_i(x)$ is the neighborhood's reconstruction.  From \eqref{eq:qi}, \eqref{eq:mi} becomes
+\begin{equation}\label{eq:mi1}
+\hat{\mathcal{M}}_i = \hat Q_i \hat V_i.
+\end{equation}
+% \subsection{First order algorithm}
+% When $\hat q_i(x)$ is constant, i.e. $\hat q_i(x) = \hat Q_i$ by \eqref{eq:q_avg} and Step 2 in Section \ref{sec:first_order}, \eqref{eq:mi} becomes 
+% Substituting \eqref{eq:mi} into \eqref{eq:total_mass2}, we have
+% \begin{equation}\label{eq:mi1}
+% \hat{\mathcal{M}}_i = \hat Q_i \hat V_i.
+% \end{equation}
+% by \eqref{eq:q_avg} in the first order algorithm, by \eqref{eq:pq2} in the second order algorithm, and by \eqref{eq:q2} in the third order algorithm.
+From \eqref{eq:modV} and \eqref{eq:q_avg1}, \eqref{eq:mi1} becomes
+\begin{equation}\label{eq:mi2}
+\hat{\mathcal{M}}_i = \sum^{M_i}_{k = m_i}\frac{h_k}{N_k} \hat U_{k}.
+\end{equation}
+Substituting \eqref{eq:mi2} into \eqref{eq:total_mass2}, the mass at $t^{n+1}$ is
+$$
+\mathcal{M}^{n+1} = \sum^{N}_{i=1} h_i \hat U_i,
+$$
+which shows that $\mathcal{M}^{n+1}  = \mathcal{M}^{n} $.
