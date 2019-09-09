@@ -1,9 +1,77 @@
 \section{Computational Results}\label{compResults}
-
+\begin{equation} \label{eq:conslaw}
+   \frac{\partial}{\partial t} \mathbf{u} + \nabla \cdot \mathbf{F} = 0
+\end{equation}
 \subsection{Linear convergence study}
 We solve \eqref{eq:conslaw} with the flux $\mathbf{F}(u) = [-2\pi y u, 2\pi x u]$ and initial condition
 $$
-u_0(x,y) = 
+u_0(x,y) = w(\theta - \pi/2)
 $$
-until the final time $T = 1$ on the domain comprising two concentric discs in Figure \ref{fig:channel}.   
+where
+$$
+w(\theta) = \frac{1}{2}\left( \text{erf}\left( \frac{\pi/6 - \theta}{\sqrt{4/100}} \right) + \text{erf}\left( \frac{\pi/6 + \theta}{\sqrt{4/100}} \right)\right)
+$$
+until the final time $T = 1$ on the domain enclosed by two concentric discs of radii $R_1 = 0.751$ and $R_2 = 1.251$.  Figure \ref{fig:rotatinghillgrid} shows the computational domain embedded on a $50 \times 50$ grid.  The exact solution is the initial condition rotated about the point $(1.5,1.5)$, where $T=1$ corresponds to one solid body rotations.  The errors measured in the $L_1$ and $L_\infty$ norms are provided in Tables \ref{tab:ex1_L1} and \ref{tab:ex1_Linf}.
+Figure
+\ref{fig:rotatinghillexactiso} shows isolines of solution at the initial and final time.  The exact solution is applied as the boundary condition.
+
+\begin{figure}
+\subfloat[$50\times50$ grid and annulus domain.]{\includegraphics[width = 0.5\linewidth]{figs/rotatinghill_grid.eps} \label{fig:rotatinghillgrid}} 
+\quad
+\subfloat[Isolines of exact solution at the initial and final time.]{\includegraphics[width = 0.5\linewidth]{figs/rotatinghill_solution.eps}\label{fig:rotatinghillexactiso}}
+\end{figure}
+    % \caption{}\label{tab:ex1_L1}
+\begin{table}
+\centering
+\subfloat[$L_1$ errors. \label{tab:ex1_L1}]{
+    \begin{tabular}{|c|c|c|c|c|}
+        \hline
+         $N_x \times N_y$ & $p = 0$ & $p=1$& $p=2$ & $p=3$ \\
+         \hline
+         50 & 2.3937e-1(-) &  5.6588e-2  (-)& 4.1690e-2  (-)&   2.0694e-2 (-)\\
+         \hline
+         100 &  1.5521e-1 (0.62) &  2.0125e-2  (1.49)& 7.8165e-3 (2.41)& 1.6813e-3 (3.62)\\
+         \hline
+         200 &  9.4138e-2 (0.72) & 5.5222e-3 (1.86)&  9.98411e-4 (2.96)& 8.8527e-5 (4.24)\\
+        %  \hline
+        %  400 &  () &  ()&  ()&  ()\\
+         \hline
+    \end{tabular}
+    }
+\quad
+\subfloat[$L_\infty$ errors. \label{tab:ex1_Linf}]{
+    \begin{tabular}{|c|c|c|c|c|}
+        \hline
+         $N_x \times N_y$ & $p = 0$ & $p=1$& $p=2$ & $p=3$ \\
+         \hline
+         50 & 3.0385e-1 (-) &  1.6856e-1 (-)& 1.1809e-1 (-)&  7.0682e-2 (-)\\
+         \hline
+         100 & 2.3332e-1 (0.38) & 8.5487e-2 (1.04)& 5.1249e-2 (1.20)& 1.6657e-2 (2.08)\\
+         \hline
+         200 &  1.7698e-1 (0.39) & 3.4940e-2 (1.29)& 1.4500e-2 (1.82)&  1.9507e-3 (3.09)\\
+        %  \hline
+        %  400 &   () &  ()&  ()&  ()\\
+         \hline
+    \end{tabular}
+    }
+
+\caption{Errors for the linear convergence study.}
+\end{table}
 \subsection{Nonlinear convergence study}
+We solve the supersonic vortex problem which describes supersonic flow through a tube.  The exact solution is given by
+$$
+\begin{pmatrix}
+\rho\\
+u \\
+v \\
+p
+\end{pmatrix} = \begin{pmatrix}
+[1 + 0.125(1-r^{-2})]^{2.5}\\
+2.25r^{-1}\sin(\theta)\\
+-2.25r^{-1}\cos(\theta)\\
+\frac{1}{\gamma}\rho^{\gamma}
+\end{pmatrix},
+$$
+where $r = \sqrt{x^2+y^2}$.  The exact solution is applied as the boundary condition.
+
+\subsection{Double Mach reflection problem}
