@@ -11,7 +11,7 @@ where
 $$
 w(\theta) = \frac{1}{2}\left( \text{erf}\left( \frac{\pi/6 - \theta}{\sqrt{4/100}} \right) + \text{erf}\left( \frac{\pi/6 + \theta}{\sqrt{4/100}} \right)\right)
 $$
-until the final time $T = 1$ on the domain enclosed by two concentric discs of radii $R_1 = 0.751$ and $R_2 = 1.251$.  Figure \ref{fig:rotatinghillgrid} shows the computational domain embedded on a $50 \times 50$ grid.  The exact solution is the initial condition rotated about the point $(1.5,1.5)$, where $T=1$ corresponds to one solid body rotations.  The errors measured in the $L_1$ and $L_\infty$ norms are provided in Tables \ref{tab:ex1_L1} and \ref{tab:ex1_Linf}.
+until the final time $T = 1$ on the domain enclosed by two concentric discs of radii $R_1 = 0.751$ and $R_2 = 1.251$.  Figure \ref{fig:rotatinghillgrid} shows the computational domain embedded on a $50 \times 50$ grid.  The exact solution is the initial condition rotated about the point $(1.5,1.5)$, where $T=1$ corresponds to one solid body rotation.  The errors measured in the $L_1$ and $L_\infty$ norms are provided in Tables \ref{tab:ex1_L1} and \ref{tab:ex1_Linf}.
 Figure
 \ref{fig:rotatinghillexactiso} shows isolines of solution at the initial and final time.  The exact solution is applied as the boundary condition.
 
@@ -66,12 +66,89 @@ u \\
 v \\
 p
 \end{pmatrix} = \begin{pmatrix}
-[1 + 0.125(1-r^{-2})]^{2.5}\\
+[1 + 1.0125(1-r^{-2})]^{2.5}\\
 2.25r^{-1}\sin(\theta)\\
 -2.25r^{-1}\cos(\theta)\\
 \frac{1}{\gamma}\rho^{\gamma}
 \end{pmatrix},
 $$
-where $r = \sqrt{x^2+y^2}$.  The exact solution is applied as the boundary condition.
+where $r = \sqrt{x^2+y^2}$.  The exact solution is applied to the inflow and outflow, i.e., the horizontal and vertical boundaries.  High-order reflecting boundary conditions are used on the curved boundaries.  The simulation is run until numerical convergence, i.e., 
+$$
+\max_{i,j}|U^{n+1}_{i,j}-U^{n}_{i,j}| < 10^{-10}.
+$$
+The $L_1$ and $L_\infty$ errors are given in Table \ref{tab:ex2_L1} and \ref{tab:ex2_Linf}.
 
+% \begin{table}
+% \centering
+% \subfloat[$L_1$ errors. \label{tab:ex2_L1}]{
+%     \begin{tabular}{|c|c|c|c|c|}
+%         \hline
+%          $N_x \times N_y$ & $p = 0$ & $p=1$& $p=2$ & $p=3$ \\
+%          \hline
+%          50 & 9.4739e-2 (-) & 5.0410e-3  (-)& 1.1052e-3 (-)& 5.0620e-4 (-)\\
+%          \hline
+%          100 & 4.8604e-2  (0.96) & 1.4182e-3 (1.82)& 1.7253e-4 (2.67) & 3.41009e-5 (3.89)\\
+%          \hline
+%          200 &  2.5369e-2  (0.93) &   3.3332e-4  ()&  ()& ()\\
+%         %  \hline
+%         %  400 &  () &  ()&  ()&  ()\\
+%          \hline
+%     \end{tabular}
+%     }
+% \quad
+% \subfloat[$L_\infty$ errors. \label{tab:ex2_Linf}]{
+%     \begin{tabular}{|c|c|c|c|c|}
+%         \hline
+%          $N_x \times N_y$ & $p = 0$ & $p=1$& $p=2$ & $p=3$ \\
+%          \hline
+%          50 &  5.4474e-1 (-) &  2.3337e-2 (-)& 9.5250e-3 (-)& 2.1902e-3 (-)\\
+%          \hline
+%          100 &  3.0634e-1 (0.83) &  8.5984e-3  (1.44)& 3.2008e-3 (1.44)& 2.8438e-4 (2.94)\\
+%          \hline
+%          200 &  1.6236e-1  (0.91) &  3.7170e-3  ()&  ()& ()\\
+%         %  \hline
+%         %  400 &   () &  ()&  ()&  ()\\
+%          \hline
+%     \end{tabular}
+%     }
+
+% \caption{Errors for the nonlinear convergence study.}
+% \end{table}
+
+\begin{table}
+\centering
+\subfloat[$L_1$ errors. \label{tab:ex2_L1}]{
+    \begin{tabular}{|c|c|c|c|c|}
+        \hline
+         $N_x \times N_y$ & $p = 0$ & $p=1$& $p=2$ & $p=3$ \\
+         \hline
+         50 &9.5684e-2 (-) & 2.5288e-3 (-)& 1.0461e-3 (-)& 4.5228e-4 (-)\\
+         \hline
+         100 & 4.8806e-2 (0.97) & 8.4046e-4  (1.58)& 1.6831e-4 (2.68) & 3.2118e-5 (3.81)\\
+         \hline
+         200 & 2.5311e-2 (0.94) & 1.9726e-4 (2.09)& 2.3377e-5 (2.84) & 1.9907e-6 (4.01)\\
+        %  \hline
+        %  400 &  () &  ()&  ()&  ()\\
+         \hline
+    \end{tabular}
+    }
+\quad
+\subfloat[$L_\infty$ errors. \label{tab:ex2_Linf}]{
+    \begin{tabular}{|c|c|c|c|c|}
+        \hline
+         $N_x \times N_y$ & $p = 0$ & $p=1$& $p=2$ & $p=3$ \\
+         \hline
+         50 & 5.4756e-1 (-) & 1.8694e-2 (-)& 7.2911e-3 (-)& 1.9752e-3 (-)\\
+         \hline
+         100 & 3.0527e-1 (0.84) & 6.9103e-3 (1.43)& 1.5457e-3 (2.23) & 1.5927e-4 (3.63)\\
+         \hline
+         200 & 1.6319e-1  (0.90) &  2.4883e-3 (1.47)& 4.2102e-4 (1.87) & 1.5372e-5 (3.37)\\
+        %  \hline
+        %  400 &   () &  ()&  ()&  ()\\
+         \hline
+    \end{tabular}
+    }
+
+\caption{Errors for the nonlinear convergence study.}
+\end{table}
 \subsection{Double Mach reflection problem}
