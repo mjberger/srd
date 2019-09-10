@@ -17,7 +17,10 @@ and $ x_{i,j}$, $ y_{i,j}$ is the centroid of cell $i$. $\sigma_{i,j,x}$, $ \sig
 \begin{equation}\label{eq:qi}
 \frac{1}{ V_j}\int_{\Omega_j} u_i(x)~d\Omega_j = U_j \quad \forall j \in R_i,
 \end{equation}
-where $R_i$ is the set of indices of neighborhoods used for reconstruction on merging neighborhood $i$.  The surface integral in \eqref{eq:fv} is evaluated using a Gaussian quadrature rule of degree $p$, where $p$ is the degree of the polynomial reconstruction.  \eqref{eq:fv} is advanced in time using a Runge-Kutta scheme of order $p+1$.
+where $R_i$ is the set of indices of neighborhoods used for reconstruction on merging neighborhood $i$.  For the Euler equations, this reconstruction is done in primitive rather than conserved variables.  The surface integral in \eqref{eq:fv} is evaluated using a Gaussian quadrature rule of degree $p$, where $p$ is the degree of the polynomial reconstruction.  \eqref{eq:fv} is advanced in time using a Runge-Kutta scheme of order $p+1$.
+
+
+
 \subsection{High-order limiting on non-coordinate aligned meshes}
 \subsubsection*{Full cells}
 Consider now the case when $p=1$
