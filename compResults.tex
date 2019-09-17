@@ -57,6 +57,54 @@ Figure
 
 \caption{Errors for the linear convergence study.}
 \end{table}
+
+\subsection{Overlapping neighborhoods}
+The purpose of this example is to demonstrate that our algorithm can handle overlapping neighborhoods. Using the streamfunction
+$$
+\phi = R - 0.25\sin(10\theta),
+$$
+with $R = \sqrt{(x-1.5)^2+(y-1.5)^2}$ and $\theta = \arctan((y-1.5)/(x-1.5))$, we define a linear flux based on the resulting divergence free velocity field, i.e.,  $\mathbf{F}(u) = [\phi_y u, -\phi_xu]$.  The characteristics of \eqref{eq:conslaw} lie on the isolines of the streamfunction.
+
+A steady state solution to \eqref{eq:conslaw} with the above flux is given by the streamline function.  Therefore, we start with the initial condition given by the streamline function $\phi$, and compute the solution until the final time $T = 10$ on a $100 \times 100$ grid.  Additionally, we set the flux normal the domain boundary $\mathbf{F}\cdot \mathbf{n} = 0$.  This is to ensure that information does not leave the domain and should solution growth occur, this will more easily be noticed.
+
+
+
+\begin{table}
+    \centering
+    \subfloat[$L_1$ errors.]{
+    \begin{tabular}{|c|c|c|c|}
+    \hline
+        $p = 0$ & $p =1$ & $p = 2$ & $p =3$  \\
+        \hline
+        3.8585e-1 & 3.6118e-2 & 8.29907e-3 & \\
+        \hline
+    \end{tabular} \label{tab:errorsteadystatel1}
+    }
+    \quad
+\subfloat[$L_\infty$ errors.]{
+    \begin{tabular}{|c|c|c|c|}
+    \hline
+        $p = 0$ & $p =1$ & $p = 2$ & $p =3$  \\
+        \hline
+        2.9470e-1 & 9.5323e-2 & 2.4851e-2 & \\
+        \hline
+    \end{tabular}
+    \label{tab:errorsteadystatelinfty}
+    }
+    
+\caption{Errors for overlapping neighborhoods study.} \label{tab:overlappingerrors}
+\end{table}
+
+\begin{figure}
+\subfloat[Isolines of exact solution at the initial and final time.]{\includegraphics[width = 0.5\linewidth]{figs/waveyiso.eps} \label{fig:waveyisolines}} 
+\quad
+\subfloat[Number of overlapping merging neighborhoods: one (blue), two (green), three (red).]{\includegraphics[width = 0.5\linewidth]{figs/waveynumhoods.eps}\label{fig:waveynumhoods}}
+\caption{Overlapping neighborhoods problem.} \label{fig:overlappingneighborhoods}
+\end{figure}
+
+In Figure \ref{fig:waveyisolines}, we show the isolines of the exact solution at the initial and final times.  Additionally, Figure \ref{fig:waveynumhoods} shows the number of overlapping neighborhoods on each cell.  In this example, we have at most three overlapping neighborhoods.  We do not observe growth in the numerical solution as indicated by $L_1$ and $L_\infty$ errors in Table \ref{tab:overlappingerrors}.  Although this experiment does not prove stability of our numerical scheme, not observing unbounded growth in the numerical solution is a necessary condition.
+
+
 \subsection{Nonlinear convergence study}
 We solve the supersonic vortex problem which describes supersonic flow through a tube.  The exact solution is given by
 $$

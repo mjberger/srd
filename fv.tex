@@ -7,13 +7,13 @@ We use the finite volume spatial discretization
 where $\mathbf{n}$ is the outward facing normal, $\mathbf{F} = \mathbf{F}^*(u_l,u_r)$ and $u_{i,j}(x,y)$ is a polynomial reconstruction of the solution on cell $i$ of the form
 \begin{equation}\label{eq:u}
 \begin{aligned}
-	    u_{i,j}(x,y) = U^n_{i} +  \sigma_{i,j,x}\frac{x- x_{i,j}}{\Delta x} +   \sigma_{i,j,y}\frac{y- y_{i,j}}{\Delta y} + \frac{1}{2} \delta_{i,j, xx}\left[ \frac{(x -  x_{i,j})^2 }{\Delta x^2} -  M_{i,xx}\right]\\
-	    + \delta_{i,j, xy}\left[ \frac{(x -  x_{i,j}) (y -  y_{i,j}) }{\Delta x \Delta y} -  M_{i,xy}\right] + \frac{1}{2} \delta_{i,j, yy}\left[ \frac{(y -  y_{i,j})^2 }{\Delta y^2} -   M_{i,yy}\right]\\
-	     + \frac{1}{6}\gamma_{i,j, xxx}\left[ \frac{(x -  x_{i,j})^3 }{\Delta x^3} -  M_{i,xxx}\right] + \frac{1}{2}\gamma_{i,j, xxy}\left[ \frac{(x -  x_{i,j})^2 (y -  y_{i,j}) }{\Delta x^2 \Delta y} -  M_{i,xxy}\right]\\
-	     + \frac{1}{2}\gamma_{i,j, xyy}\left[ \frac{(x -  x_{i,j}) (y -  y_{i,j})^2 }{\Delta x \Delta y ^2} -  M_{i,xyy}\right]+ \frac{1}{6}\gamma_{i,j, yyy}\left[ \frac{(y -  y_{i,j})^3 }{\Delta y^3} -  M_{i,yyy}\right],
+	    u_{i,j}(x,y) = U^n_{i} +  U_{i,j,x}\frac{x- x_{i,j}}{U x} +   U_{i,j,y}\frac{y- y_{i,j}}{U y} + \frac{1}{2} U_{i,j, xx}\left[ \frac{(x -  x_{i,j})^2 }{U x^2} -  M_{i,xx}\right]\\
+	    + U_{i,j, xy}\left[ \frac{(x -  x_{i,j}) (y -  y_{i,j}) }{U x U y} -  M_{i,xy}\right] + \frac{1}{2} U_{i,j, yy}\left[ \frac{(y -  y_{i,j})^2 }{U y^2} -   M_{i,yy}\right]\\
+	     + \frac{1}{6}U_{i,j, xxx}\left[ \frac{(x -  x_{i,j})^3 }{U x^3} -  M_{i,xxx}\right] + \frac{1}{2}U_{i,j, xxy}\left[ \frac{(x -  x_{i,j})^2 (y -  y_{i,j}) }{U x^2 U y} -  M_{i,xxy}\right]\\
+	     + \frac{1}{2}U_{i,j, xyy}\left[ \frac{(x -  x_{i,j}) (y -  y_{i,j})^2 }{U x U y ^2} -  M_{i,xyy}\right]+ \frac{1}{6}U_{i,j, yyy}\left[ \frac{(y -  y_{i,j})^3 }{U y^3} -  M_{i,yyy}\right],
 \end{aligned}
 \end{equation}
-and $ x_{i,j}$, $ y_{i,j}$ is the centroid of cell $i$. $\sigma_{i,j,x}$, $ \sigma_{i,j,y}$, $ \delta_{i,j,xx}$, $ \delta_{i,j,xy}$, $ \delta_{i,j,yy}$, $ \gamma_{i,j,xxx}$, $ \gamma_{i,j,xxy}$, $ \gamma_{i,j,xyy}$, $ \gamma_{i,j,yyy}$, are the first, second, and third derivatives, and $  M_{i,xx}$, $ M_{i,xy}$,  $ M_{i,yy}$ are geometric constants. We find the derivatives of the polynomial reconstruction that satisfy the following in a least squares sense
+and $ x_{i,j}$, $ y_{i,j}$ is the centroid of cell $i$. $U_{i,j,x}$, $ U_{i,j,y}$, $ U_{i,j,xx}$, $ U_{i,j,xy}$, $ U_{i,j,yy}$, $ U_{i,j,xxx}$, $ U_{i,j,xxy}$, $ U_{i,j,xyy}$, $ U_{i,j,yyy}$, are the first, second, and third derivatives, and $  M_{i,xx}$, $ M_{i,xy}$,  $ M_{i,yy}$ are geometric constants. We find the derivatives of the polynomial reconstruction that satisfy the following in a least squares sense
 \begin{equation}\label{eq:qi}
 \frac{1}{ V_j}\int_{\Omega_j} u_i(x)~d\Omega_j = U_j \quad \forall j \in R_i,
 \end{equation}
@@ -21,19 +21,4 @@ where $R_i$ is the set of indices of neighborhoods used for reconstruction on me
 
 
 
-\subsection{High-order limiting on non-coordinate aligned meshes}
-\subsubsection*{Full cells}
-Consider now the case when $p=1$
-\begin{align*}
-\tilde \sigma_{x,i,j} &= \text{minmod}(2( U^n_{i+1,j}- U^n_{i,j}), \sigma_{x,i,j}, 2( U^n_{i,j}- U^n_{i-1,j}))\\
-\tilde \sigma_{y,i,j} &= \text{minmod}(2( U^n_{i,j+1}- U^n_{i,j}), \sigma_{y,i,j}, 2( U^n_{i,j}- U^n_{i,j-1})).
-\end{align*}
-Consider now the case when $p=2$
-\begin{align*}
-\tilde \delta_{i,j,xx} &= \text{minmod}(2( \sigma_{i+1,j,x}- \sigma_{i,j,x}), \delta_{i,j,xx}, 2( \sigma_{i,j,x}- \sigma_{i-1,j,x}))\\
-\tilde \delta_{i,j,xy} &= \text{minmod}(2( \sigma_{i,j+1,x}- \sigma_{i,j,x}),2( \sigma_{i+1,j,y}- \sigma_{i,j,y}), \delta_{i,j,xy}, 2( \sigma_{i,j,x}- \sigma_{i,j-1,x}),2( \sigma_{i,j,y}- \sigma_{i-1,j,y}))\\
-\tilde \delta_{i,j,yy} &= \text{minmod}(2( \sigma_{i,j+1,y}- \sigma_{i,j,y}), \delta_{i,j,yy}, 2( \sigma_{i,j,y}- \sigma_{i,j-1,y}))
-\end{align*}
-
-\subsubsection*{Cut cells}
 
