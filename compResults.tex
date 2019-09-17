@@ -76,7 +76,7 @@ A steady state solution to \eqref{eq:conslaw} with the above flux is given by th
     \hline
         $p = 0$ & $p =1$ & $p = 2$ & $p =3$  \\
         \hline
-        3.8585e-1 & 3.6118e-2 & 8.29907e-3 & \\
+        3.8585e-1 & 3.6118e-2 & 8.29907e-3 & 4.3116e-3\\
         \hline
     \end{tabular} \label{tab:errorsteadystatel1}
     }
@@ -86,7 +86,7 @@ A steady state solution to \eqref{eq:conslaw} with the above flux is given by th
     \hline
         $p = 0$ & $p =1$ & $p = 2$ & $p =3$  \\
         \hline
-        2.9470e-1 & 9.5323e-2 & 2.4851e-2 & \\
+        2.9470e-1 & 9.5323e-2 & 2.4851e-2 &  5.4720e-3 \\
         \hline
     \end{tabular}
     \label{tab:errorsteadystatelinfty}
@@ -102,7 +102,7 @@ A steady state solution to \eqref{eq:conslaw} with the above flux is given by th
 \caption{Overlapping neighborhoods problem.} \label{fig:overlappingneighborhoods}
 \end{figure}
 
-In Figure \ref{fig:waveyisolines}, we show the isolines of the exact solution at the initial and final times.  Additionally, Figure \ref{fig:waveynumhoods} shows the number of overlapping neighborhoods on each cell.  In this example, we have at most three overlapping neighborhoods.  We do not observe growth in the numerical solution as indicated by $L_1$ and $L_\infty$ errors in Table \ref{tab:overlappingerrors}.  Although this experiment does not prove stability of our numerical scheme, not observing unbounded growth in the numerical solution is a necessary condition.
+In Figure \ref{fig:waveyisolines}, we show the isolines of the exact solution at the initial and final times.  Additionally, Figure \ref{fig:waveynumhoods} shows the number of overlapping neighborhoods on each cell.  In this example, we have at most three overlapping neighborhoods.  They are concentrated where the boundary has high curvature.   We do not observe growth in the numerical solution as indicated by $L_1$ and $L_\infty$ errors of the solution at the final time listed in Table \ref{tab:overlappingerrors}.  Although this experiment does not prove stability of our numerical scheme, not observing unbounded growth in the numerical solution is a necessary condition.
 
 
 \subsection{Nonlinear convergence study}
