@@ -1,4 +1,4 @@
-\section{Computational Results}\label{compResults}
+\section{Computational Results}\label{sec:compResults}
 \begin{equation} \label{eq:conslaw}
    \frac{\partial}{\partial t} \mathbf{u} + \nabla \cdot \mathbf{F} = 0
 \end{equation}
@@ -69,7 +69,7 @@ A steady state solution to \eqref{eq:conslaw} with the above flux is given by th
 
 
 
-\begin{table}
+\begin{table}[h]
     \centering
     \subfloat[$L_1$ errors.]{
     \begin{tabular}{|c|c|c|c|}
@@ -95,18 +95,26 @@ A steady state solution to \eqref{eq:conslaw} with the above flux is given by th
 \caption{Errors for overlapping neighborhoods study.} \label{tab:overlappingerrors}
 \end{table}
 
-\begin{figure}
-\subfloat[Isolines of exact solution at the initial and final time.]{\includegraphics[width = 0.5\linewidth]{figs/waveyiso.eps} \label{fig:waveyisolines}} 
-\quad
-\subfloat[Number of overlapping merging neighborhoods: one (blue), two (green), three (red).]{\includegraphics[width = 0.5\linewidth]{figs/waveynumhoods.eps}\label{fig:waveynumhoods}}
-\caption{Overlapping neighborhoods problem.} \label{fig:overlappingneighborhoods}
+\begin{figure}[h]
+%\subfloat[Isolines of exact solution at the initial and final time.]{\includegraphics[width = 0.5\linewidth]{figs/waveyiso.eps} \label{fig:waveyisolines}} 
+%\subfloat[Isolines of exact solution at the initial and final time.]{\includegraphics[width = 0.5\linewidth]{figs/waveyiso.eps} \label{fig:waveyisolines}} 
+%\quad
+%\subfloat[Number of overlapping merging neighborhoods: one (blue), two (green), three (red).]{\includegraphics[width = 0.5\linewidth]{figs/waveynumhoods.eps}\label{fig:waveynumhoods}}
+\includegraphics[width = 0.6\linewidth]{figs/waveyiso.eps} 
+%\subfloat[Isolines of exact solution at the initial and final time.]{\includegraphics[width = 0.5\linewidth]{figs/waveyiso.eps} \label{fig:waveyisolines}} 
+\caption{Isolines of exact solution at the initial and final time for
+the wavy domain with overlapping neighborhoods.} 
+\label{fig:overlappingneighborhoods}
+\label{fig:waveyisolines}} 
 \end{figure}
 
 In Figure \ref{fig:waveyisolines}, we show the isolines of the exact solution at the initial and final times.  Additionally, Figure \ref{fig:waveynumhoods} shows the number of overlapping neighborhoods on each cell.  In this example, we have at most three overlapping neighborhoods.  They are concentrated where the boundary has high curvature.   We do not observe growth in the numerical solution as indicated by $L_1$ and $L_\infty$ errors of the solution at the final time listed in Table \ref{tab:overlappingerrors}.  Although this experiment does not prove stability of our numerical scheme, not observing unbounded growth in the numerical solution is a necessary condition.
 
 
 \subsection{Nonlinear convergence study}
-We solve the supersonic vortex problem which describes supersonic flow through a tube.  The exact solution is given by
+We solve the supersonic vortex problem which describes supersonic flow 
+through a tube.  This problem has often been used in accuracy studies
+because it has an exact solution \cite{aftosmis:acc}, given by 
 $$
 \begin{pmatrix}
 \rho\\
@@ -120,7 +128,13 @@ p
 \frac{1}{\gamma}\rho^{\gamma}
 \end{pmatrix},
 $$
-where $r = \sqrt{x^2+y^2}$.  The exact solution is applied to the inflow and outflow, i.e., the horizontal and vertical boundaries.  High-order reflecting boundary conditions are used on the curved boundaries.  The simulation is run until numerical convergence, i.e., 
+where $r = \sqrt{x^2+y^2}$.  The exact solution is applied to the inflow 
+and outflow, i.e., the horizontal and vertical boundaries.  
+High-order reflecting boundary conditions are used on the curved
+boundaries as in \cite{}, even though  the  actual embedded boudnary is
+represented by a linear segment in each cut cell.  
+
+The simulation is run until a steady state is reached, defined by 
 $$
 \max_{i,j}|U^{n+1}_{i,j}-U^{n}_{i,j}| < 10^{-10}.
 $$
@@ -181,6 +195,8 @@ The $L_1$ and $L_\infty$ errors are given in Table \ref{tab:ex2_L1} and \ref{tab
     \end{tabular}
     }
 \quad
+\vspace*{.2in}
+
 \subfloat[$L_\infty$ errors. \label{tab:ex2_Linf}]{
     \begin{tabular}{|c|c|c|c|c|}
         \hline
@@ -199,4 +215,7 @@ The $L_1$ and $L_\infty$ errors are given in Table \ref{tab:ex2_L1} and \ref{tab
 
 \caption{Errors for the nonlinear convergence study.}
 \end{table}
-\subsection{Double Mach reflection problem}
+
+NEED TO COMPARE TO OTHER ANSWERS, MAYBE INCLUDE  ERROR PLOT
+
+\subsection{Double Mach Reflection problem}

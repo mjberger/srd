@@ -1,0 +1,110 @@
+\section{Higher-Order State Redistribution Algorithm}\label{sec:ho}
+
+The higher order version is essentially the same as the second order
+version, but with a larger stencil so a higher order polynomial can be
+reconstructed for each merging neighborhood. Of course, the base method
+has to be higher order too. We use a 3rd order TVD Runge Kutta scheme
+for the base method.  The spatial accuracy is improved by using a
+quadratic or cubic reconstruction, taking care to translate
+accurately between conservtive and primitive variables.  Higher
+order polynomials are also used for reconstruction on the merged cells. 
+The stability limit for the 3rd order TVD Runge-Kutta scheme with
+quadratic reconstruction is
+\begin{equation}
+ANDREW - What is it?
+\end{equation}
+Again this is fairly standard, so we go right
+to the description of the higher-order SRD algorithm.
+
+\begin{enumerate}
+\item 
+\textbf{Compute the solution average on each merging tile}
+
+This step is the same as the second order case.
+Again using $\bar{U}_k$ to represent the provisionally updated 
+solution after one step or stage, form merged solutions 
+\begin{equation}\label{eq:q_avg1}
+     \widehat{Q}_{ij} =  \frac{1}{ V_m}_{ij} \, \sum_{k \in
+     M_i}\frac{V_k}{N_k} \bar U_k.
+\end{equation}
+\noindent where $M_i$ is again the set of indices of cells in the 
+merging neighborhood, and the volume of the merged tile 
+\begin{equation}\label{eq:modV}
+{V_m}_{ij} = \sum_{k \in M_i}\frac{V_k}{N_k} .
+\end{equation}
+
+\item \textbf{Determine a polynomial reconstruction $\hat q_i(x)$ on 
+each merging tile of the form}
+\begin{equation}\label{eq:q}
+\begin{aligned}
+    \hat q_(x,y) = \hat Q_{m} + \hat \sigma_{m,x}\frac{x-\hat x_m}{\Delta x} +  \hat \sigma_{m,y}\frac{y-\hat y_m}{\Delta y} + \frac{1}{2}\hat \delta_{m, xx}\left[ \frac{(x - \hat x_m)^2 }{\Delta x^2} - \hat S_{m,xx}\right]\\
+	    +\hat \delta_{m, xy}\left[ \frac{(x - \hat x_m) (y - \hat y_m) }{\Delta x \Delta y} - \hat S_{m,xy}\right] + \frac{1}{2}\hat \delta_{m, yy}\left[ \frac{(y - \hat y_m)^2 }{\Delta y^2} -  \hat S_{m,yy}\right]\\
+	    + \frac{1}{6}\hat\gamma_{m, xxx}\left[ \frac{(x -  \hat x_m)^3 }{\Delta x^3} -  \hat S_{m,xxx}\right] + \frac{1}{2}\hat \gamma_{m, xxy}\left[ \frac{(x - \hat x_m)^2 (y -  \hat y_m) }{\Delta x^2 \Delta y} -  \hat S_{m,xxy}\right]\\
+	     + \frac{1}{2}\hat \gamma_{m, xyy}\left[ \frac{(x -  \hat x_m) (y -  \hat y_m)^2 }{\Delta x \Delta y ^2} -  \hat S_{m,xyy}\right]+ \frac{1}{6}\hat \gamma_{m, yyy}\left[ \frac{(y -  \hat y_m)^3 }{\Delta y^3} -  \hat S_{m,yyy}\right],
+\end{aligned}
+\end{equation}
+$\hat x_m$, $\hat y_m$ is the weighted centroid of the merging
+neighborhood for cell $i,j$. 
+The $\hat \sigma_{m,x}$, $\hat \sigma_{m,y}$, $\hat \delta_{m,xx}$, 
+$\hat \delta_{m,xy}$, $\hat \delta_{m,yy}$, $ \hat \gamma_{m,xxx}$, 
+$\hat  \gamma_{m,xxy}$, $\hat  \gamma_{m,xyy}$, $\hat  \gamma_{m,yyy}$ 
+are the first, second, and third derivatives. 
+The $ \hat S_{m,xx}$, $\hat S_{m,xy}$,  $\hat S_{m,yy}$ are geometric
+constants that make it easier to maintain conservation when written in
+this form.  The reconstruction satisfies
+\begin{equation}\label{eq:qi}
+\frac{1}{V_m}\sum_{k \in M_j}\frac{1}{N_k}\int_{\Omega_k} \hat q_i(x)~d\Omega_k = \hat Q_j \quad \forall j \in R_i,
+\end{equation}
+where $R_i$ is the set of indices of neighborhoods used for reconstruction 
+on merging neighborhood $i$ of the form
+
+
+\item \textbf{Set the final solution at time $t^{n+1}$}
+	\begin{equation}\label{eq:final_update}
+	U^{n+1}_i =  \frac{1}{V_i}\sum_{k \in M_{i}}\frac{1}{N_i}\int_{\Omega_i} \hat q_k(x)~d\Omega_i,
+	\end{equation}
+	where $M_i$ is a set of merging tile indices to which cell $i$ belongs.
+\end{enumerate}
+
+\subsection{Limiting on merging neighborhoods}
+
+
+\subsection{Conservation}\label{sec:cons}
+The total mass of the numerical solution at $t^{n+1}$ is
+\begin{equation}\label{eq:total_mass}
+\mathcal{M}^{n+1} = \sum^N_{i=1} h_i U^{n+1}_i.
+\end{equation}
+From the general form of the state redistribution algorithm 
+in \eqref{eqn:final_update}, 
+this can also be written as a sum of mass contributions from each 
+merging neighborhood, i.e.,
+\begin{equation}\label{eq:total_mass2}
+\mathcal{M}^{n+1} = \sum^N_{i=1} \hat{\mathcal{M}}_i,
+\end{equation}
+where the mass contribution of merging neighborhood $i$ is
+\begin{equation}\label{eq:mi}
+\hat{\mathcal{M}}_i = \sum_{k \in M_i}\frac{1}{N_k} \int_{\Omega_k}\hat q_i(x) ~d\Omega_k,
+\end{equation}
+and $\hat q_i(x)$ is that neighborhood's polynomial reconstruction.  
+From \eqref{eq:qi}, \eqref{eq:mi} becomes
+\begin{equation}\label{eq:mi1}
+\hat{\mathcal{M}}_i = \hat Q_i \hat V_i.
+\end{equation}
+% \subsection{First order algorithm}
+% When $\hat q_i(x)$ is constant, i.e. $\hat q_i(x) = \hat Q_i$ by \eqref{eq:q_avg} and Step 2 in Section \ref{sec:first_order}, \eqref{eq:mi} becomes 
+% Substituting \eqref{eq:mi} into \eqref{eq:total_mass2}, we have
+% \begin{equation}\label{eq:mi1}
+% \hat{\mathcal{M}}_i = \hat Q_i \hat V_i.
+% \end{equation}
+% by \eqref{eq:q_avg} in the first order algorithm, by \eqref{eq:pq2} in the second order algorithm, and by \eqref{eq:q2} in the third order algorithm.
+From \eqref{eq:modV} and \eqref{eq:q_avg1}, \eqref{eq:mi1} becomes
+\begin{equation}\label{eq:mi2}
+\hat{\mathcal{M}}_i = \sum^{M_i}_{k = m_i}\frac{h_k}{N_k} \hat U_{k}.
+\end{equation}
+Substituting \eqref{eq:mi2} into \eqref{eq:total_mass2}, the mass at $t^{n+1}$ is
+$$
+\mathcal{M}^{n+1} = \sum^{N}_{i=1} h_i \hat U_i,
+$$
+which shows that $\mathcal{M}^{n+1}  = \mathcal{M}^{n} $.
+
+	

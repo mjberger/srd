@@ -1,56 +1,270 @@
-<<<<<<< HEAD
-\section{The State Redistribution Algorithm}\label{srdAlg}
-<<<<<<< HEAD
-=======
-=======
 \section{The State Redistribution Algorithm}\label{sec:srdAlg}
->>>>>>> b56ddf51a1e77aced7bd621a22b38006d4f11237
-\begin{enumerate}[label=Step \arabic*:]
-    \item \textit{Compute one forward Euler update}
-    \begin{equation} 
-    \hat{U}_i = U^n_i - \frac{\Delta t}{h_i}\sum \int_{\partial \Omega_{i,j}} \mathbf{F}_{i,j} \cdot \mathbf{n}_{i,j}~dl,\label{eq:scheme}
-    \end{equation}
-	\item \textit{Compute the solution average on each merging tile}
-	\begin{equation}\label{eq:q_avg1}
-	    \hat Q_i =  \frac{1}{\hat V_i}\sum_{k \in M_i}\frac{h_k}{N_k} \hat U_k.
-	\end{equation}
-	where $M_i$ is the set of indices of cells in the merging neighborhood $i$, 
-	\begin{equation}\label{eq:modV}
-	\hat V_i = \sum_{k \in M_i}\frac{h_k}{N_k}
-	\end{equation}
-\item \textit{Determine a polynomial reconstruction $\hat q_i(x)$ on each merging tile of the form}
-\begin{equation}\label{eq:q}
-\begin{aligned}
-	    \hat q_i(x,y) = \hat Q_{i} + \hat \sigma_{i,x}\frac{x-\hat x_i}{\Delta x} +  \hat \sigma_{i,y}\frac{y-\hat y_i}{\Delta y} + \frac{1}{2}\hat \delta_{i, xx}\left[ \frac{(x - \hat x_i)^2 }{\Delta x^2} - \hat M_{i,xx}\right]\\
-	    +\hat \delta_{i, xy}\left[ \frac{(x - \hat x_i) (y - \hat y_i) }{\Delta x \Delta y} - \hat M_{i,xy}\right] + \frac{1}{2}\hat \delta_{i, yy}\left[ \frac{(y - \hat y_i)^2 }{\Delta y^2} -  \hat M_{i,yy}\right]\\
-	    + \frac{1}{6}\hat\gamma_{i, xxx}\left[ \frac{(x -  \hat x_i)^3 }{\Delta x^3} -  \hat M_{i,xxx}\right] + \frac{1}{2}\hat \gamma_{i, xxy}\left[ \frac{(x - \hat x_i)^2 (y -  \hat y_i) }{\Delta x^2 \Delta y} -  \hat M_{i,xxy}\right]\\
-	     + \frac{1}{2}\hat \gamma_{i, xyy}\left[ \frac{(x -  \hat x_i) (y -  \hat y_i)^2 }{\Delta x \Delta y ^2} -  \hat M_{i,xyy}\right]+ \frac{1}{6}\hat \gamma_{i, yyy}\left[ \frac{(y -  \hat y_i)^3 }{\Delta y^3} -  \hat M_{i,yyy}\right],
-\end{aligned}
+
+In this section we describe only the second order accurate version of the State
+Redistribution Algorithm. 
+This helps simplify the notation and make the
+algorithm more intuitive.   
+At several places there are choices
+to make, and we discuss the alternatives and the reason behind our
+choices.  Since the postprocessing step comes after the finite
+volume update step, we begin this section by briefly reviewing the 
+two methods that SRD is applied to.  
+
+\subsection{The Base  Finite Volume Schemes}
+
+Our computational results will use two different finite volume schemes
+to update the Cartesian cut cell mesh.
+We will refer to these at the base schemes. 
+The  update is applied to the entire mesh, including  
+to the small cut cells.  Since cut cells can have cell volumes that are
+orders of magnitude smaller than the time step allowed by the full
+cells, these will lead to instability without a stabilization algorithm.
+SRD will be applied after each stage or step of the base scheme.
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=2.8in]{figs/2dfig.pdf}
+\caption{\sf Notation for mesh in two space dimensions. The cells shaded
+in yellow are the cut cells.} 
+\label{fig:2dfig}
+\end{center}
+\end{figure}
+
+\subsubsection{Method of Lines approach}
+The simplest scheme is to use a spatial discretization over the entire
+mesh, and apply a Runge-Kutta scheme in time. This is a well-known
+standard approach
+on regular Cartesian meshes. It is adapted for the cut cells by
+using a least squares reconstruction of the gradient that includes
+either edge and node neighbors (unless otherwise specified).
+Limiting is done using the Barth-Jespersen limiter \cite{} 
+on the cut cells and one adjacent neighbors. Any limiter
+can be used for the regular cells.
+
+The spatial reconstruction in the cut cells is no longer
+coordinate-aligned, and is modified
+to include both $x$ and $y$ components of the gradient to 
+reconstruct to the midpoint of the cell edge. This is indicated 
+in figure \ref{fig:2dfig}  with a green `x'.
+The SRD stabilization scheme is applied after each stage of
+the Runge-Kutta scheme. 
+Note that for stability, the TVD limit for the Euler equations using
+this scheme is  (AG -
+TRUE?)
+\begin{equation}
+\Delta t \,  \max\{\frac{u+c}{hx},\frac{v+c}{hy}\} < 0.5 
 \end{equation}
-$\hat x_i$, $\hat y_i$ is the weighted centroid of merging neighborhood $i$. $\hat \sigma_{i,x}$, $\hat \sigma_{i,y}$, $\hat \delta_{i,xx}$, $\hat \delta_{i,xy}$, $\hat \delta_{i,yy}$, $ \hat \gamma_{i,xxx}$, $\hat  \gamma_{i,xxy}$, $\hat  \gamma_{i,xyy}$, $\hat  \gamma_{i,yyy}$ are the first, second, and third derivatives, and $ \hat M_{i,xx}$, $\hat M_{i,xy}$,  $\hat M_{i,yy}$ are geometric constants.  The reconstruction satisfies
-\begin{equation}\label{eq:qi}
-\frac{1}{\hat V_j}\sum_{k \in M_j}\frac{1}{N_k}\int_{\Omega_k} \hat q_i(x)~d\Omega_k = \hat Q_j \quad \forall j \in R_i,
-\end{equation}
-where $R_i$ is the set of indices of neighborhoods used for reconstruction on merging neighborhood $i$ of the form
 
 
-\item \textit{Set the solution averages at $t^{n+1}$}
-	\begin{equation}\label{eq:final_update}
-	U^{n+1}_i =  \frac{1}{h_i}\sum_{k \in M_{i}}\frac{1}{N_i}\int_{\Omega_i} \hat q_k(x)~d\Omega_i,
-	\end{equation}
-	where $M_i$ is a set of merging tile indices to which cell $i$ belongs.
+\subsubsection{MUSCL scheme}
+The MUSCL scheme is a one step method that is second order accurate in
+time. The series of MUSCL schemes  was originated by van Leer 
+\cite{vanleer:muscl}. The version we use 
+is due to Colella \cite{Colella:Unsplit}.\footnote{Thanks to Phil 
+Colella for the original Cartesian mesh code as well}.
+We adapted it to cut cells by turning off the corner coupling 
+This is the term that brings in the transverse derivatives. For example,
+when computing the flux $f_{i+1/2,j}$ at time $t_{n+1/2}$, the 
+term $ 1/2 \, \Delta t/\Delta y \, \partial G / \partial y$
+appears.
+(SAY MORE OR LEAVE WITH JUST REFERENCE)
+On a regular mesh in  two space dimensions this term allows a
+full stable timestep of 
+\begin{equation}
+\Delta t \,  \max\{\frac{u+c}{hx},\frac{v+c}{hy}\} < 1
+\end{equation}
+Without these terms the time step is reduced to 
+\begin{equation}
+\Delta t \, \left (\frac{u+c}{hx} + \frac{v+c}{hy} \right) < 1
+\end{equation}
+which could be as small as half the larger limit.
+However, as shown in \cite{mjb:stability2} for one space dimension, 
+boundary cells can have
+a local {\em cfl} number that is up to twice the stable {\em cfl} of the regular
+mesh and the overall scheme remains stable. So we are not concerned
+about dropping this term only in the cut cells, and have observed no
+stability problems. This does affect the accuracy in the cut cells
+though. 
+
+We also modified the prediction of the interface values to reconstruct
+to the midpoint of the cell edges, and
+modified the gradient in the cut cells to use a least squares routine.
+ACCURACY OF THIS?
+Other adaptations of MUSCL for cut cells are certainly possible and
+worth investigating, but that is not the focus of this work.
+
+
+\subsection{The State Redistribution Algorithm}
+
+We first define two quantities associated with each cell of the mesh:
+
+\begin{itemize}
+\item
+{\bf Each cut cell finds adjacent cells to {\em temporarily} merge with.}
+
+\vspace*{.1in}
+For each cut cell in the mesh, find  one or more neighbors until the
+volume of the temporararily merged cell is at least $0.5 \, dx \,  dy $,
+that is, at least half the area of an uncut cell. We call this the 
+{\em  merging neighborhood} or {\em merging tile}.  We look first in the
+most normal direction to the cut cell boundary. If the neighboring cell 
+is also cut, it can happen that the
+merged cell is not sufficiently large (SHOW EXAMPLE?). 
+Next we try a 2 by 2
+neighborhood, including the original cut cell. Later we also show
+results using a 3 by 3 neighborhoods. However the larger the
+neighborhood the more diffusive the results.
+
+Note that this does not have the difficulty of cell merging, since 
+overlapping neighborhoods are allowed. 
+
+\item
+{\bf Each cell counts how many neighborhoods it is a part of.}
+
+\vspace*{.1in}
+A full cell is its own merging neighborhood, since it has sufficient
+volume all by itself. However we will still refer to all cells as having a
+merging neighborhood for ease of presentation.  Note that a full cell
+can be part of 2 or more merging tiles if it is placed next to 
+several tiny cut cells. An example is shown in
+figure \ref{fig:2nborTile}. The cells in green are part of two
+neighborhoods, and those in red are part of three.   
+This is the neighborhood {\em count} for each cell. Most full
+cells are only members of their own tile and will have a count of one.
+Only cells within a narrow band of the cut cells will have a count
+larger than one.
+
+\end{itemize}
+
+\begin{figure}[h!]
+\begin{center}
+\includegraphics[width=4.1in]{figs/wavyfig.pdf}
+\caption{\sf Domain from example XX.  Figure shows how many
+neighborhoods each cell belongs to: 
+one (blue), 2 (green), or 3 (red).
+The full example is shown in section \ref{sec:compResults}.}
+\label{fig:2nborTile}
+\end{center}
+\end{figure}
+
+The two steps above can be part of a preprocessing step, since they do not
+depend on the computed solution. For moving geometry however they would
+be done at each step.
+
+Using the merging tiles and the cell counts, the state redistribution
+algorithm is as follows:
+
+%\begin{enumerate}[label=Step \arabic*:,leftmargin=2\parindent]
+\begin{enumerate}
+\item
+{\bf Compute the volume-weighted and count-weighted solution for all
+merged tiles.}   
+
+\vspace*{.1in}
+The contribution of each cell is divided by the number of neighborhoods 
+it is part of (i.e. its count). The notation in this section refers
+to cut cell $i,j$, with solution $U_{i,j}$ and volume
+$V_{i,j}$. 
+The provisionally update solution before the
+stabilization algorithm is applied is $\hat{U}_{ij}$.
+There will now be many temporary merging neighborhoods which 
+we denote as $\widehat{Q}_{i,j}$. 
+Let $M_{ij}$ denote the set of cell indices in the cell $(i,j)$ merging
+neighborhood.  Then
+\begin{equation}
+\label{tiledef}
+\widehat{Q}_{i,j} =  \frac{1}{V_m} \, \sum_{k \in M_i} \,  
+\frac{V_k}{N_k}  \,\,  \bar{U}_k
+\end{equation}
+where the volume ${V_m}_{ij}$ is the merging tile volume similarly weighted,
+\begin{equation}
+\label{voldef}
+{V_m}_{ij}  =  \sum_{k \in M_i } \,  \frac{V_k}{N_k}  .
+\end{equation}
+
+In other words, the contributions from each cell are weighted by the
+number of neighborhoods they contribute to.
+In the above equations, $k$ is  a multi-index ranging over the neighbors 
+of cell $i,j$ included in its merging tile.
+Note that most full cells will have ${V_m}_{ij} = V_{i,j}$, 
+and $\widehat{Q}_{ij}  = \bar{U}_{i,j}$.
+
+
+
+
+
+\item
+{\bf Compute a (limited) gradient and weighted centroid for each merging
+tile.}
+
+\vspace*{.1in}
+For cut cells, a least squares procedure  similar to the one used for
+the finite volume update is an obvious choice. However instead of using the
+solution $U_{i,j}$ on the Cartesian mesh at time $t_n$,
+the merged tile solution  $\widehat{Q}_{i,j}$ is used. It is important
+to note that the centroid of the merged tile is NOT the 
+centroid of cell ${i,j}$. It could happen, as in figure \ref{fig:
+2nborTile} that the centroids are too close to each other to compute a
+gradient in the normal direction. If the centroid are not at least
+$0.5\,dx$  and $0.5\,dy$ apart in $x$ and $y$ then we increase the
+stencil size for the gradient computation TO WHAT. OR DO WE ALWAYS USE a
+3by3 NHOOD FOR GRADIENTS?
+The same neighborhood that is used for computing the gradient can be
+used to limit the gradient to prevent overshoots.
+The centroid is computed using the same weighting by number of
+neighborhoods as when the volume was computed. (IS THIS TRUE AND IS IT
+NECESSARY) NEED DISCUSSION OF NOT A REAL CENTROID
+
+For most full cells with a count of one, the normal gradient
+computation as done in the finite volume update will suffice.
+
+\item
+{\bf Replace the provisionally computed cut cell values and their adjacent
+full cell neighbors with  the contributions from the merged tiles.} 
+
+\vspace*{.1in}
+To use the example of figure \ref{fig:2nborTile}, the cut cell value
+\begin{equation}
+   U_{i,j}^{n+1} := \widehat{Q}_{ij} 
+   + (x_m - x_{i,j}) \, \frac{\partial \widehat{Q}_{ij}}{\partial x} 
+   + (y_m - y_{i,j}) \, \frac{\partial \widehat{Q}_{ij}}{\partial y}
+\end{equation}
+since cell ${i,j}$ only belongs to one neighborhood. The adjacent full cell
+on the other hand belongs to two neighborhoods -- the one it shares with
+the cut cell $i,j$ , and its own merging neighborhood.
+So its solution at time $t_{n+1}$  becomes
+\begin{equation}
+\label{eqn:numhood2ex}
+\begin{split}
+   U_{i,j+1}^{n+1} \,=\, & \frac{1}{2} \times \left
+   (\widehat{Q}_{ij} 
+   + (x_m - x_{i,j+1}) \, \frac{\partial \widehat{Q}_{ij}}{\partial x} 
+   + (y_m - y_{i,j+1}) \, \frac{\partial \widehat{Q}_{ij}}{\partial y} \right ) \, + \\
+    & \frac{1}{2} \times \widehat{Q}_{i,j+1} .
+\end{split}
+\end{equation}
+The last term  in eq. \eqref{eqn:numhood2ex} has no gradient terms because the
+centroids of the original cell and merged cell are identical.
+The fraction $\frac{1}{2}$ is because cell $(i,j+1)$ is part of  two
+neighborhoods, so each contributes half of the solution.
+
 \end{enumerate}
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-	
->>>>>>> 24c148c2036f79f1e4abeafe2870a359216dcb34
-=======
-=======
-\subsection{Limiting on merging neighborhoods}
->>>>>>> 4fdf4847e6b3d0f7475f597ac4b20f9254d9dcc3
+Different choices of neighborhoods, the minimum volume for the merging
+neighborhood, gradient neighborhoods, and limiting will give
+somewhat different computational results. Some of these will be examined
+theoretically using model problems in one space dimension in section
+\ref{sec:theory}. These choices can affect the stability limit of the
+overall method.
+We will also show computational results using different neighborhood
+choices in section \ref{sec:compResults} in two space dimensions.
 
+The conservation properties of the algorithm will be discussed after the
+higher order SRD algorithm is presented in the next
+section (PR PUT IT HERE). It will also be prseented more generally.   
+OTHER THINGS HERE? DEMONSTRATE LINEARLY EXACT SECOND ORDER CONVERGENCE
+HERE INSTEAD OF COMPRESULTS SECTION?
 
-
-	
->>>>>>> b56ddf51a1e77aced7bd621a22b38006d4f11237
+SOMEHWERE PUT IMPLEMENTATION SUBSECTION OR AT LEAST A PARAGRAPH
+TO NOTE THAT THE CELL DOESNT KNOW WHO GIVES TO
+IT, SO THIS LOOP IS OVER GIVERS  NOT RECEIVERS.
