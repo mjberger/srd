@@ -104,35 +104,67 @@ We first define two quantities associated with each cell of the mesh:
 
 \vspace*{.1in}
 For each cut cell in the mesh, find  one or more neighbors until the
-volume of the temporararily merged cell is at least $0.5 \, dx \,  dy $,
-that is, at least half the area of an uncut cell. We call this the 
-{\em  merging neighborhood} or {\em merging tile}.  We look first in the
-most normal direction to the cut cell boundary. If the neighboring cell 
-is also cut, it can happen that the
-merged cell is not sufficiently large (SHOW EXAMPLE?). 
-Next we try a 2 by 2
-neighborhood, including the original cut cell. Later we also show
-results using a 3 by 3 neighborhoods. However the larger the
-neighborhood the more diffusive the results.
+volume of the temporarily merged cell, $V_{\text{merge}}$, is at least half the area of an uncut cell, i.e., 
+\begin{equation} \label{eq:vmerge}
+V_{\text{merge}} \geq \frac{1}{2}\Delta x\Delta y.
+\end{equation}
+We call this the 
+{\em  merging neighborhood} or {\em merging tile}.  
+A small cell can be merged with cells in the direction closest to the boundary normal (Figure \ref{fig:neighborhoods}, left), or with all cells that are at most e.g. one cell away, that is, cells located on the $3 \times 3$ tile centered at the small cell (Figure \ref{fig:neighborhoods}, right).
+The larger the neighborhood the more diffusive the results, therefore we use the normal neighborhood everywhere possible.
+There are instances where the normal neighborhood cannot be used, e.g., if a neighboring cell is also cut and the
+merging neighborhood is not sufficiently large (Figure \ref{fig:normalneighborhood}).  In this case, we must merge with cells on the $3\times3$ tile (Figure \ref{fig:3x3neighborhood}), or, if that merging neighborhood is not large enough, with cells on the $5 \times 5$ tile.
 
-Note that this does not have the difficulty of cell merging, since 
-overlapping neighborhoods are allowed. 
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\linewidth]{figs/neighborhoods.pdf}
+    \caption{On the left, a small cell is merged with a cell in the direction normal the wall.  On the right, a small cell is merged with neighbors that are at most one cell away, i.e., cells located on the $3\times3$ tile.}
+    \label{fig:neighborhoods}
+\end{figure}
+
+\begin{figure}
+	\subfloat[Normal neighborhood (in red) for both small cells.]{\includegraphics[width=.45\textwidth]{figs/normaldirection1.pdf} \label{fig:normalneighborhood}}
+	\hfill
+	\subfloat[$3\times 3$ merging neighborhood for both small cells.]{\includegraphics[width=.45\textwidth]{figs/normaldirection2.pdf} \label{fig:3x3neighborhood}}
+	\caption{Sometimes, the normal neighborhood is not large enough if a small cell merges with another small cell.  In this case, we use the $3\times 3$ tile, or $5\times5$ neighborhood until the volume constraint \eqref{eq:vmerge} is satisfied.}
+\end{figure}
+% If the neighboring cell 
+% is also cut, it can happen that the
+% merged cell is not sufficiently large (SHOW EXAMPLE?). 
+% Next we try a 2 by 2
+% neighborhood, including the original cut cell. Later we also show
+% results using a 3 by 3 neighborhoods. However the larger the
+% neighborhood the more diffusive the results.
+
+% Note that this does not have the difficulty of cell merging, since 
+% overlapping neighborhoods are allowed. 
 
 \item
 {\bf Each cell counts how many neighborhoods it is a part of.}
 
 \vspace*{.1in}
 A full cell is its own merging neighborhood, since it has sufficient
-volume all by itself. However we will still refer to all cells as having a
-merging neighborhood for ease of presentation.  Note that a full cell
-can be part of 2 or more merging tiles if it is placed next to 
+volume all by itself. However, we will still refer to all cells as having a
+merging neighborhood for ease of presentation.  In figure \ref{fig:overlappingneighs}, we provide an example cut cell mesh with all merging neighborhoods plotted.  We also display the number of overlapping neighborhoods on a cell, this is the neighborhood {\em count} for each cell.
+\begin{figure}
+	\subfloat[]{\includegraphics[width=.24\textwidth]{figs/numoverlaps1.pdf} \label{fig:numoverlaps1}}
+	\hfill
+	\subfloat[]{\includegraphics[width=.24\textwidth]{figs/numoverlaps2.pdf} \label{fig:numoverlaps2}}
+	\subfloat[]{\includegraphics[width=.24\textwidth]{figs/numoverlaps3.pdf} \label{fig:numoverlaps3}}
+	\subfloat[]{\includegraphics[width=.24\textwidth]{figs/numoverlaps5.pdf} \label{fig:numoverlaps4}}
+	\caption{All merging neighborhoods on an example cut cell mesh (in green).  We display the number of overlapping merging neighborhoods on each cell.} \label{fig:overlappingneighs}
+\end{figure}
+Note that a full cell
+can be part of two or more merging tiles if it is placed next to 
 several tiny cut cells. An example is shown in
 figure \ref{fig:2nborTile}. The cells in green are part of two
 neighborhoods, and those in red are part of three.   
-This is the neighborhood {\em count} for each cell. Most full
+ Most full
 cells are only members of their own tile and will have a count of one.
 Only cells within a narrow band of the cut cells will have a count
 larger than one.
+
+
 
 \end{itemize}
 
@@ -174,7 +206,7 @@ neighborhood.  Then
 \begin{equation}
 \label{tiledef}
 \widehat{Q}_{i,j} =  \frac{1}{V_m} \, \sum_{k \in M_i} \,  
-\frac{V_k}{N_k}  \,\,  \bar{U}_k
+\frac{V_k}{N_k}  \,\,  \hat{U}_k
 \end{equation}
 where the volume ${V_m}_{ij}$ is the merging tile volume similarly weighted,
 \begin{equation}
