@@ -1,39 +1,37 @@
-\section{Higher-Order State Redistribution Algorithm}\label{sec:ho}
+\section{High-Order State Redistribution Algorithm}\label{sec:ho}
 
-The higher order version is essentially the same as the second order
+The high order version is essentially the same as the second order
 version, but with a larger stencil so a higher order polynomial can be
 reconstructed for each merging neighborhood. Of course, the base method
-has to be higher order too. We use a 3rd order TVD Runge Kutta scheme
+has to be higher order too. We use a third or fourth order TVD Runge Kutta scheme
 for the base method.  The spatial accuracy is improved by using a
 quadratic or cubic reconstruction, taking care to translate
-accurately between conservtive and primitive variables.  Higher
+accurately between conservative and primitive variables.  Higher
 order polynomials are also used for reconstruction on the merged cells. 
-The stability limit for the 3rd order TVD Runge-Kutta scheme with
+The stability limit for the third order TVD Runge-Kutta scheme with
 quadratic reconstruction is
 \begin{equation}
 ANDREW - What is it?
 \end{equation}
-Again this is fairly standard, so we go right
-to the description of the higher-order SRD algorithm.
+Again this is fairly standard, so we go right to the description of the higher-order SRD algorithm.
 
 \begin{enumerate}
 \item 
 \textbf{Compute the solution average on each merging tile}
 
 This step is the same as the second order case.
-Again using $\bar{U}_k$ to represent the provisionally updated 
+Again using $\hat{U}_k$ to represent the provisionally updated 
 solution after one step or stage, form merged solutions 
 \begin{equation}\label{eq:q_avg1}
-     \widehat{Q}_{ij} =  \frac{1}{ V_m}_{ij} \, \sum_{k \in
-     M_i}\frac{V_k}{N_k} \bar U_k.
+     \hat{Q}_{ij} =  \frac{1}{ \hat{V}_{i,j}} \,  \sum_{(k,l) \in M_{i,j} }\frac{V_{k,l}}{N_{k,l}} \hat{U}_{k,l},
 \end{equation}
-\noindent where $M_i$ is again the set of indices of cells in the 
-merging neighborhood, and the volume of the merged tile 
+\noindent where $M_{i,j}$ is again the set of indices of cells in the 
+merging neighborhood, and the weighted volume of the merged tile 
 \begin{equation}\label{eq:modV}
-{V_m}_{ij} = \sum_{k \in M_i}\frac{V_k}{N_k} .
+\hat{V}_{i,j} = \sum_{(k,l) \in M_{i,j} }\frac{V_{k,l}}{N_{k,l}} .
 \end{equation}
 
-\item \textbf{Determine a polynomial reconstruction $\hat q_i(x)$ on 
+\item \textbf{Determine a polynomial reconstruction $\hat q_{i,j}(x)$ on 
 each merging tile of the form}
 % \begin{equation}\label{eq:q}
 % \begin{aligned}
@@ -45,52 +43,49 @@ each merging tile of the form}
 % \end{equation}
 \begin{equation}\label{eq:q}
 \begin{aligned}
-    \hat q (x,y) = \sum_{|\alpha| \leq p}  \frac{1}{\alpha!} (\partial^{\alpha} \hat q) [h^{\alpha}-\hat S_{m, \alpha}]
+    \hat q_{i,j} (x,y) = \widehat{Q}_{i,j} +  \sum_{1 \leq |\alpha| \leq p}  \frac{1}{\alpha!} (\partial^{\alpha} \hat q) [h^{\alpha}-\hat S_{\alpha}]
 \end{aligned}
 \end{equation}
 where $\alpha = (\alpha_1, \alpha_2)$, $|\alpha| = \alpha_1 + \alpha_2$, $h^{\alpha} = (x-\hat x_m)^{\alpha_1}(y-\hat y_m)^{\alpha_2}$, $\partial^{\alpha} = \partial^{\alpha_1}\partial^{\alpha_2}$,
 and $\hat x_m$, $\hat y_m$ is the weighted centroid of the merging
 neighborhood for cell $i,j$. 
-The $ \hat S_{m,\alpha}$ is a geometric
+The $ \hat S_{\alpha}$ is a geometric
 constant that make it easier to maintain conservation when written in
-this form.  The reconstruction satisfies
+this form.  The reconstruction satisfies in a least squares sense
 \begin{equation}\label{eq:qi}
-\frac{1}{V_m}\sum_{k \in M_j}\frac{1}{N_k}\int_{\Omega_k} \hat q_i(x)~d\Omega_k = \hat Q_j \quad \forall j \in R_i,
+\frac{1}{\hat{V}_{i',j'}}\sum_{(k,l) \in M_{i',j'}}\frac{1}{N_{k,l}}\int_{\Omega_{k,l}} \hat q_{i',j'}(x)~d\mathbf{x} = \hat Q_{i',j'} \quad \forall (i',j') \in R_{i,j},
 \end{equation}
-where $R_i$ is the set of indices of neighborhoods used for reconstruction 
+where $R_{i,j}$ is the set of indices of neighborhoods used for reconstruction 
 on merging neighborhood $i$ of the form
 
 
 \item \textbf{Set the final solution at time $t^{n+1}$}
 	\begin{equation}\label{eq:final_update}
-	U^{n+1}_i =  \frac{1}{V_i}\sum_{k \in M_{i}}\frac{1}{N_i}\int_{\Omega_i} \hat q_k(x)~d\Omega_i,
+	U^{n+1}_{i,j} =  \frac{1}{V_{i,j}}\sum_{(k,l) \in W_{i,j}}\frac{1}{N_{i,j}}\int_{\Omega_{i,j}} \hat q_{k,l}(x)~d\mathbf{x} ,
 	\end{equation}
-	where $M_i$ is a set of merging tile indices to which cell $i$ belongs.
+	where $W_{i,j}$ is a set of merging neighborhoods to which cell $i,j$ belongs.
 \end{enumerate}
-
-\subsection{Limiting on merging neighborhoods}
 
 
 \subsection{Conservation}\label{sec:cons}
 The total mass of the numerical solution at $t^{n+1}$ is
 \begin{equation}\label{eq:total_mass}
-\mathcal{M}^{n+1} = \sum^N_{i=1} h_i U^{n+1}_i.
+\mathcal{M}^{n+1} = \sum_{i,j} h_{i,j} U^{n+1}_{i,j}.
 \end{equation}
 From the general form of the state redistribution algorithm 
-in \eqref{eqn:final_update}, 
-this can also be written as a sum of mass contributions from each 
+in \eqref{eq:final_update}, this can also be written as a sum of mass contributions from each 
 merging neighborhood, i.e.,
 \begin{equation}\label{eq:total_mass2}
-\mathcal{M}^{n+1} = \sum^N_{i=1} \hat{\mathcal{M}}_i,
+\mathcal{M}^{n+1} = \sum_{i,j} \hat{\mathcal{M}}_{i,j},
 \end{equation}
-where the mass contribution of merging neighborhood $i$ is
+where the mass contribution of merging neighborhood $(i,j)$ is
 \begin{equation}\label{eq:mi}
-\hat{\mathcal{M}}_i = \sum_{k \in M_i}\frac{1}{N_k} \int_{\Omega_k}\hat q_i(x) ~d\Omega_k,
+\hat{\mathcal{M}}_{i,j} = \sum_{(k,l) \in M_{i,j}}\frac{1}{N_{k,l}} \int_{\Omega_{k,l}}\hat q_{k,l}(x) ~d\mathbf{x},
 \end{equation}
-and $\hat q_i(x)$ is that neighborhood's polynomial reconstruction.  
+and $\hat q_{k,l}(x)$ is that neighborhood's polynomial reconstruction.  
 From \eqref{eq:qi}, \eqref{eq:mi} becomes
 \begin{equation}\label{eq:mi1}
-\hat{\mathcal{M}}_i = \hat Q_i \hat V_i.
+\hat{\mathcal{M}}_{i,j} = \hat Q_{i,j} \hat V_{i,j}.
 \end{equation}
 % \subsection{First order algorithm}
 % When $\hat q_i(x)$ is constant, i.e. $\hat q_i(x) = \hat Q_i$ by \eqref{eq:q_avg} and Step 2 in Section \ref{sec:first_order}, \eqref{eq:mi} becomes 
@@ -101,11 +96,11 @@ From \eqref{eq:qi}, \eqref{eq:mi} becomes
 % by \eqref{eq:q_avg} in the first order algorithm, by \eqref{eq:pq2} in the second order algorithm, and by \eqref{eq:q2} in the third order algorithm.
 From \eqref{eq:modV} and \eqref{eq:q_avg1}, \eqref{eq:mi1} becomes
 \begin{equation}\label{eq:mi2}
-\hat{\mathcal{M}}_i = \sum^{M_i}_{k = m_i}\frac{h_k}{N_k} \hat U_{k}.
+\hat{\mathcal{M}}_{i,j} = \sum_{(k,l) \in M_{i,j} }\frac{h_{k,l}}{N_{k,l}} \hat U_{k,l}.
 \end{equation}
 Substituting \eqref{eq:mi2} into \eqref{eq:total_mass2}, the mass at $t^{n+1}$ is
 $$
-\mathcal{M}^{n+1} = \sum^{N}_{i=1} h_i \hat U_i,
+\mathcal{M}^{n+1} = \sum_{i,j} h_{i,j} \hat U_{i,j},
 $$
 which shows that $\mathcal{M}^{n+1}  = \mathcal{M}^{n} $.
 
