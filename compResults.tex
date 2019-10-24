@@ -100,12 +100,11 @@ A steady state solution to \eqref{eq:conslaw} with the above flux is given by th
 %\subfloat[Isolines of exact solution at the initial and final time.]{\includegraphics[width = 0.5\linewidth]{figs/waveyiso.eps} \label{fig:waveyisolines}} 
 %\quad
 \subfloat[Number of overlapping merging neighborhoods: one (blue), two (green), three (red).]{\includegraphics[width = 0.5\linewidth]{figs/waveynumhoods.eps}\label{fig:waveynumhoods}}
-\includegraphics[width = 0.5\linewidth]{figs/waveyiso.eps} 
-%\subfloat[Isolines of exact solution at the initial and final time.]{\includegraphics[width = 0.5\linewidth]{figs/waveyiso.eps} \label{fig:waveyisolines}} 
-\caption{Isolines of exact solution at the initial and final time for
-the wavy domain with overlapping neighborhoods.} 
-\label{fig:overlappingneighborhoods}
-\label{fig:waveyisolines}} 
+% \includegraphics[width = 0.5\linewidth]{figs/waveyiso.eps} 
+\subfloat[Isolines of exact solution at the initial and final time.]{\includegraphics[width = 0.5\linewidth]{figs/waveyiso.eps} \label{fig:waveyisolines}} 
+\caption{Isolines of exact solution at the initial and final time for the wavy domain with overlapping neighborhoods.} 
+% \label{fig:overlappingneighborhoods}
+% \label{fig:waveyisolines}} 
 \end{figure}
 
 In Figure \ref{fig:waveyisolines}, we show the isolines of the exact solution at the initial and final times.  Additionally, Figure \ref{fig:waveynumhoods} shows the number of overlapping neighborhoods on each cell.  In this example, we have at most three overlapping neighborhoods.  They are concentrated where the boundary has high curvature.   We do not observe growth in the numerical solution as indicated by $L_1$ and $L_\infty$ errors of the solution at the final time listed in Table \ref{tab:overlappingerrors}.  Although this experiment does not prove stability of our numerical scheme, not observing unbounded growth in the numerical solution is a necessary condition.
