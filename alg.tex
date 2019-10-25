@@ -1,100 +1,16 @@
 \section{The State Redistribution Algorithm}\label{sec:srdAlg}
 
-In this section we describe only the second order accurate version of the State
+We first describe the second order accurate version of the State
 Redistribution Algorithm. 
 This helps simplify the notation and make the
 algorithm more intuitive.   
 At several places there are choices
 to make, and we discuss the alternatives and the reason behind our
-choices.  Since the postprocessing step comes after the finite
-volume update step, we begin this section by briefly reviewing the 
-two methods that SRD is applied to.  
-
-\subsection{The Base  Finite Volume Schemes}
-
-Our computational results will use two different finite volume schemes
-to update the Cartesian cut cell mesh.
-We will refer to these at the base schemes. 
-The  update is applied to the entire mesh, including  
-to the small cut cells.  Since cut cells can have cell volumes that are
-orders of magnitude smaller than the time step allowed by the full
-cells, these will lead to instability without a stabilization algorithm.
-SRD will be applied after each stage or step of the base scheme.
-
-\begin{figure}
-\begin{center}
-\includegraphics[width=2.8in]{figs/2dfig.pdf}
-\caption{\sf Notation for mesh in two space dimensions. The cells shaded
-in yellow are the cut cells.} 
-\label{fig:2dfig}
-\end{center}
-\end{figure}
-
-\subsubsection{Method of Lines approach}
-The simplest scheme is to use a spatial discretization over the entire
-mesh, and apply a Runge-Kutta scheme in time. This is a well-known
-standard approach
-on regular Cartesian meshes. It is adapted for the cut cells by
-using a least squares reconstruction of the gradient that includes
-either edge and node neighbors (unless otherwise specified).
-Limiting is done using the Barth-Jespersen limiter \cite{} 
-on the cut cells and one adjacent neighbors. Any limiter
-can be used for the regular cells.
-
-The spatial reconstruction in the cut cells is no longer
-coordinate-aligned, and is modified
-to include both $x$ and $y$ components of the gradient to 
-reconstruct to the midpoint of the cell edge. This is indicated 
-in figure \ref{fig:2dfig}  with a green $\times$.
-The SRD stabilization scheme is applied after each stage of
-the Runge-Kutta scheme. 
-Note that the time step restriction that results from the von Neumann stability analysis of this scheme applied to the linear advection equation is  (AG -
-TRUE?)
-\begin{equation}
-\Delta t \,  \max\left(\frac{u}{\Delta x},\frac{v}{\Delta y}\right) \leq \frac{1}{2} ,
-\end{equation}
-where $[u,v]$ is the propagation velocity.  
-
-\subsubsection{MUSCL scheme}
-The MUSCL scheme is a one step method that is second order accurate in
-time. The series of MUSCL schemes  was originated by van Leer 
-\cite{vanleer:muscl}. The version we use 
-is due to Colella \cite{Colella:Unsplit}.\footnote{Thanks to Phil 
-Colella for the original Cartesian mesh code as well}.
-We adapted it to cut cells by turning off the corner coupling 
-This is the term that brings in the transverse derivatives. For example,
-when computing the flux $f_{i+1/2,j}$ at time $t_{n+1/2}$, the 
-term $ 1/2 \, \Delta t/\Delta y \, \partial G / \partial y$
-appears.
-(SAY MORE OR LEAVE WITH JUST REFERENCE)
-On a regular mesh in  two space dimensions this term allows a full stable time step of 
-\begin{equation}
-\Delta t \,  \max \left(\frac{u+c}{\Delta x},\frac{v+c}{\Delta y}\right) \leq 1
-\end{equation}
-Without these terms the time step is reduced to 
-\begin{equation}
-\Delta t \, \left (\frac{u+c}{\Delta x} + \frac{v+c}{\Delta y} \right) < 1
-\end{equation}
-which could be as small as half the larger limit.
-However, as shown in \cite{mjb:stability2} for one space dimension, 
-boundary cells can have
-a local {\em cfl} number that is up to twice the stable {\em cfl} of the regular
-mesh and the overall scheme remains stable. So we are not concerned
-about dropping this term only in the cut cells, and have observed no
-stability problems. This does affect the accuracy in the cut cells
-though. 
-
-We also modified the prediction of the interface values to reconstruct
-to the midpoint of the cell edges, and
-modified the gradient in the cut cells to use a least squares routine.
-ACCURACY OF THIS?
-Other adaptations of MUSCL for cut cells are certainly possible and
-worth investigating, but that is not the focus of this work.
-
+choices.  
 
 \subsection{The State Redistribution Algorithm}
 
-We first define two quantities associated with each cell of the mesh:
+To start, we define two quantities associated with each cell of the mesh:
 
 \begin{itemize}
 \item
@@ -117,15 +33,16 @@ merging neighborhood is not sufficiently large (Figure \ref{fig:normalneighborho
 \begin{figure}
     \centering
     \includegraphics[width=0.5\linewidth]{figs/neighborhoods.pdf}
-    \caption{On the left, a small cell is merged with a cell in the direction normal the wall.  On the right, a small cell is merged with neighbors that are at most one cell away, i.e., cells located on the $3\times3$ tile.}
+    \caption{\sf On the left, a small cell is merged with a cell in the direction 
+    normal to  the wall.  On the right, a small cell is merged with neighbors that are at most one cell away, i.e., cells located in the $3\times3$ tile.}
     \label{fig:neighborhoods}
 \end{figure}
 
 \begin{figure}
-	\subfloat[Normal neighborhood (in red) for both small cells in the right corner.]{\includegraphics[width=.45\textwidth]{figs/normaldirection1.pdf} \label{fig:normalneighborhood}}
+	\subfloat[\sf Normal neighborhood (in red) for both small cells in the right corner.]{\includegraphics[width=.45\textwidth]{figs/normaldirection1.pdf} \label{fig:normalneighborhood}}
 	\hfill
 	\subfloat[$3\times 3$ merging neighborhood for both small cells in the right corner.]{\includegraphics[width=.45\textwidth]{figs/normaldirection2.pdf} \label{fig:3x3neighborhood}}
-	\caption{Sometimes, the normal neighborhood is not large enough if a small cell merges with another small cell.  In this case, we use the $3\times 3$ tile, or $5\times5$ neighborhood until the volume constraint \eqref{eq:vmerge} is satisfied.}
+	\caption{\sf Sometimes, the normal neighborhood is not large enough if a small cell merges with another small cell.  In this case, we use the $3\times 3$ tile, or $5\times5$ neighborhood until the volume constraint \eqref{eq:vmerge} is satisfied.}
 \end{figure}
 % If the neighboring cell 
 % is also cut, it can happen that the
@@ -153,7 +70,7 @@ merging neighborhood for ease of presentation.  In figure \ref{fig:overlappingne
 	\subfloat[]{\includegraphics[width=.24\textwidth]{figs/numoverlaps2.pdf} \label{fig:numoverlaps2}}
     \hfill
 	\subfloat[]{\includegraphics[width=.24\textwidth]{figs/numoverlaps3.pdf} \label{fig:numoverlaps3}}
-	\caption{All merging neighborhoods on an example cut cell mesh (in green).  We display the number of overlapping merging neighborhoods on each cell. Note, in figure \ref{fig:numoverlaps4}, there are two merging neighborhoods that occupy the same location, one per small cell in the right corner.} \label{fig:overlappingneighs}
+	\caption{\sf All merging neighborhoods on an example cut cell mesh (in green).  We display the number of overlapping merging neighborhoods on each cell. Note, in figure \ref{fig:numoverlaps4}, there are two merging neighborhoods that occupy the same location, one per small cell in the right corner.} \label{fig:overlappingneighs}
 \end{figure}
 Note that a full cell
 can be part of two or more merging tiles if it is placed next to 
@@ -185,7 +102,7 @@ The two steps above can be part of a preprocessing step, since they do not
 depend on the computed solution. For moving geometry however they would
 be done at each step.
 Using the merging tiles and the cell counts, the state redistribution
-algorithm after one forward Euler time step is as follows:
+algorithm after one time step or stage is as follows:
 
 %\begin{enumerate}[label=Step \arabic*:,leftmargin=2\parindent]
 \begin{enumerate}
@@ -240,7 +157,7 @@ to note that the centroid of the merging neighborhood is \textit{not} the centro
     \centering
     \subfloat[]{\includegraphics[width=0.45\linewidth]{figs/centroids3.pdf}} \hfill
     \subfloat[]{\includegraphics[width=0.45\linewidth]{figs/centroids4.pdf}}
-    \caption{The centroids of the Cartesian and cut cells are indicated with a solid circle ($\bullet$).  The centroids and weighted centroids of the merging neighborhoods are indicated with a square ($\blacksquare$) and a cross ($\times$), respectively. Note that the centroids and weighted centroid of the cut cell neighborhoods do not necessarily coincide.}
+    \caption{\sf The centroids of the Cartesian and cut cells are indicated with a solid circle ($\bullet$).  The centroids and weighted centroids of the merging neighborhoods are indicated with a square ($\blacksquare$) and a cross ($\times$), respectively. Note that the centroids and weighted centroid of the cut cell neighborhoods do not necessarily coincide.}
     \label{fig:centroids}
 \end{figure}
 The reconstruction neighborhood for $i,j$ is initialized to the $3 \times 3$ tile centered on $i,j$.
@@ -252,7 +169,7 @@ With this choice, it could happen that the centroids are too close to each other
     \centering
     \subfloat[]{\includegraphics[width=0.45\linewidth]{figs/tooclose2.pdf}} \hfill
     \subfloat[]{\includegraphics[width=0.45\linewidth]{figs/tooclose1.pdf}} 
-    \caption{The blue cell's $3\times3$ reconstruction tile highlighted in green.  The weighted centroids are indicated with a cross ($\times$).}
+    \caption{\sf The blue cell's $3\times3$ reconstruction tile highlighted in green.  The weighted centroids are indicated with a cross ($\times$).}
     \label{fig:tooclose}
 \end{figure}
 
@@ -319,14 +236,14 @@ $U^{n+1}(:,:) := 0$\\
         $U^{n+1}(k,l) := U^{n+1}(k,l) + \hat{q}_{i,j}(x_{k,l})/N_{k,l} $
      }
  }
- \caption{Final solution update} \label{alg:finalupdate}
+ \caption{\sf Final solution update} \label{alg:finalupdate}
 \end{algorithm}
 
 \begin{figure}
 	\subfloat[]{\includegraphics[width=0.45\textwidth]{figs/modelexample2D_1.pdf} \label{fig:2nborTile1}}
 	\hfill
 	\subfloat[]{\includegraphics[width=.45\textwidth]{figs/modelexample2D_2.pdf} \label{fig:2nborTile2}}
-	\caption{Two-dimensional example of overlapping neighborhoods.  The unweighted centroids of cells $i,j$ and $i,j+1$ are indicated with solid squares ($\blacksquare$).} \label{fig:2nborTile}
+	\caption{\sf Two-dimensional example of overlapping neighborhoods.  The unweighted centroids of cells $i,j$ and $i,j+1$ are indicated with solid squares ($\blacksquare$).} \label{fig:2nborTile}
 \end{figure}
 
 
