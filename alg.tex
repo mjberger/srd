@@ -1,4 +1,4 @@
-\section{The State Redistribution Algorithm}\label{sec:srdAlg}
+\section{State Redistribution }\label{sec:srdAlg}
 
 We first describe the second order accurate version of the State
 Redistribution Algorithm. 
@@ -38,11 +38,14 @@ merging neighborhood is not sufficiently large (Figure \ref{fig:normalneighborho
     \label{fig:neighborhoods}
 \end{figure}
 
-\begin{figure}
-	\subfloat[\sf Normal neighborhood (in red) for both small cells in the right corner.]{\includegraphics[width=.45\textwidth]{figs/normaldirection1.pdf} \label{fig:normalneighborhood}}
+\begin{figure}[h]
+	\subfloat[\sf Normal neighborhood (in red) for both small cells in the right corner.]{\includegraphics[width=.35\textwidth]{figs/normaldirection1.pdf} \label{fig:normalneighborhood}}
 	\hfill
-	\subfloat[$3\times 3$ merging neighborhood for both small cells in the right corner.]{\includegraphics[width=.45\textwidth]{figs/normaldirection2.pdf} \label{fig:3x3neighborhood}}
-	\caption{\sf Sometimes, the normal neighborhood is not large enough if a small cell merges with another small cell.  In this case, we use the $3\times 3$ tile, or $5\times5$ neighborhood until the volume constraint \eqref{eq:vmerge} is satisfied.}
+	\subfloat[\sf $3\times 3$ merging neighborhood for both small cells in the right corner.]{\includegraphics[width=.35\textwidth]{figs/normaldirection2.pdf} \label{fig:3x3neighborhood}}
+	\caption{\sf It can happen that merging only in the normal neighborhood is not 
+        large enough, e.g. if the small cell merges with another small cell.  
+        In this case, we use the $3\times 3$ tile, or $5\times5$ neighborhood 
+        until the volume constraint \eqref{eq:vmerge} is satisfied.}
 \end{figure}
 % If the neighboring cell 
 % is also cut, it can happen that the
@@ -61,7 +64,10 @@ merging neighborhood is not sufficiently large (Figure \ref{fig:normalneighborho
 \vspace*{.1in}
 A full cell is its own merging neighborhood, since it has sufficient
 volume all by itself. However, we will still refer to all cells as having a
-merging neighborhood for ease of presentation.  In figure \ref{fig:overlappingneighs}, we provide an example cut cell mesh with all merging neighborhoods plotted.  We also display the number of overlapping neighborhoods on a cell, this is the neighborhood {\em count} for each cell.
+merging neighborhood.  Figure \ref{fig:overlappingneighs} shows an example of a
+cut cell mesh with all merging neighborhoods plotted.  Also displayed
+are the number of overlapping neighborhoods for each cell. This is the 
+neighborhood {\em count} referred to above.
 \begin{figure}
 	\subfloat[]{\includegraphics[width=.24\textwidth]{figs/numoverlaps1.pdf} \label{fig:numoverlaps1}}
 	\hfill
@@ -117,9 +123,9 @@ to cut cell $i,j$, with solution $U_{i,j}$ and volume
 $V_{i,j}$. 
 The provisionally updated solution before the
 stabilization algorithm is applied is $\widehat{U}_{i,j}$.
-There will now be many temporary merging neighborhoods which 
-we denote as $\widehat{Q}_{i,j}$. 
-Let $M_{i,j}$ denote the set of cell indices in the cell $(i,j)$ merging
+The solution on the many temporary merging neighborhoods 
+is denoted  $\widehat{Q}_{i,j}$. 
+Recall that $M_{i,j}$ is the set of cell indices in the cell $(i,j)$ merging
 neighborhood.  Then
 \begin{equation}
 \label{tiledef}
@@ -137,10 +143,10 @@ number of neighborhoods they contribute to.
 In the above equations, $k$ is  a multi-index ranging over the neighbors 
 of cell $i,j$ included in its merging tile.
 Note that most full cells will have ${\widehat V}_{i,j} = V_{i,j}$, 
-and $\widehat{Q}_{i,j}  = \widehat{U}_{i,j}$.
-
-
-
+and $\widehat{Q}_{i,j}  = \widehat{U}_{i,j}$, since they have a count of one.
+At the other extreme, if all cells merged with the same number of neighbors, the $N_k$'s
+would cancel, and the resulting solution would be a typical volume-weighted
+solution over the defined cells.
 
 
 \item
@@ -160,11 +166,23 @@ to note that the centroid of the merging neighborhood is \textit{not} the centro
     \caption{\sf The centroids of the Cartesian and cut cells are indicated with a solid circle ($\bullet$).  The centroids and weighted centroids of the merging neighborhoods are indicated with a square ($\blacksquare$) and a cross ($\times$), respectively. Note that the centroids and weighted centroid of the cut cell neighborhoods do not necessarily coincide.}
     \label{fig:centroids}
 \end{figure}
-The reconstruction neighborhood for $i,j$ is initialized to the $3 \times 3$ tile centered on $i,j$.
-With this choice, it could happen that the centroids are too close to each other to compute a gradient in the normal direction (figure \ref{fig:tooclose}). If the weighted centroids are not at least $0.5\,\Delta x$  and $0.5\,\Delta y$ apart in the $x$ or $y$ direction then we increase the stencil size for the gradient computation.  For example, if the weighted centroids are too close in the $x$ direction, but not the $y$ direction, then the $5\times 3$ tile is used as the reconstruction neighborhood.  Similarly, if the weighted centroids are too close in the $y$ direction, but not the $x$ direction, then the $3\times 5$ tile is used as the reconstruction neighborhood.  The neighborhood size is increased until the distance constraint is satisfied in both directions.  In figure \ref{fig:tooclose}, the appropriate reconstruction neighborhood is $3\times 5$ reconstruction tile.
+The reconstruction neighborhood for $i,j$ is initialized to the $3 \times 3$ tile
+centered on $i,j$. (AG - DOESN"T A FULL CELL WITH COUNT 1 USE ITS OWN GRADIENT )
+With this choice, it could happen that the centroids are too close to each 
+other to compute a gradient in the normal direction (figure \ref{fig:tooclose}). 
+If the weighted centroids are not at least $0.5\,\Delta x$  and $0.5\,\Delta y$ 
+apart in the $x$ or $y$ direction then we increase the stencil size for the 
+gradient computation.  For example, if the weighted centroids are too close in the $x$ 
+direction, but not the $y$ direction, then the $5\times 3$ tile is used as the 
+reconstruction neighborhood.  Similarly, if the weighted centroids are too 
+close in the $y$ direction, but not the $x$ direction, then the $3\times 5$ tile is 
+used as the reconstruction neighborhood.  The neighborhood size is increased until the 
+distance constraint is satisfied in both directions.  In figure \ref{fig:tooclose},
+the appropriate reconstruction neighborhood is $3\times 5$ reconstruction tile.
 % The same neighborhood that is used for computing the gradient can be used to limit the gradient to prevent overshoots. The centroid is computed using the same weighting by number of neighborhoods as when the volume was computed. (IS THIS TRUE AND IS IT NECESSARY) NEED DISCUSSION OF NOT A REAL CENTROID
-% For most full cells with a count of one, the normal gradient computation as done in the finite volume update will suffice.
-
+(AG - THIS IS WHAT I DO For most full cells with a count of one,
+the normal gradient computation as done in the finite volume update will suffice.
+DISUCSS BOTH HERE?)
 \begin{figure}
     \centering
     \subfloat[]{\includegraphics[width=0.45\linewidth]{figs/tooclose2.pdf}} \hfill
