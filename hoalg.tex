@@ -23,12 +23,12 @@ This step is the same as the second order case.
 Again using $\hat{U}_k$ to represent the provisionally updated 
 solution after one step or stage, form merged solutions 
 \begin{equation}\label{eq:q_avg1}
-     \hat{Q}_{ij} =  \frac{1}{ \hat{V}_{i,j}} \,  \sum_{(k,l) \in M_{i,j} }\frac{V_{k,l}}{N_{k,l}} \hat{U}_{k,l},
+     \widehat{Q}_{i,j} =  \frac{1}{ \hat{V}_{i,j}} \,  \sum_{k \in M_{i,j} }\frac{V_{k}}{N_{k}} \hat{U}_{k},
 \end{equation}
 \noindent where $M_{i,j}$ is again the set of indices of cells in the 
 merging neighborhood, and the weighted volume of the merged tile 
 \begin{equation}\label{eq:modV}
-\hat{V}_{i,j} = \sum_{(k,l) \in M_{i,j} }\frac{V_{k,l}}{N_{k,l}} .
+\hat{V}_{i,j} = \sum_{k \in M_{i,j} }\frac{V_{k}}{N_{k}} .
 \end{equation}
 
 \item \textbf{Determine a polynomial reconstruction $\hat q_{i,j}(x)$ on 
@@ -53,7 +53,7 @@ The $ \hat S_{\alpha}$ is a geometric
 constant that make it easier to maintain conservation when written in
 this form.  The reconstruction satisfies in a least squares sense
 \begin{equation}\label{eq:qi}
-\frac{1}{\hat{V}_{i',j'}}\sum_{(k,l) \in M_{i',j'}}\frac{1}{N_{k,l}}\int_{\Omega_{k,l}} \hat q_{i',j'}(x)~d\mathbf{x} = \hat Q_{i',j'} \quad \forall (i',j') \in R_{i,j},
+\frac{1}{\hat{V}_{i',j'}}\sum_{k \in M_{i',j'}}\frac{1}{N_{k}}\int_{\Omega_{k}} \hat q_{i',j'}(x)~d\mathbf{x} = \hat Q_{i',j'} \quad \forall (i',j') \in R_{i,j},
 \end{equation}
 where $R_{i,j}$ is the set of indices of neighborhoods used for reconstruction 
 on merging neighborhood $i$ of the form
@@ -61,7 +61,7 @@ on merging neighborhood $i$ of the form
 
 \item \textbf{Set the final solution at time $t^{n+1}$}
 	\begin{equation}\label{eq:final_update}
-	U^{n+1}_{i,j} =  \frac{1}{V_{i,j}}\sum_{(k,l) \in W_{i,j}}\frac{1}{N_{i,j}}\int_{\Omega_{i,j}} \hat q_{k,l}(x)~d\mathbf{x} ,
+	U^{n+1}_{i,j} =  \frac{1}{V_{i,j}}\sum_{k \in W_{i,j}}\frac{1}{N_{i,j}}\int_{\Omega_{i,j}} \hat q_{k}(x)~d\mathbf{x} ,
 	\end{equation}
 	where $W_{i,j}$ is a set of merging neighborhoods to which cell $i,j$ belongs.
 \end{enumerate}
@@ -80,9 +80,9 @@ merging neighborhood, i.e.,
 \end{equation}
 where the mass contribution of merging neighborhood $(i,j)$ is
 \begin{equation}\label{eq:mi}
-\hat{\mathcal{M}}_{i,j} = \sum_{(k,l) \in M_{i,j}}\frac{1}{N_{k,l}} \int_{\Omega_{k,l}}\hat q_{k,l}(x) ~d\mathbf{x},
+\hat{\mathcal{M}}_{i,j} = \sum_{k \in M_{i,j}}\frac{1}{N_{k}} \int_{\Omega_{k}}\hat q_{k}(x) ~d\mathbf{x},
 \end{equation}
-and $\hat q_{k,l}(x)$ is that neighborhood's polynomial reconstruction.  
+and $\hat q_{k}(x)$ is that neighborhood's polynomial reconstruction.  
 From \eqref{eq:qi}, \eqref{eq:mi} becomes
 \begin{equation}\label{eq:mi1}
 \hat{\mathcal{M}}_{i,j} = \hat Q_{i,j} \hat V_{i,j}.
@@ -96,7 +96,7 @@ From \eqref{eq:qi}, \eqref{eq:mi} becomes
 % by \eqref{eq:q_avg} in the first order algorithm, by \eqref{eq:pq2} in the second order algorithm, and by \eqref{eq:q2} in the third order algorithm.
 From \eqref{eq:modV} and \eqref{eq:q_avg1}, \eqref{eq:mi1} becomes
 \begin{equation}\label{eq:mi2}
-\hat{\mathcal{M}}_{i,j} = \sum_{(k,l) \in M_{i,j} }\frac{h_{k,l}}{N_{k,l}} \hat U_{k,l}.
+\hat{\mathcal{M}}_{i,j} = \sum_{k \in M_{i,j} }\frac{h_{k}}{N_{k}} \hat U_{k}.
 \end{equation}
 Substituting \eqref{eq:mi2} into \eqref{eq:total_mass2}, the mass at $t^{n+1}$ is
 $$

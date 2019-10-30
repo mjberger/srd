@@ -20,7 +20,7 @@ To start, we define two quantities associated with each cell of the mesh:
 For each cut cell in the mesh, find  one or more neighbors until the
 volume of the temporarily merged cell is at least half the area of an uncut cell, i.e., 
 \begin{equation} \label{eq:vmerge}
-\sum_{(k,l) \in M_{i,j}} V_{k,l} \geq \frac{1}{2}\Delta x\Delta y,
+\sum_{k \in M_{i,j}} V_{k} \geq \frac{1}{2}\Delta x\Delta y,
 \end{equation}
 where $M_{i,j}$ denotes the set of cell indices that belong to merging neighborhood $(i,j)$.
 We call this the 
@@ -148,6 +148,13 @@ At the other extreme, if all cells merged with the same number of neighbors, the
 would cancel, and the resulting solution would be a typical volume-weighted
 solution over the defined cells.
 
+It is important to note that the centroid of the merging neighborhood is \textit{not} the centroid of cell ${i,j}$ (figure \ref{fig:centroids}).  We define the weighted centroid of the merging neighborhood to be
+\begin{equation}
+\label{centroiddef}
+({\widehat x}_{i,j},{\widehat y}_{i,j}) = \frac{1}{\widehat V_{i,j}} \sum_{k \in M_i } \,  \frac{V_k}{N_k}(x_k,y_k),
+\end{equation}
+where $k$ is a multi-index ranging over the neighbors 
+of cell $i,j$ included in its merging tile.
 
 \item
 {\bf Compute a (limited) gradient for each merging
@@ -155,10 +162,22 @@ tile.}
 
 \vspace*{.1in}
 For cut cells, a least squares procedure  similar to the one used for
-the finite volume update is an obvious choice. However instead of using the
-solution $U_{i,j}$ on the Cartesian mesh at time $t_n$,
-the merging neighborhood solution  $\widehat{Q}_{i,j}$ is used. It is important
-to note that the centroid of the merging neighborhood is \textit{not} the centroid of cell ${i,j}$ (figure \ref{fig:centroids}).
+the finite volume update is an obvious choice. 
+The reconstruction on the merged neighborhood is of the form
+\begin{equation}
+\widehat{q}_{i,j}(x,y) = \widehat{Q}_{i, j} + \widehat{\sigma}_{x,i,j}(x - \widehat{x}_{i,j}) + \widehat{\sigma}_{y,i,j}(y - \widehat{y}_{i,j}),
+\end{equation}
+where $\widehat{Q}_{i, j}$ is the solution average on the merging neighborhood in \eqref{tiledef} and $(\widehat{\sigma}_{x,i,j},\widehat{\sigma}_{y,i,j})$ is the gradient on the merging neighborhood.
+The gradient on the merging neighborhood $(\widehat{\sigma}_{x,i,j},\widehat{\sigma}_{y,i,j})$ satisfies in the least squares sense
+\begin{equation}
+\widehat{\sigma}_{x,i,j}(\widehat{x}_{k} - \widehat{x}_{i,j}) + \widehat{\sigma}_{y,i,j}(\widehat{y}_{k} - \widehat{y}_{i,j})= \widehat{Q}_{k} - \widehat{Q}_{i, j} \quad \forall k \in R_{i,j},
+\end{equation}
+where $R_{i,j}$ is the set of indices of neighborhoods used for reconstruction 
+on merging neighborhood $i$.  That is, the reconstruction on the merged neighborhood is the linear function of best fit through the points $(\widehat x_k, \widehat y_k, \widehat Q_k)$ $\forall k \in R_{i,j}$ and that passes exactly through $(\widehat x_{i,j}, \widehat y_{i,j}, \widehat{Q}_{i,j})$.
+
+% However instead of using the solution $U_{i,j}$ on the Cartesian mesh at time $t_n$, the merging neighborhood solution  $\widehat{Q}_{i,j}$ is used. 
+
+
 \begin{figure}
     \centering
     \subfloat[]{\includegraphics[width=0.45\linewidth]{figs/centroids3.pdf}} \hfill
@@ -166,8 +185,7 @@ to note that the centroid of the merging neighborhood is \textit{not} the centro
     \caption{\sf The centroids of the Cartesian and cut cells are indicated with a solid circle ($\bullet$).  The centroids and weighted centroids of the merging neighborhoods are indicated with a square ($\blacksquare$) and a cross ($\times$), respectively. Note that the centroids and weighted centroid of the cut cell neighborhoods do not necessarily coincide.}
     \label{fig:centroids}
 \end{figure}
-The reconstruction neighborhood for $i,j$ is initialized to the $3 \times 3$ tile
-centered on $i,j$. (AG - DOESN"T A FULL CELL WITH COUNT 1 USE ITS OWN GRADIENT )
+The reconstruction neighborhood $R_{i,j}$ for merging neighborhood $i,j$ is initialized to the $3 \times 3$ tile centered on $i,j$.
 With this choice, it could happen that the centroids are too close to each 
 other to compute a gradient in the normal direction (figure \ref{fig:tooclose}). 
 If the weighted centroids are not at least $0.5\,\Delta x$  and $0.5\,\Delta y$ 
@@ -196,15 +214,15 @@ DISUCSS BOTH HERE?)
 full cell neighbors with  the contributions from the merged tiles.} 
 
 \vspace*{.1in}
-The final solution at time $t^{n+1}$ on cut cell $i,j$ is obtained by compiling a the indices of all merging neighborhoods that overlap cell $i,j$ in the set $W_{i,j}$.  Then, the solution on merging neighborhood $k,l$ in $W_{i,j}$ is evaluated at $i,j$'s physical centroid, $x_{i,j}$, given by $\hat{q}_{k,l}(x_{i,j})$.  The final solution value on cell $i,j$ is given by the average of these values, i.e.,
+The final solution at time $t^{n+1}$ on cut cell $i,j$ is obtained by compiling a the indices of all merging neighborhoods that overlap cell $i,j$ in the set $W_{i,j}$.  Then, the solution on merging neighborhood $k$ in $W_{i,j}$ is evaluated at $i,j$'s physical centroid, $(x_{i,j},y_{i,j})$, given by $\hat{q}_{k}(x_{i,j},y_{i,j})$.  The final solution value on cell $i,j$ is given by the average of these values, i.e.,
 \begin{equation} \label{eq:final_update_linear}
-U^{n+1}_{i,j} := \frac{1}{N_{i,j}}\sum_{(k,l) \in W_{i,j}}\hat{q}_{k,l}(x_{i,j}).
+U^{n+1}_{i,j} := \frac{1}{N_{i,j}}\sum_{k \in W_{i,j}}\hat{q}_{k}(x_{i,j},y_{i,j}).
 \end{equation}
 To use the example of figure \ref{fig:2nborTile}, the cut cell value
 \begin{equation}
    U_{i,j}^{n+1} := \widehat{Q}_{i,j} 
-   + (x_m - x_{i,j}) \, \frac{\partial \widehat{Q}_{i,j}}{\partial x} 
-   + (y_m - y_{i,j}) \, \frac{\partial \widehat{Q}_{i,j}}{\partial y}
+   + ( x_{i,j} - \widehat x_{i,j}) \, \widehat{\sigma}_{x,i,j}
+   + ( y_{i,j} - \widehat y_{i,j}) \, \widehat{\sigma}_{y,i,j}
 \end{equation}
 since cell ${i,j}$ only belongs to one neighborhood. The adjacent full cell
 on the other hand belongs to two neighborhoods -- the one it shares with
@@ -216,8 +234,8 @@ So its solution at time $t_{n+1}$  becomes
    U_{i,j+1}^{n+1} \,=\, & \frac{1}{2}\widehat{q}_{i,j}(x_{i,j})+ \frac{1}{2} \widehat{q}_{i,j+1}(x_{i,j}), \\
    = &\frac{1}{2} \left
    (\widehat{Q}_{i,j} 
-   + (x_m - x_{i,j+1}) \, \frac{\partial \widehat{Q}_{i,j}}{\partial x} 
-   + (y_m - y_{i,j+1}) \, \frac{\partial \widehat{Q}_{i,j}}{\partial y} \right ) + \frac{1}{2} \widehat{Q}_{i,j+1} .
+   + ( x_{i,j+1} - \widehat x_{i,j}) \, \widehat{\sigma}_{x,i,j}
+   + ( y_{i,j+1} - \widehat y_{i,j}) \, \widehat{\sigma}_{y,i,j} \right ) + \frac{1}{2} \widehat{Q}_{i,j+1} .
 \end{split}
 \end{equation}
 The last term  in eq. \eqref{eqn:numhood2ex} has no gradient terms because the
@@ -245,13 +263,14 @@ HERE INSTEAD OF COMPRESULTS SECTION?
 % TO NOTE THAT THE CELL DOESNT KNOW WHO GIVES TO
 % IT, SO THIS LOOP IS OVER GIVERS  NOT RECEIVERS.
 The final update formula \eqref{eq:final_update_linear} can easily be implemented with a nested for loop in algorithm \ref{alg:finalupdate}.  
-The outer loop iterates over the merging neighborhoods $i,j$ and the inner loop iterates over each cell $k,l$ in merging neighborhood $i,j$.  Each merging neighborhood $i,j$ gives a contribution $ \hat{q}_{i,j}(x_{k,l})/N_{k,l} $ to the cells $k,l$ that belong to it.
+The outer loop iterates over the merging neighborhoods $i,j$ and the inner loop iterates over each cell $k$ in merging neighborhood $i,j$.  Each merging neighborhood $i,j$ gives a contribution $ \hat{q}_{i,j}(x_{k}, y_k)/N_{k} $ to the cells $k$ that belong to it.
+
 \begin{algorithm}[H]
 \SetAlgoLined
 $U^{n+1}(:,:) := 0$\\
  \ForAll{$i,j$}{
-     \ForAll{$(k,l) \in M_{i,j}$}{
-        $U^{n+1}(k,l) := U^{n+1}(k,l) + \hat{q}_{i,j}(x_{k,l})/N_{k,l} $
+     \ForAll{$k \in M_{i,j}$}{
+        $U^{n+1}_k := U^{n+1}_k + \hat{q}_{i,j}(x_{k}, y_k)/N_{k} $
      }
  }
  \caption{\sf Final solution update} \label{alg:finalupdate}
@@ -264,8 +283,11 @@ $U^{n+1}(:,:) := 0$\\
 	\caption{\sf Two-dimensional example of overlapping neighborhoods.  The unweighted centroids of cells $i,j$ and $i,j+1$ are indicated with solid squares ($\blacksquare$).} \label{fig:2nborTile}
 \end{figure}
 
+\subsection{Linear exactness}
+In this section, we show that the SRD method preserves linear functions.
 
-\subsection{Limiting on merging neighborhoods}
-In this section we design a linearity preserving limiter for slopes on merging neighborhoods.  Designing a limiter that does not destroy the linearly preserving property is not so straightforward.  
+\subsection{Limiting}
+On the cut cell grid, we limit using the LP limiter on the cut cells and the recentering idea on whole cells adjacent the cut cells.  We must also design a linearity preserving limiter for slopes on the merging neighborhoods.
+
 %We demonstrate this
 %In particular, we apply the LP limiter [] on slopes
