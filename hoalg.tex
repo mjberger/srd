@@ -16,6 +16,13 @@ ANDREW - What is it?
 Again this is fairly standard, so we go right to the description of the higher-order SRD algorithm.
 
 \begin{enumerate}
+\item
+{\bf Compute one time step or stage of the base finite volume scheme.}  
+
+$$
+\widehat{U} = U^n + \Delta t L(U^n),
+$$
+where $L$ is the finite volume scheme described in section \ref{sec:basefv}.
 \item 
 \textbf{Compute the solution average on each merging tile}
 
@@ -53,7 +60,7 @@ The $ \hat S_{\alpha}$ is a geometric
 constant that make it easier to maintain conservation when written in
 this form.  The reconstruction satisfies in a least squares sense
 \begin{equation}\label{eq:qi}
-\frac{1}{\hat{V}_{i',j'}}\sum_{k \in M_{i',j'}}\frac{1}{N_{k}}\int_{\Omega_{k}} \hat q_{i',j'}(x)~d\mathbf{x} = \hat Q_{i',j'} \quad \forall (i',j') \in R_{i,j},
+\frac{1}{\hat{V}_{k}}\sum_{k \in M_{k}}\frac{1}{N_{k}}\int_{\Omega_{k}} \hat q_{k}(x)~d\mathbf{x} = \hat Q_{k} \quad \forall k \in R_{i,j},
 \end{equation}
 where $R_{i,j}$ is the set of indices of neighborhoods used for reconstruction 
 on merging neighborhood $i$ of the form

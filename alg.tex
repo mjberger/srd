@@ -88,9 +88,21 @@ cells are only members of their own tile and will have a count of one.
 Only cells within a narrow band of the cut cells will have a count
 larger than one.
 
+\item
+{\bf Each neighborhood has an associated centroid and volume.}
+Each merging neighborhood has a volume and centroid that is \textit{not} the volume or centroid of the cell $i,j$.  The neighborhood's volume is defined as
+\begin{equation}
+\label{voldef}
+{\widehat V}_{i,j} =  \sum_{k \in M_i } \,  \frac{V_k}{N_k},
+\end{equation}
+and the weighted centroid of the merging neighborhood is defined as
+\begin{equation}
+\label{centroiddef}
+({\widehat x}_{i,j},{\widehat y}_{i,j}) = \frac{1}{\widehat V_{i,j}} \sum_{k \in M_i } \,  \frac{V_k}{N_k}(x_k,y_k),
+\end{equation}
+where $k$ is a multi-index ranging over the neighbors of cell $i,j$ included in its merging tile.  The difference between $(x_{i,j}, y_{i,j})$ and $(\widehat{x}_{i,j}, \widehat{y}_{i,j})$ is illustrated in figure \ref{fig:centroids}.
 
 \end{itemize}
-
 
 
 % \begin{figure}[h!]
@@ -108,10 +120,16 @@ The two steps above can be part of a preprocessing step, since they do not
 depend on the computed solution. For moving geometry however they would
 be done at each step.
 Using the merging tiles and the cell counts, the state redistribution
-algorithm after one time step or stage is as follows:
+algorithm is as follows:
 
-%\begin{enumerate}[label=Step \arabic*:,leftmargin=2\parindent]
 \begin{enumerate}
+\item
+{\bf Compute one time step or stage of the base finite volume scheme.}  
+
+$$
+\widehat{U} = U^n + \Delta t L(U^n),
+$$
+where $L$ is the finite volume scheme described in section \ref{sec:basefv}.
 \item
 {\bf Compute the volume-weighted and count-weighted solution for all
 merged tiles.}   
@@ -132,11 +150,8 @@ neighborhood.  Then
 \widehat{Q}_{i,j} =  \frac{1}{{\widehat V}_{i,j}} \, \sum_{k \in M_i} \,  
 \frac{V_k}{N_k}  \,\,  \widehat{U}_k
 \end{equation}
-where the volume ${\widehat V}_{i,j}$ is the merging tile volume similarly weighted,
-\begin{equation}
-\label{voldef}
-{\widehat V}_{i,j} =  \sum_{k \in M_i } \,  \frac{V_k}{N_k}  .
-\end{equation}
+where the volume ${\widehat V}_{i,j}$ is the merging tile volume similarly weighted in \eqref{voldef}.
+
 
 In other words, the contributions from each cell are weighted by the
 number of neighborhoods they contribute to.
@@ -147,14 +162,6 @@ and $\widehat{Q}_{i,j}  = \widehat{U}_{i,j}$, since they have a count of one.
 At the other extreme, if all cells merged with the same number of neighbors, the $N_k$'s
 would cancel, and the resulting solution would be a typical volume-weighted
 solution over the defined cells.
-
-It is important to note that the centroid of the merging neighborhood is \textit{not} the centroid of cell ${i,j}$ (figure \ref{fig:centroids}).  We define the weighted centroid of the merging neighborhood to be
-\begin{equation}
-\label{centroiddef}
-({\widehat x}_{i,j},{\widehat y}_{i,j}) = \frac{1}{\widehat V_{i,j}} \sum_{k \in M_i } \,  \frac{V_k}{N_k}(x_k,y_k),
-\end{equation}
-where $k$ is a multi-index ranging over the neighbors 
-of cell $i,j$ included in its merging tile.
 
 \item
 {\bf Compute a (limited) gradient for each merging
@@ -169,7 +176,7 @@ The reconstruction on the merged neighborhood is of the form
 \end{equation}
 where $\widehat{Q}_{i, j}$ is the solution average on the merging neighborhood in \eqref{tiledef} and $(\widehat{\sigma}_{x,i,j},\widehat{\sigma}_{y,i,j})$ is the gradient on the merging neighborhood.
 The gradient on the merging neighborhood $(\widehat{\sigma}_{x,i,j},\widehat{\sigma}_{y,i,j})$ satisfies in the least squares sense
-\begin{equation}
+\begin{equation}\label{eq:linrecon}
 \widehat{\sigma}_{x,i,j}(\widehat{x}_{k} - \widehat{x}_{i,j}) + \widehat{\sigma}_{y,i,j}(\widehat{y}_{k} - \widehat{y}_{i,j})= \widehat{Q}_{k} - \widehat{Q}_{i, j} \quad \forall k \in R_{i,j},
 \end{equation}
 where $R_{i,j}$ is the set of indices of neighborhoods used for reconstruction 
@@ -284,10 +291,98 @@ $U^{n+1}(:,:) := 0$\\
 \end{figure}
 
 \subsection{Linear exactness}
-In this section, we show that the SRD method preserves linear functions.
+In this section, we show that the SRD method preserves linear functions.  Consider the grid function of the numerical solution after one time step or stage, $\widehat{U}$.  Assume that it can be written in terms of a linear function $f(x,y)$ of the $x$ and $y$ coordinates, i.e.,
+\begin{equation}
+    \label{eq:uhatlinear}
+\widehat{U}_{i,j} = f(x_{i,j},y_{i,j}) = ax_{i,j} + by_{i,j} + c.
+\end{equation}
+From \eqref{eq:uhatlinear} and the expression for the average on the merging neighborhood $i,j$, \eqref{tiledef}, we have
+\begin{equation}
+    \label{eq:linear1}
+\widehat{Q}_{i,j} = \frac{1}{{\widehat V}_{i,j}} \, \sum_{k \in M_i} \,  
+\frac{V_k}{N_k}  \,\, (ax_{k} + by_{k} + c).
+\end{equation}
+Distributing the summation in \eqref{eq:linear1}, we have
+\begin{equation}\label{eq:linear2}
+\widehat{Q}_{i,j} =  a \left(\frac{1}{{\widehat V}_{i,j}} \, \sum_{k \in M_i} \,  
+\frac{V_k}{N_k} x_{k} \right) + b\left(\frac{1}{{\widehat V}_{i,j}} \, \sum_{k \in M_i} \,  
+\frac{V_k}{N_k} y_{k} \right) + c\left(\frac{1}{{\widehat V}_{i,j}} \, \sum_{k \in M_i} \,
+\frac{V_k}{N_k}\right) .
+\end{equation}
+From the definition of the weighted centroid and volume of the merging neighborhood $i,j$ in \eqref{voldef} and \eqref{centroiddef}, respectively, \eqref{eq:linear2} becomes
+\begin{equation}\label{eq:linear3}
+\widehat{Q}_{i,j} =  a \widehat{x}_{i,j} + b\widehat{y}_{i,j} + c = f(\widehat{x}_{i,j},\widehat{y}_{i,j}).
+\end{equation}
+Now, on the merging neighborhood $i,j$, we solve the least squares system in \eqref{eq:linrecon} to find $\widehat{\sigma}_{x,i,j}$ and $\widehat{\sigma}_{y,i,j}$, i.e., the gradient on the merging neighborhood.  Using \eqref{eq:linear3} in \eqref{eq:linrecon}, and due to the linearity of $f$, the following system
+\begin{equation}
+\widehat{\sigma}_{x,i,j}(\widehat{x}_{k} - \widehat{x}_{i,j}) + \widehat{\sigma}_{y,i,j}(\widehat{y}_{k} - \widehat{y}_{i,j})= f(\widehat{x}_k, \widehat{y}_k) - f(\widehat{x}_{i,j}, \widehat{y}_{i,j}) \quad \forall k \in R_{i,j},
+\end{equation}
+is solved exactly by $\widehat{\sigma}_{x,i,j}=a$ and $\widehat{\sigma}_{y,i,j}=b$.  That is, the exact gradient of $f$, $(a,b)$, is reconstructed on merging neighborhood $i,j$.  The reconstructed solution is then
+\begin{equation}
+    \label{eq:qrecon1}
+    \hat{q}_{i,j}(x,y) = f(\widehat{x}_{i,j},\widehat{y}_{i,j}) + a(x-\widehat{x}_{i,j})+b(y-\widehat{y}_{i,j}) .
+\end{equation}
+Since $f$ is a linear function, \eqref{eq:qrecon1} becomes
+\begin{equation}
+    \label{eq:qrecon2}
+    \hat{q}_{i,j}(x,y) = f(x,y).
+\end{equation}
+By \eqref{eq:final_update_linear} and \eqref{eq:qrecon2}, the final solution update is then
+\begin{equation} 
+U^{n+1}_{i,j} := \frac{1}{N_{i,j}}\sum_{k \in W_{i,j}}f(x_{i,j},y_{i,j}).
+\end{equation}
+This becomes
+\begin{equation} 
+U^{n+1}_{i,j} := f(x_{i,j},y_{i,j}),
+\end{equation}
+i.e., $U^{n+1}_{i,j} = \widehat{U}_{i,j}$, which shows that the SRD method is linearity preserving.
+% The linear advection equation
+% $$
+% \begin{cases}
+%  u_t + a u_x + b u_y = 0 \\
+%  u(x,y,0) = f(x,y)
+% \end{cases}
+% $$
+% has the exact solution $u(x,y,t) = f(x-at,y-bt)$.  
+% The second order TVD Runge Kutta method stabilized by the SRD method is
+% \begin{align}
+% U^{(1)} &= ST(U^n + \Delta t L(U^n)),\\
+% U^{(2)} &= ST(U^{(1)} + \Delta t L(U^{(1)})),\\
+% U^{n+1} &= \frac{1}{2}(U^n + U^{(2)}).
+% \end{align}
+% The finite volume scheme on the cut cell grid is linearity preserving.  That is, if the initial condition $f$ is a linear function, then the intermediate solution $U^n + \Delta t L(U^n)$ is a grid function of the exact solution at the time $t^n + \Delta t$.  We now must show that the SRD method does not modify this intermediate solution.
+
+
 
 \subsection{Limiting}
-On the cut cell grid, we limit using the LP limiter on the cut cells and the recentering idea on whole cells adjacent the cut cells.  We must also design a linearity preserving limiter for slopes on the merging neighborhoods.
+We design a linearity preserving scalar limiter for slopes on the merging neighborhoods.  
+Our goal is to limit the reconstructed gradient on merging neighborhood $i,j$.
+First, we compute the minimum and maximum merging neighborhood average over the reconstruction stencil $R_{i,j}$, i.e., 
+\begin{equation}
+     m_{i,j} = \max_{k \in R_{i,j}} \widehat{Q}_k \text{ and } M_{i,j} = \max_{k \in R_{i,j}} \widehat{Q}_k.
+\end{equation}
+The reconstructed gradient on merging neighborhood $i,j$ is limited by a nonnegative scalar $\alpha \in [0,1]$, i.e., the limited numerical solution on merging neighborhood $i,j$ is
+\begin{equation}
+    \tilde q_{i,j}(x,y) = \widehat{Q}_{i,j} + \alpha [\widehat{\sigma}_{x,i,j} ( x_{i,j} - \widehat x_{i,j}) \, 
+   + \widehat{\sigma}_{y,i,j}( y_{i,j} - \widehat y_{i,j})],
+\end{equation}
+where $\alpha$ reduces the gradient such that when $\widehat{q}_{i,j}$ is evaluated at the centroids of the neighborhoods in $R_{i,j}$ lies between $m_{i,j}$ and $M_{i,j}$.
+That is, $\alpha$ is given by
+$$
+\alpha = \max\left(0,\min_{k \in R_{i,j}} \alpha_k \right),
+$$
+with
+\begin{equation}
+    \alpha_k = \begin{cases}
+    \frac{\widehat{q}_{i,j}(\widehat x_{k}, \widehat y_{k}) - \widehat{Q}_{i,j}}{M_{i,j} - \widehat{Q}_{i,j}} \text{ if } \widehat{q}_{i,j}(\widehat x_{k}, \widehat y_{k}) - \widehat{Q}_{i,j} \geq 0,\\
+     \frac{\widehat{q}_{i,j}(\widehat x_{k}, \widehat y_{k}) - \widehat{Q}_{i,j}}{m_{i,j} - \widehat{Q}_{i,j}} \text{ if } \widehat{q}_{i,j}(\widehat x_{k}, \widehat y_{k}) - \widehat{Q}_{i,j} < 0.
+    \end{cases}
+\end{equation}
+With this limited gradient, the reconstruction on each merging neighborhood satisfies a local maximum principle
+$$
+m_{i,j} \leq \tilde{q}_{i,j}(\widehat x_k, \widehat y_k) \leq M_{i,j} ~ \forall k \in R_{i,j}.
+$$
+This limiter is linearity preserving since $\tilde{q}_{i,j}$ satisfies a local maximum principle at the points $(\widehat x_k, \widehat y_k) ~\forall k \in R_{i,j}$, which coincide with the points over which $m_{i,j}$ and $M_{i,j}$ are computed [cite lilia and mine JCP paper].
 
 %We demonstrate this
 %In particular, we apply the LP limiter [] on slopes

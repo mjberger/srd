@@ -133,6 +133,5 @@ code used a very large stencil to compute this divergence. We instead use a loca
 point stencil to compute $u_x$ and $v_y$, and take the max over a 3 by 3
 neighborhood, so that cut cells get this effect too.
 
-
-
-
+\subsection{Limiting}
+On the cut cell grid, we limit reconstructed gradients using the LP limiter on the cut cells and the recentering idea on whole cells adjacent the cut cells.  
