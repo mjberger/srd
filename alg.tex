@@ -10,7 +10,7 @@ choices.
 
 \subsection{The State Redistribution Algorithm}
 
-To start, we define two quantities associated with each cell of the mesh:
+To start, we define a number of quantities associated with each cell of the mesh:
 
 \begin{itemize}
 \item
@@ -116,7 +116,7 @@ where $k$ is a multi-index ranging over the neighbors of cell $i,j$ included in 
 % \end{center}
 % \end{figure}
 
-The two steps above can be part of a preprocessing step, since they do not
+The steps above can be part of a preprocessing step, since they do not
 depend on the computed solution. For moving geometry however they would
 be done at each step.
 Using the merging tiles and the cell counts, the state redistribution
@@ -129,7 +129,7 @@ algorithm is as follows:
 $$
 \widehat{U} = U^n + \Delta t L(U^n),
 $$
-where $L$ is the finite volume scheme described in section \ref{sec:basefv}.
+where $L$ is given by the finite volume scheme described in section \ref{sec:basefv}.
 \item
 {\bf Compute the volume-weighted and count-weighted solution for all
 merged tiles.}   
