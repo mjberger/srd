@@ -1,6 +1,6 @@
 \section{Introduction}\label{sec:intro}
 Cut cell meshes to solve hyperbolic problems 
-are increasingly prevalent due to their automation and ease 
+are increasingly prevalent due to the ease 
 of grid generation for complicated geometries \cite{}. 
 However the {\em small cell} problem is still an active area of research, and
 a completely satisfactory solution has not yet been found.
@@ -12,7 +12,7 @@ smaller than the regular cells that would otherwise determine the stable time
 step. Special algorthms are needed to prevent this restriction.
 
 The most commonly used stabilization algorithm is called flux
-redistribution \cite{}. The main idea is illustrated below in two space
+redistribution \cite{chern:colella,vof:colella}. The main idea is illustrated below in two space
 dimensions, for ease of notation.
 The essential idea is to compute the 
 flux update for a cut cell $i,j$ with volume $V_{i,j} < V_{\mbox{\em full}}$,
@@ -116,7 +116,6 @@ h_{k+1}} .
 \item
 {\bf Compute Merge Cell Gradient }\\
 There are several ways to do this. 
-\ref{sec:srdAlg}.
 Two simple possibilities are 
 \begin{equation}
 \nabla \widehat{u_M} = \frac{\bar{u}_{k+2} - \bar{u}_{k-1}} {x_{k+2}-x_{k-1}}
@@ -130,7 +129,7 @@ or
 \end{equation}
 which uses the merged cell, and $x_M$ is the centroid of the merged
 cell.
-The choice of gradient stencil will be studied later. 
+The choice of gradient stencil will be studied later in section \ref{sec:srdAlg}.
 
 %Other more accurate alternatives exist, not all of which are stable.
 %It would be better to use smaller stencils, perhaps including $u_{k+1}$
@@ -181,7 +180,10 @@ which it should merge. This is what often causes complications in cell
 merging algorithms. In SRD, we will simply use all such values appropriately
 weighted.
 
-In the next section we present the SRD algorithm in two dimensions.
+In the next section  we first review the finite volume schemes to which SRD will
+be applied.
+The SRD algorithm in two space dimensions will be presented in section
+\ref{sec:srdAlg}.
 For simplicity we present the second order accurate version first.
 The more general higher order extension is described in 
 section \ref{sec:ho}.

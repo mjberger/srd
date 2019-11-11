@@ -38,7 +38,7 @@ merging neighborhood is not sufficiently large (Figure \ref{fig:normalneighborho
     \label{fig:neighborhoods}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}
 	\subfloat[\sf Normal neighborhood (in red) for both small cells in the right corner.]{\includegraphics[width=.35\textwidth]{figs/normaldirection1.pdf} \label{fig:normalneighborhood}}
 	\hfill
 	\subfloat[\sf $3\times 3$ merging neighborhood for both small cells in the right corner.]{\includegraphics[width=.35\textwidth]{figs/normaldirection2.pdf} \label{fig:3x3neighborhood}}
@@ -63,34 +63,46 @@ merging neighborhood is not sufficiently large (Figure \ref{fig:normalneighborho
 
 \vspace*{.1in}
 A full cell is its own merging neighborhood, since it has sufficient
-volume all by itself. However, we will still refer to all cells as having a
-merging neighborhood.  Figure \ref{fig:overlappingneighs} shows an example of a
-cut cell mesh with all merging neighborhoods plotted.  Also displayed
-are the number of overlapping neighborhoods for each cell. This is the 
-neighborhood {\em count} referred to above.
-\begin{figure}
-	\subfloat[]{\includegraphics[width=.24\textwidth]{figs/numoverlaps1.pdf} \label{fig:numoverlaps1}}
-	\hfill
-	\subfloat[]{\includegraphics[width=.24\textwidth]{figs/numoverlaps5.pdf} \label{fig:numoverlaps4}}
-	\hfill
-	\subfloat[]{\includegraphics[width=.24\textwidth]{figs/numoverlaps2.pdf} \label{fig:numoverlaps2}}
-    \hfill
-	\subfloat[]{\includegraphics[width=.24\textwidth]{figs/numoverlaps3.pdf} \label{fig:numoverlaps3}}
-	\caption{\sf All merging neighborhoods on an example cut cell mesh (in green).  We display the number of overlapping merging neighborhoods on each cell. Note, in figure \ref{fig:numoverlaps4}, there are two merging neighborhoods that occupy the same location, one per small cell in the right corner.} \label{fig:overlappingneighs}
-\end{figure}
-Note that a full cell
-can be part of two or more merging tiles if it is placed next to 
-several tiny cut cells. An example is shown in
-figure \ref{fig:2nborTile}. The cells in green are part of two
-neighborhoods, and those in red are part of three.   
- Most full
+volume all by itself.
+%However, we will still refer to all cells as having a
+%merging neighborhood.  
+%Figure \ref{fig:overlappingneighs} shows an example of a
+%cut cell mesh with all merging neighborhoods plotted.  Also displayed
+%are the number of overlapping neighborhoods for each cell. 
+%This is what we call the neighborhood {\em count} referred to above.
+%\begin{figure}
+%	\subfloat[]{\includegraphics[width=.24\textwidth]{figs/numoverlaps1.pdf} \label{fig:numoverlaps1}}
+%	\hfill
+%	\subfloat[]{\includegraphics[width=.24\textwidth]{figs/numoverlaps5.pdf} \label{fig:numoverlaps4}}
+%	\hfill
+%	\subfloat[]{\includegraphics[width=.24\textwidth]{figs/numoverlaps2.pdf} \label{fig:numoverlaps2}}
+%    \hfill
+%	\subfloat[]{\includegraphics[width=.24\textwidth]{figs/numoverlaps3.pdf} \label{fig:numoverlaps3}}
+%	\caption{\sf All merging neighborhoods on an example cut cell mesh (in green).  We display the number of overlapping merging neighborhoods on each cell. Note, in figure \ref{fig:numoverlaps4}, there are two merging neighborhoods that occupy the same location, one per small cell in the right corner.} \label{fig:overlappingneighs}
+%\end{figure}
+But a full cell can be part of 
+two (or more)  merging neighborhoods  if it is placed next to 
+one (or more)  tiny cut cells. This is the case for the left cell in figure
+\ref{fig:neighborhoods}. The full cell is its own merging neighborhood, 
+as well as being part of the cut cell's neighborhood. Thus the full cell has a
+count of 2, and the cut cell has a count of 1.
+%An example is shown in
+%figure \ref{fig:2nborTile}. The cells in green are part of two
+%neighborhoods, and those in red are part of three.   
+
+Most full
 cells are only members of their own tile and will have a count of one.
 Only cells within a narrow band of the cut cells will have a count
 larger than one.
 
 \item
-{\bf Each neighborhood has an associated centroid and volume.}
-Each merging neighborhood has a volume and centroid that is \textit{not} the volume or centroid of the cell $i,j$.  The neighborhood's volume is defined as
+{\bf Each neighborhood computes its weighted centroid and volume.}
+
+Each merging neighborhood computes the  volume and centroid weighted by
+the number of neighborhoods it belongs to.  Note that this is generally
+\textit{not} the volume or centroid of the cell $i,j$, unless the count is one, or
+all counts in the neighboorhood are equal and therefore cancel.  
+The neighborhood's weighted volume is defined as
 \begin{equation}
 \label{voldef}
 {\widehat V}_{i,j} =  \sum_{k \in M_i } \,  \frac{V_k}{N_k},
@@ -103,6 +115,14 @@ and the weighted centroid of the merging neighborhood is defined as
 where $k$ is a multi-index ranging over the neighbors of cell $i,j$ included in its merging tile.  The difference between $(x_{i,j}, y_{i,j})$ and $(\widehat{x}_{i,j}, \widehat{y}_{i,j})$ is illustrated in figure \ref{fig:centroids}.
 
 \end{itemize}
+
+\begin{figure}[h]
+    \centering
+    \subfloat[]{\includegraphics[width=0.45\linewidth]{figs/centroids3.pdf}} \hfill
+    \subfloat[]{\includegraphics[width=0.45\linewidth]{figs/centroids4.pdf}}
+    \caption{\sf The centroids of the Cartesian and cut cells are indicated with a solid circle ($\bullet$).  The centroids and weighted centroids of the merging neighborhoods are indicated with a square ($\blacksquare$) and a cross ($\times$), respectively. Note that the centroids and weighted centroid of the cut cell neighborhoods do not necessarily coincide.}
+    \label{fig:centroids}
+\end{figure}
 
 
 % \begin{figure}[h!]
@@ -119,82 +139,73 @@ where $k$ is a multi-index ranging over the neighbors of cell $i,j$ included in 
 The steps above can be part of a preprocessing step, since they do not
 depend on the computed solution. For moving geometry however they would
 be done at each step.
-Using the merging tiles and the cell counts, the state redistribution
-algorithm is as follows:
 
-\begin{enumerate}
-\item
-{\bf Compute one time step or stage of the base finite volume scheme.}  
-
+\vspace*{.1in}
+Using the merging tiles and the cell counts, the {\bf state redistribution
+algorithm} is as follows. It is applied after one step or stage of the base scheme,
 $$
 \widehat{U} = U^n + \Delta t L(U^n),
 $$
-where $L$ is given by the finite volume scheme described in section \ref{sec:basefv}.
+where $L$ is given by one of the finite volume schemes
+described in section \ref{sec:basefv}. The variable $\widehat{U}$ refers to the
+provisionally updated value before postprocessing.
+
+\begin{enumerate}
 \item
 {\bf Compute the volume-weighted and count-weighted solution for all
-merged tiles.}   
+merging tiles.}   
 
 \vspace*{.1in}
-The contribution of each cell is divided by the number of neighborhoods 
-it is part of (i.e. its count). The notation in this section refers
-to cut cell $i,j$, with solution $U_{i,j}$ and volume
-$V_{i,j}$. 
-The provisionally updated solution before the
-stabilization algorithm is applied is $\widehat{U}_{i,j}$.
-The solution on the many temporary merging neighborhoods 
-is denoted  $\widehat{Q}_{i,j}$. 
-Recall that $M_{i,j}$ is the set of cell indices in the cell $(i,j)$ merging
-neighborhood.  Then
+The solution $\widehat{Q}$ for each neighborhood is computed,
 \begin{equation}
 \label{tiledef}
 \widehat{Q}_{i,j} =  \frac{1}{{\widehat V}_{i,j}} \, \sum_{k \in M_i} \,  
 \frac{V_k}{N_k}  \,\,  \widehat{U}_k
 \end{equation}
-where the volume ${\widehat V}_{i,j}$ is the merging tile volume similarly weighted in \eqref{voldef}.
+where the volume ${\widehat V}_{i,j}$ is the 
+similarly weighted merging tile volume in \eqref{voldef}.
+Recall that $M_{i,j}$ is the set of cell indices in the cell $(i,j)$ merging
+neighborhood, and  
+$k$ is  a multi-index ranging over the neighbors 
+of cell $(i,j)$ included in its merging tile.
 
-
-In other words, the contributions from each cell are weighted by the
-number of neighborhoods they contribute to.
-In the above equations, $k$ is  a multi-index ranging over the neighbors 
-of cell $i,j$ included in its merging tile.
-Note that most full cells will have ${\widehat V}_{i,j} = V_{i,j}$, 
+In words, the contribution of each cell is divided by the number of neighborhoods 
+it is part of (i.e. its count). 
+Most full cells will have ${\widehat V}_{i,j} = V_{i,j}$, 
 and $\widehat{Q}_{i,j}  = \widehat{U}_{i,j}$, since they have a count of one.
 At the other extreme, if all cells merged with the same number of neighbors, the $N_k$'s
 would cancel, and the resulting solution would be a typical volume-weighted
-solution over the defined cells.
+solution over the included cells. 
 
 \item
 {\bf Compute a (limited) gradient for each merging
 tile.}
 
 \vspace*{.1in}
-For cut cells, a least squares procedure  similar to the one used for
-the finite volume update is an obvious choice. 
-The reconstruction on the merged neighborhood is of the form
+A gradient needs to be computed for each cut cell neighborhood. (This will be used
+to replace the provisional solution in the next step.)
+A least squares procedure  similar to the one used in
+the finite volume update of the cut cells is an obvious choice. 
+
+We use a 3-by-3 neighbhood around $(i,j)$, ignore solid cells, and fit a least
+squares solution using the weighted centroids.
+The reconstruction on the merged neighboorhood is of the form
 \begin{equation}
 \widehat{q}_{i,j}(x,y) = \widehat{Q}_{i, j} + \widehat{\sigma}_{x,i,j}(x - \widehat{x}_{i,j}) + \widehat{\sigma}_{y,i,j}(y - \widehat{y}_{i,j}),
 \end{equation}
 where $\widehat{Q}_{i, j}$ is the solution average on the merging neighborhood in \eqref{tiledef} and $(\widehat{\sigma}_{x,i,j},\widehat{\sigma}_{y,i,j})$ is the gradient on the merging neighborhood.
-The gradient on the merging neighborhood $(\widehat{\sigma}_{x,i,j},\widehat{\sigma}_{y,i,j})$ satisfies in the least squares sense
-\begin{equation}\label{eq:linrecon}
-\widehat{\sigma}_{x,i,j}(\widehat{x}_{k} - \widehat{x}_{i,j}) + \widehat{\sigma}_{y,i,j}(\widehat{y}_{k} - \widehat{y}_{i,j})= \widehat{Q}_{k} - \widehat{Q}_{i, j} \quad \forall k \in R_{i,j},
-\end{equation}
-where $R_{i,j}$ is the set of indices of neighborhoods used for reconstruction 
-on merging neighborhood $i$.  That is, the reconstruction on the merged neighborhood is the linear function of best fit through the points $(\widehat x_k, \widehat y_k, \widehat Q_k)$ $\forall k \in R_{i,j}$ and that passes exactly through $(\widehat x_{i,j}, \widehat y_{i,j}, \widehat{Q}_{i,j})$.
-
-% However instead of using the solution $U_{i,j}$ on the Cartesian mesh at time $t_n$, the merging neighborhood solution  $\widehat{Q}_{i,j}$ is used. 
+%The gradient on the merging neighborhood $(\widehat{\sigma}_{x,i,j},\widehat{\sigma}_{y,i,j})$ satisfies in the least squares sense
+%\begin{equation}\label{eq:linrecon}
+%\widehat{\sigma}_{x,i,j}(\widehat{x}_{k} - \widehat{x}_{i,j}) + \widehat{\sigma}_{y,i,j}(\widehat{y}_{k} - \widehat{y}_{i,j})= \widehat{Q}_{k} - \widehat{Q}_{i, j} \quad \forall k \in R_{i,j},
+%\end{equation}
+%where $R_{i,j}$ is the set of indices of neighborhoods used for reconstruction 
+%on merging neighborhood $i$.  That is, the reconstruction on the merged neighborhood is the linear function of best fit through the points $(\widehat x_k, \widehat y_k, \widehat Q_k)$ $\forall k \in R_{i,j}$ and that passes exactly through $(\widehat x_{i,j}, \widehat y_{i,j}, \widehat{Q}_{i,j})$.
 
 
-\begin{figure}
-    \centering
-    \subfloat[]{\includegraphics[width=0.45\linewidth]{figs/centroids3.pdf}} \hfill
-    \subfloat[]{\includegraphics[width=0.45\linewidth]{figs/centroids4.pdf}}
-    \caption{\sf The centroids of the Cartesian and cut cells are indicated with a solid circle ($\bullet$).  The centroids and weighted centroids of the merging neighborhoods are indicated with a square ($\blacksquare$) and a cross ($\times$), respectively. Note that the centroids and weighted centroid of the cut cell neighborhoods do not necessarily coincide.}
-    \label{fig:centroids}
-\end{figure}
-The reconstruction neighborhood $R_{i,j}$ for merging neighborhood $i,j$ is initialized to the $3 \times 3$ tile centered on $i,j$.
-With this choice, it could happen that the centroids are too close to each 
-other to compute a gradient in the normal direction (figure \ref{fig:tooclose}). 
+It could happen that the 3-by-3 neighborhood does not have enough cells, or that
+the centroids are too close to each other to compute a well-conditioned gradient.
+This is the case in figure \ref{fig:tooclose}, which shows the location of the
+centroids in $y$ are too close, but they are well-separated in the  $x$ direction. 
 If the weighted centroids are not at least $0.5\,\Delta x$  and $0.5\,\Delta y$ 
 apart in the $x$ or $y$ direction then we increase the stencil size for the 
 gradient computation.  For example, if the weighted centroids are too close in the $x$ 
@@ -204,10 +215,15 @@ close in the $y$ direction, but not the $x$ direction, then the $3\times 5$ tile
 used as the reconstruction neighborhood.  The neighborhood size is increased until the 
 distance constraint is satisfied in both directions.  In figure \ref{fig:tooclose},
 the appropriate reconstruction neighborhood is $3\times 5$ reconstruction tile.
-% The same neighborhood that is used for computing the gradient can be used to limit the gradient to prevent overshoots. The centroid is computed using the same weighting by number of neighborhoods as when the volume was computed. (IS THIS TRUE AND IS IT NECESSARY) NEED DISCUSSION OF NOT A REAL CENTROID
-(AG - THIS IS WHAT I DO For most full cells with a count of one,
-the normal gradient computation as done in the finite volume update will suffice.
-DISUCSS BOTH HERE?)
+
+WHAT ABOUT LIMITING THE GRADIENT?  
+
+Note that full cells, where the merging solution $\widehat{Q} = \widehat{U}$, the
+provisionally updated solution, do not need a gradient. The solution will only be
+evaluated at the cell centroid, which is the same as the neighborhood centroid, so
+no offsets will be computed. However the merging neighborhood of the cut cell will
+also contributed to the full cell.
+
 \begin{figure}
     \centering
     \subfloat[]{\includegraphics[width=0.45\linewidth]{figs/tooclose2.pdf}} \hfill
@@ -217,32 +233,41 @@ DISUCSS BOTH HERE?)
 \end{figure}
 
 \item
-{\bf Replace the provisionally computed cut cell values and their adjacent
-full cell neighbors with  the contributions from the merged tiles.} 
+%{\bf Replace the provisionally computed cut cell values and their adjacent
+%full cell neighbors with  the contributions from the merged tiles.} 
+{\bf The merging neighborhoods contribute their solution to the cut cells and
+adjacent full cell neighbors, replacing the provisionally computed solution.} 
 
 \vspace*{.1in}
-The final solution at time $t^{n+1}$ on cut cell $i,j$ is obtained by compiling a the indices of all merging neighborhoods that overlap cell $i,j$ in the set $W_{i,j}$.  Then, the solution on merging neighborhood $k$ in $W_{i,j}$ is evaluated at $i,j$'s physical centroid, $(x_{i,j},y_{i,j})$, given by $\hat{q}_{k}(x_{i,j},y_{i,j})$.  The final solution value on cell $i,j$ is given by the average of these values, i.e.,
+The final solution at time $t^{n+1}$ on cut cell $(i,j)$ is obtained by compiling the 
+indices of all merging neighborhoods that overlap the cell  into the set $W_{i,j}$.
+The solution on merging neighborhood $k \in W_{i,j}$ is evaluated at $(i,j)$'s 
+physical centroid, $(x_{i,j},y_{i,j})$, given by $\hat{q}_{k}(x_{i,j},y_{i,j})$.  
+The final solution on cell $(i,j)$ is given by the average of these values, i.e.,
 \begin{equation} \label{eq:final_update_linear}
 U^{n+1}_{i,j} := \frac{1}{N_{i,j}}\sum_{k \in W_{i,j}}\hat{q}_{k}(x_{i,j},y_{i,j}).
 \end{equation}
+
 To use the example of figure \ref{fig:2nborTile}, the cut cell value
 \begin{equation}
    U_{i,j}^{n+1} := \widehat{Q}_{i,j} 
    + ( x_{i,j} - \widehat x_{i,j}) \, \widehat{\sigma}_{x,i,j}
    + ( y_{i,j} - \widehat y_{i,j}) \, \widehat{\sigma}_{y,i,j}
 \end{equation}
-since cell ${i,j}$ only belongs to one neighborhood. The adjacent full cell
-on the other hand belongs to two neighborhoods -- the one it shares with
+since cell $(i,j)$ only belongs to one neighborhood. The adjacent full cell
+$(i,j+1)$ on the other hand belongs to two neighborhoods -- the one it shares with
 the cut cell $i,j$ , and its own merging neighborhood.
-So its solution at time $t_{n+1}$  becomes
+So its solution at time $t^{n+1}$  becomes
 \begin{equation}
 \label{eqn:numhood2ex}
 \begin{split}
-   U_{i,j+1}^{n+1} \,=\, & \frac{1}{2}\widehat{q}_{i,j}(x_{i,j})+ \frac{1}{2} \widehat{q}_{i,j+1}(x_{i,j}), \\
+   U_{i,j+1}^{n+1} \,=\, & \frac{1}{2} \, \widehat{q}_{i,j}(x_{i,j+1},y_{i,j+1})+ 
+   \frac{1}{2} \,  \widehat{q}_{i,j+1}(x_{i,j+1},y_{i,j+1}), \\
    = &\frac{1}{2} \left
    (\widehat{Q}_{i,j} 
    + ( x_{i,j+1} - \widehat x_{i,j}) \, \widehat{\sigma}_{x,i,j}
-   + ( y_{i,j+1} - \widehat y_{i,j}) \, \widehat{\sigma}_{y,i,j} \right ) + \frac{1}{2} \widehat{Q}_{i,j+1} .
+   + ( y_{i,j+1} - \widehat y_{i,j}) \, \widehat{\sigma}_{y,i,j} \right ) + 
+   \frac{1}{2} \, \widehat{Q}_{i,j+1} .
 \end{split}
 \end{equation}
 The last term  in eq. \eqref{eqn:numhood2ex} has no gradient terms because the
@@ -251,26 +276,21 @@ The fraction $\frac{1}{2}$ is because cell $(i,j+1)$ is part of  two
 neighborhoods, so each contributes half of the solution.
 \end{enumerate}
 
-Different choices of neighborhoods, the minimum volume for the merging
-neighborhood, gradient neighborhoods, and limiting will give
-somewhat different computational results. Some of these will be examined
-theoretically using model problems in one space dimension in section
-\ref{sec:theory}. These choices can affect the stability limit of the
-overall method.
-We will also show computational results using different neighborhood
-choices in section \ref{sec:compResults} in two space dimensions.
+One might at first think that only the cut cell needs to have its solution replaced
+by a more stable update.  This would not be conservative however; the adjacent cell
+also needs to be part of the update. But each of these cells might also be part of
+another neighborhood if the geometry curves, for example. So in the general case,
+each contribution from a merging tile has to be weighted by the number of
+neigborhoods it contributes to. 
 
-The conservation properties of the algorithm will be discussed after the
-higher order SRD algorithm is presented in the next
-section (PR PUT IT HERE). It will also be prseented more generally.   
-OTHER THINGS HERE? DEMONSTRATE LINEARLY EXACT SECOND ORDER CONVERGENCE
-HERE INSTEAD OF COMPRESULTS SECTION?
 
-% SOMEHWERE PUT IMPLEMENTATION SUBSECTION OR AT LEAST A PARAGRAPH
-% TO NOTE THAT THE CELL DOESNT KNOW WHO GIVES TO
-% IT, SO THIS LOOP IS OVER GIVERS  NOT RECEIVERS.
-The final update formula \eqref{eq:final_update_linear} can easily be implemented with a nested for loop in algorithm \ref{alg:finalupdate}.  
-The outer loop iterates over the merging neighborhoods $i,j$ and the inner loop iterates over each cell $k$ in merging neighborhood $i,j$.  Each merging neighborhood $i,j$ gives a contribution $ \hat{q}_{i,j}(x_{k}, y_k)/N_{k} $ to the cells $k$ that belong to it.
+
+The final update formula \eqref{eq:final_update_linear} can easily be implemented with a 
+nested for loop in algorithm \ref{alg:finalupdate}.  
+The outer loop iterates over the merging neighborhoods $i,j$ and the inner loop 
+iterates over each cell $k$ in merging neighborhood $i,j$.  Each merging 
+neighborhood $i,j$ gives a contribution $ \hat{q}_{i,j}(x_{k}, y_k)/N_{k} $ to the 
+cells $k$ that belong to it.
 
 \begin{algorithm}[H]
 \SetAlgoLined
@@ -284,11 +304,26 @@ $U^{n+1}(:,:) := 0$\\
 \end{algorithm}
 
 \begin{figure}
-	\subfloat[]{\includegraphics[width=0.45\textwidth]{figs/modelexample2D_1.pdf} \label{fig:2nborTile1}}
+	\subfloat[]{\includegraphics[width=0.40\textwidth]{figs/modelexample2D_1.pdf} \label{fig:2nborTile1}}
 	\hfill
-	\subfloat[]{\includegraphics[width=.45\textwidth]{figs/modelexample2D_2.pdf} \label{fig:2nborTile2}}
+	\subfloat[]{\includegraphics[width=.40\textwidth]{figs/modelexample2D_2.pdf} \label{fig:2nborTile2}}
 	\caption{\sf Two-dimensional example of overlapping neighborhoods.  The unweighted centroids of cells $i,j$ and $i,j+1$ are indicated with solid squares ($\blacksquare$).} \label{fig:2nborTile}
 \end{figure}
+
+The conservation properties of the algorithm will be discussed after the
+higher order SRD algorithm is presented in the next
+section (PR PUT IT HERE). It will also be prseented more generally.   
+OTHER THINGS HERE? DEMONSTRATE LINEARLY EXACT SECOND ORDER CONVERGENCE
+HERE INSTEAD OF COMPRESULTS SECTION?
+
+Different choices of neighborhoods, the minimum volume for the merging
+neighborhood, gradient neighborhoods, and limiting will give
+somewhat different computational results. Some of these will be examined
+theoretically using model problems in one space dimension in section
+\ref{sec:theory}. These choices can affect the stability limit of the
+overall method.
+We will also show computational results using different neighborhood
+choices in section \ref{sec:compResults} in two space dimensions.
 
 \subsection{Linear exactness}
 In this section, we show that the SRD method preserves linear functions.  Consider the grid function of the numerical solution after one time step or stage, $\widehat{U}$.  Assume that it can be written in terms of a linear function $f(x,y)$ of the $x$ and $y$ coordinates, i.e.,
@@ -336,6 +371,11 @@ This becomes
 U^{n+1}_{i,j} := f(x_{i,j},y_{i,j}),
 \end{equation}
 i.e., $U^{n+1}_{i,j} = \widehat{U}_{i,j}$, which shows that the SRD method is linearity preserving.
+
+We conclude that the SRD algorithm will preserve the accucacy of a second order accurate 
+base scheme. In section \ref{sec:ho} we will extend both SRD and the RK schemes to 3rd
+order accuracy.
+
 % The linear advection equation
 % $$
 % \begin{cases}
