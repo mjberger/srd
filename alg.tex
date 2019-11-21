@@ -7,8 +7,9 @@ algorithm more intuitive.
 At several places there are choices
 to make, and we discuss the alternatives and the reason behind our
 choices.  
+Section \ref{sec:ho} presents the higher order version of the algorithm in full generality.
 
-\subsection{The State Redistribution Algorithm}
+\subsection{State Redistribution Preprocessing}
 
 To start, we define a number of quantities associated with each cell of the mesh:
 
@@ -19,7 +20,7 @@ To start, we define a number of quantities associated with each cell of the mesh
 \vspace*{.1in}
 For each cut cell in the mesh, find  one or more neighbors until the
 volume of the temporarily merged cell is at least half the area of an uncut cell, i.e., 
-\begin{equation} \label{eq:vmerge}
+\begin{equation} \label{eqn:vmerge}
 \sum_{k \in M_{i,j}} V_{k} \geq \frac{1}{2}\Delta x\Delta y,
 \end{equation}
 where $M_{i,j}$ denotes the set of cell indices that belong to merging neighborhood $(i,j)$.
@@ -32,10 +33,8 @@ tile centered at the small cell (Figure \ref{fig:neighborhoods}, right).
 The larger the neighborhood the more diffusive the results. 
 For smooth solutions a $3 \times 3$ is fine, but for shocks this is less so.
 Therefore we use the normal neighborhood everywhere possible.
-There are instances where the normal neighborhood cannot be used, e.g., if a neighboring cell is also cut and the
-merging neighborhood is not sufficiently large (Figure \ref{fig:normalneighborhood}).  In this case, we must merge with cells on the $3\times3$ tile (Figure \ref{fig:3x3neighborhood}), or, if that merging neighborhood is not large enough, with cells on the $5 \times 5$ tile.
 
-\begin{figure}
+\begin{figure}[t]
     \centering
     \includegraphics[width=0.5\linewidth]{figs/neighborhoods.pdf}
     \caption{\sf On the left, a small cell is merged with a cell in the direction 
@@ -43,14 +42,19 @@ merging neighborhood is not sufficiently large (Figure \ref{fig:normalneighborho
     \label{fig:neighborhoods}
 \end{figure}
 
-\begin{figure}
-	\subfloat[\sf Normal neighborhood (in red) for both small cells in the right corner.]{\includegraphics[width=.35\textwidth]{figs/normaldirection1.pdf} \label{fig:normalneighborhood}}
+
+There are instances where the normal neighborhood cannot be used, e.g., if a neighboring cell is also cut and the
+merging neighborhood is not sufficiently large (Figure \ref{fig:normalneighborhood}).  In this case, we must merge with cells on the $3\times3$ tile (Figure \ref{fig:3x3neighborhood}), or, if that merging neighborhood is not large enough, with cells on the $5 \times 5$ tile.
+
+\begin{figure}[h]
+\hspace*{.5in}
+	\subfloat[\sf Normal neighborhood (in red) for both small cells in the right corner.]{\includegraphics[width=.30\textwidth]{figs/normaldirection1.pdf} \label{fig:normalneighborhood}}
 	\hfill
-	\subfloat[\sf $3\times 3$ merging neighborhood for both small cells in the right corner.]{\includegraphics[width=.35\textwidth]{figs/normaldirection2.pdf} \label{fig:3x3neighborhood}}
+	\subfloat[\sf $3\times 3$ merging neighborhood for both small cells in the right corner.]{\includegraphics[width=.30\textwidth]{figs/normaldirection2.pdf} \label{fig:3x3neighborhood}}
 	\caption{\sf It can happen that merging only in the normal neighborhood is not 
         large enough, e.g. if the small cell merges with another small cell.  
         In this case, we use the $3\times 3$ tile, or $5\times5$ neighborhood 
-        until the volume constraint \eqref{eq:vmerge} is satisfied.}
+        until the volume constraint \eqref{eqn:vmerge} is satisfied.}
 \end{figure}
 % If the neighboring cell 
 % is also cut, it can happen that the
@@ -119,16 +123,17 @@ and the weighted centroid of the merging neighborhood is defined as
 \end{equation}
 where $k$ is a multi-index ranging over the neighbors of cell $i,j$ included in its merging tile.  The difference between $(x_{i,j}, y_{i,j})$ and $(\widehat{x}_{i,j}, \widehat{y}_{i,j})$ is illustrated in figure \ref{fig:centroids}.
 
-\end{itemize}
 
 \begin{figure}[h]
     \centering
-    \subfloat[]{\includegraphics[width=0.45\linewidth]{figs/centroids3.pdf}} \hfill
-    \subfloat[]{\includegraphics[width=0.45\linewidth]{figs/centroids4.pdf}}
+    \hspace*{.5in}
+    \subfloat[]{\includegraphics[width=0.35\linewidth]{figs/centroids3.pdf}} \hfill
+    \subfloat[]{\includegraphics[width=0.35\linewidth]{figs/centroids4.pdf}}
     \caption{\sf The centroids of the Cartesian and cut cells are indicated with a solid circle ($\bullet$).  The centroids and weighted centroids of the merging neighborhoods are indicated with a square ($\blacksquare$) and a cross ($\times$), respectively. Note that the centroids and weighted centroid of the cut cell neighborhoods do not necessarily coincide.}
     \label{fig:centroids}
 \end{figure}
 
+\end{itemize}
 
 % \begin{figure}[h!]
 % \begin{center}
@@ -142,14 +147,15 @@ where $k$ is a multi-index ranging over the neighbors of cell $i,j$ included in 
 % \end{figure}
 
 These three steps can be part of a preprocessing step since they do not
-depend on the computed solution. For moving geometry however they would
+depend on the computed solution. However for moving geometry they would
 be done at each step.
 
 \vspace*{.1in}
-Using the merging tiles and the cell counts, the {\bf state redistribution
-algorithm} is as follows. It is applied after one step or stage of the base scheme,
+\subsection{State Redistribution Postprocessing }
+Using the merging tiles and the cell counts, the  state redistribution
+algorithm is applied after one step or stage of the base scheme,
 $$
-\widehat{U} = U^n + \Delta t L(U^n),
+\widehat{U} = U^n + \Delta t \, L(U^n),
 $$
 where $L$ is given by one of the finite volume schemes
 described in section \ref{sec:basefv}. The variable $\widehat{U}$ refers to the
@@ -157,7 +163,7 @@ provisionally updated value before SRD postprocessing.
 
 \begin{enumerate}
 \item
-{\bf Compute the volume-weighted and count-weighted solution for all
+{\bf Compute the volume-weighted,  count-weighted solution for all
 merging tiles.}   
 
 \vspace*{.1in}
@@ -183,35 +189,38 @@ would cancel, and the resulting solution would be the standard volume-weighted
 solution over the included cells. 
 
 \item
-{\bf Compute a (limited) gradient for each merging
-tile.}
+{\bf Compute and limit a gradient for each merging tile.}
 
 \vspace*{.1in}
-A gradient needs to be computed for each cut cell neighborhood. (This will be used
-to replace the provisional solution in the next step.)
-A least squares procedure  similar to the one used 
+A gradient needs to be computed for each cut cell neighborhood. This will be needed
+to accurately update the provisional solution in the next step.
+A least squares procedure  similar to the one used in eq.~\eqref{eqn:lls} 
 for the finite volume update of the cut cells is an 
-obvious choice.  In eq. \eqref{eqn:lls} the $\sigma_x$
-and $\sigma_y$ is replaced by $\widehat{\sigma_x}$ and
-$\widehat{\sigma_y}$ indicating that the gradient is over the merging
-tile now. We also use the merging tile's weighted centroid instead of 
-the cell centroid. Otherwise the linear least squares procedure is identical.
-The same limiting procedure (BJ or LP) is also applied to the
-reconstruction solution on the merging neighborhood.
-NEED TO TRY THIS
+obvious choice.  
 
 We use a 3-by-3 neighborhood around $(i,j)$, ignore solid cells, and fit a least
 squares solution using the weighted centroids.
 As in eq. \eqref{eqn:lls}, the reconstruction on the merged 
 neighboorhood is of the form
 \begin{equation}
-\widehat{q}_{i,j}(x,y) = \widehat{Q}_{i, j} + \widehat{\sigma}_{x,i,j}(x - \widehat{x}_{i,j}) + \widehat{\sigma}_{y,i,j}(y - \widehat{y}_{i,j}),
+\widehat{q}(x,y) = \widehat{Q}_{i, j} + \widehat{\sigma}_{x,i,j}(x - \widehat{x}_{i,j}) + \widehat{\sigma}_{y,i,j}(y - \widehat{y}_{i,j}),
 \end{equation}
-where $\widehat{Q}_{i, j}$ is the solution average on the merging neighborhood in \eqref{tiledef} and $(\widehat{\sigma}_{x,i,j},\widehat{\sigma}_{y,i,j})$ is 
+where $\widehat{Q}_{i, j}$ is the solution average from eq. \eqref{tiledef} and $(\widehat{\sigma}_{x,i,j},\widehat{\sigma}_{y,i,j})$ is 
 the gradient on the merging neighborhood.
+The quantities $(\widehat{\sigma}_{x,i,j},\widehat{\sigma}_{y,i,j})$ satisfy in the least squares sense
+\begin{equation}\label{eqn:linrecon}
+\widehat{\sigma}_{x,i,j}(\widehat{x}_{k} - \widehat{x}_{i,j}) + \widehat{\sigma}_{y,i,j}(\widehat{y}_{k} - \widehat{y}_{i,j})= \widehat{Q}_{k} - \widehat{Q}_{i, j} \quad \forall k \in R_{i,j},
+\end{equation}
+Note that eq. \eqref{eqn:linrecon} uses the merging tile's weighted centroid
+$(\widehat{x}_{i,j},\widehat{y}_{i,j})$ instead of the cell centroid. 
+We use 
+$W_{i,j}$ to refer to the set of indices of neighborhoods used for reconstruction,
+since it need not be the same as the $R_{i,j}$ used in the cut cell gradient
+reconstruction. DO I HAVE NOTATION RIGHT
+
 
 %The gradient on the merging neighborhood $(\widehat{\sigma}_{x,i,j},\widehat{\sigma}_{y,i,j})$ satisfies in the least squares sense
-%\begin{equation}\label{eq:linrecon}
+%\begin{equation}\label{eqn:linrecon}
 %\widehat{\sigma}_{x,i,j}(\widehat{x}_{k} - \widehat{x}_{i,j}) + \widehat{\sigma}_{y,i,j}(\widehat{y}_{k} - \widehat{y}_{i,j})= \widehat{Q}_{k} - \widehat{Q}_{i, j} \quad \forall k \in R_{i,j},
 %\end{equation}
 %where $R_{i,j}$ is the set of indices of neighborhoods used for reconstruction 
@@ -236,6 +245,18 @@ used as the reconstruction neighborhood.  The neighborhood size is increased unt
 distance constraint is satisfied in both directions.  In figure \ref{fig:tooclose},
 the appropriate reconstruction neighborhood is $3\times 5$ reconstruction tile.
 
+\begin{figure}
+    \centering
+    \subfloat[]{\includegraphics[width=0.40\linewidth]{figs/tooclose2.pdf}} \hfill
+    \subfloat[]{\includegraphics[width=0.40\linewidth]{figs/tooclose1.pdf}} 
+    \caption{\sf On the left, the blue cell's $3\times3$ gradient reconstruction 
+    stencil  is highlighted in green. On the right, cell $(i,j+1)$ has a
+    stencil highlighted in green, for computing the gradient in $x$. 
+    The weighted centroids are indicated with a cross ($\times$).
+    They are TOO CLOSE NEED LARGER NEIGHBORHOOD (WHAT DOES THIS SHOW)}
+    \label{fig:tooclose}
+\end{figure}
+
 Note that full cells, where the merged  solutions $\widehat{Q} =
 \widehat{U}$ (the
 provisionally updated solution), do not need a gradient. The solution will only be
@@ -243,31 +264,23 @@ evaluated at the cell centroid, which is the same as the neighborhood centroid, 
 no offsets will be computed. However the merging neighborhood of the cut cell will
 also contributed to the full cell.
 
-\begin{figure}
-    \centering
-    \subfloat[]{\includegraphics[width=0.45\linewidth]{figs/tooclose2.pdf}} \hfill
-    \subfloat[]{\includegraphics[width=0.45\linewidth]{figs/tooclose1.pdf}} 
-    \caption{\sf On the left, the blue cell's $3\times3$ gradient reconstruction 
-    stencil  is highlighted in green. On the right, cell $(i,j+1)$ has a
-    stencil highlighted in green, for computing the gradient in $x$. 
-    The weighted centroids are indicated with a cross ($\times$).}
-    They are TOO CLOSE NEED LARGER NEIGHBORHOOD (WHAT DOES THIS SHOW)
-    \label{fig:tooclose}
-\end{figure}
+To limit the gradient we again apply BJ, this time over the neighboring merging tiles 
+instead of neighboring cells as in eq. \eqref{eqn:bj}.  NEED TO TRY USING LP TOO
+
 
 \item
 {\bf The merging neighborhoods replace the provisionally computed solution 
-on the cut cells and adjacent full cells.} 
+with the merged tile solution on the cut cells and adjacent full cells.} 
 
 \vspace*{.1in}
-The final solution at time $t^{n+1}$ on cut cell $(i,j)$ is obtained by compiling the 
-indices of all merging neighborhoods that overlap the cell  into the set $W_{i,j}$.
-The solution on merging neighborhood $k \in W_{i,j}$ is evaluated at $(i,j)$'s 
-physical centroid, $(x_{i,j},y_{i,j})$, given by $\hat{q}_{k}(x_{i,j},y_{i,j})$.  
-The final solution on cell $(i,j)$ is given by the average of these values, i.e.,
-\begin{equation} \label{eq:final_update_linear}
+The final solution on cell $(i,j)$ is given by the average of the 
+reconstructed polynomials that overlap the cell. Letting $W_{i,j}$ be the list of
+indices of these overlapping tiles. Then the update for cell $(i,j)$ is
+\begin{equation} \label{eqn:final_update_linear}
 U^{n+1}_{i,j} := \frac{1}{N_{i,j}}\sum_{k \in W_{i,j}}\hat{q}_{k}(x_{i,j},y_{i,j}).
 \end{equation}
+The solution on merging neighborhood $k \in W_{i,j}$ is evaluated at $(i,j)$'s 
+physical centroid, $(x_{i,j},y_{i,j})$, given by $\hat{q}_{k}(x_{i,j},y_{i,j})$.  
 
 To use the example of figure \ref{fig:2nborTile}, the cut cell value
 \begin{equation}
@@ -299,15 +312,14 @@ neighborhoods, so each contributes half of the solution.
 \end{enumerate}
 
 One might at first think that only the cut cell needs to have its solution replaced
-by a more stable update.  This would not be conservative however; the adjacent cell
-also needs to be part of the update. But each of these cells might also be part of
+by the more stable update.  This would not be conservative however; the adjacent cell
+also needs to be part of the update. In addition, each of these cells might also be part of
 another neighborhood if the geometry curves, for example. So in the general case,
 each contribution from a merging tile has to be weighted by the number of
 neigborhoods it contributes to. 
 
 
-
-The final update formula \eqref{eq:final_update_linear} can easily be implemented with a 
+The final update formula \eqref{eqn:final_update_linear} can easily be implemented with a 
 nested for loop in algorithm \ref{alg:finalupdate}.  
 The outer loop iterates over the merging neighborhoods $i,j$ and the inner loop 
 iterates over each cell $k$ in merging neighborhood $i,j$.  Each merging 
@@ -350,27 +362,31 @@ choices in section \ref{sec:compResults} in two space dimensions.
 \subsection{Linear exactness}
 In this section, we show that the SRD method preserves linear functions.  Consider the grid function of the numerical solution after one time step or stage, $\widehat{U}$.  Assume that it can be written in terms of a linear function $f(x,y)$ of the $x$ and $y$ coordinates, i.e.,
 \begin{equation}
-    \label{eq:uhatlinear}
+    \label{eqn:uhatlinear}
 \widehat{U}_{i,j} = f(x_{i,j},y_{i,j}) = ax_{i,j} + by_{i,j} + c.
 \end{equation}
-From \eqref{eq:uhatlinear} and the expression for the average on the merging neighborhood $i,j$, \eqref{tiledef}, we have
+From \eqref{eqn:uhatlinear} and the expression for the average on the merging neighborhood $i,j$, \eqref{tiledef}, we have
 \begin{equation}
-    \label{eq:linear1}
+    \label{eqn:linear1}
 \widehat{Q}_{i,j} = \frac{1}{{\widehat V}_{i,j}} \, \sum_{k \in M_i} \,  
 \frac{V_k}{N_k}  \,\, (ax_{k} + by_{k} + c).
 \end{equation}
-Distributing the summation in \eqref{eq:linear1}, we have
-\begin{equation}\label{eq:linear2}
+Distributing the summation in \eqref{eqn:linear1}, we have
+\begin{equation}\label{eqn:linear2}
 \widehat{Q}_{i,j} =  a \left(\frac{1}{{\widehat V}_{i,j}} \, \sum_{k \in M_i} \,  
 \frac{V_k}{N_k} x_{k} \right) + b\left(\frac{1}{{\widehat V}_{i,j}} \, \sum_{k \in M_i} \,  
 \frac{V_k}{N_k} y_{k} \right) + c\left(\frac{1}{{\widehat V}_{i,j}} \, \sum_{k \in M_i} \,
 \frac{V_k}{N_k}\right) .
 \end{equation}
-From the definition of the weighted centroid and volume of the merging neighborhood $i,j$ in \eqref{voldef} and \eqref{centroiddef}, respectively, \eqref{eq:linear2} becomes
-\begin{equation}\label{eq:linear3}
+From the definition of the weighted centroid and volume of the merging neighborhood
+$i,j$ in \eqref{voldef} and \eqref{centroiddef}, respectively, \eqref{eqn:linear2} becomes
+\begin{equation}\label{eqn:linear3}
 \widehat{Q}_{i,j} =  a \widehat{x}_{i,j} + b\widehat{y}_{i,j} + c = f(\widehat{x}_{i,j},\widehat{y}_{i,j}).
 \end{equation}
-Now, on the merging neighborhood $i,j$, we solve the least squares system in \eqref{eq:linrecon} to find $\widehat{\sigma}_{x,i,j}$ and $\widehat{\sigma}_{y,i,j}$, i.e., the gradient on the merging neighborhood.  Using \eqref{eq:linear3} in \eqref{eq:linrecon}, and due to the linearity of $f$, the following system
+Now, on the merging neighborhood $i,j$, we solve the least squares system in
+\eqref{eqn:linrecon} to find $\widehat{\sigma}_{x,i,j}$ and
+$\widehat{\sigma}_{y,i,j}$, i.e., the gradient on the merging neighborhood.  Using
+\eqref{eqn:linear3} in \eqref{eqn:linrecon}, and due to the linearity of $f$, the following system
 \begin{equation}
 \widehat{\sigma}_{x,i,j}(\widehat{x}_{k} - \widehat{x}_{i,j}) + \widehat{\sigma}_{y,i,j}(\widehat{y}_{k} - \widehat{y}_{i,j})= f(\widehat{x}_k, \widehat{y}_k) - f(\widehat{x}_{i,j}, \widehat{y}_{i,j}) \quad \forall k \in R_{i,j},
 \end{equation}
@@ -379,15 +395,15 @@ $\widehat{\sigma}_{y,i,j}=b$.  In other words, the exact gradient
 of $f$, $(a,b)$, is reconstructed on merging neighborhood $(i,j)$.  
 The reconstructed solution is then
 \begin{equation}
-    \label{eq:qrecon1}
+    \label{eqn:qrecon1}
     \hat{q}_{i,j}(x,y) = f(\widehat{x}_{i,j},\widehat{y}_{i,j}) + a(x-\widehat{x}_{i,j})+b(y-\widehat{y}_{i,j}) .
 \end{equation}
-Since $f$ is a linear function, \eqref{eq:qrecon1} becomes
+Since $f$ is a linear function, \eqref{eqn:qrecon1} becomes
 \begin{equation}
-    \label{eq:qrecon2}
+    \label{eqn:qrecon2}
     \hat{q}_{i,j}(x,y) = f(x,y).
 \end{equation}
-By \eqref{eq:final_update_linear} and \eqref{eq:qrecon2}, the final solution update is then
+By \eqref{eqn:final_update_linear} and \eqref{eqn:qrecon2}, the final solution update is then
 \begin{equation} 
 U^{n+1}_{i,j} := \frac{1}{N_{i,j}}\sum_{k \in W_{i,j}}f(x_{i,j},y_{i,j}).
 \end{equation}
@@ -397,7 +413,7 @@ U^{n+1}_{i,j} := f(x_{i,j},y_{i,j}),
 \end{equation}
 i.e., $U^{n+1}_{i,j} = \widehat{U}_{i,j}$, which shows that the SRD method is linearity preserving.
 
-We conclude that the SRD algorithm will preserve the accucacy of a second order accurate 
+We conclude that the SRD algorithm will preserve the accuracy of a second order accurate 
 base scheme. In section \ref{sec:ho} we will extend both SRD and the RK
 schemes to third order or higher accuracy.
 

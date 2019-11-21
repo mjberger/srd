@@ -3,7 +3,8 @@
 The high order version is essentially the same as the second order
 version, but with a larger stencil so a higher order polynomial can be
 reconstructed for each merging neighborhood. Of course, the base method
-has to be higher order too. We use a third or fourth order TVD Runge Kutta scheme
+has to be higher order too. We show examples using
+a third and a fourth order TVD Runge Kutta scheme
 for the base method.  The spatial accuracy is improved by using a
 quadratic or cubic reconstruction, taking care to translate
 accurately between conservative and primitive variables.  Higher
@@ -14,15 +15,8 @@ quadratic reconstruction is
 ANDREW - What is it?
 \end{equation}
 Again this is fairly standard, so we go right to the description of the higher-order SRD algorithm.
-
+It is again applied after one step or stage of the base finite volume scheme.
 \begin{enumerate}
-\item
-{\bf Compute one time step or stage of the base finite volume scheme.}  
-
-$$
-\widehat{U} = U^n + \Delta t L(U^n),
-$$
-where $L$ is the finite volume scheme described in section \ref{sec:basefv}.
 \item 
 \textbf{Compute the solution average on each merging tile}
 
@@ -71,6 +65,7 @@ on merging neighborhood $i$ of the form
 	U^{n+1}_{i,j} =  \frac{1}{V_{i,j}}\sum_{k \in W_{i,j}}\frac{1}{N_{i,j}}\int_{\Omega_{i,j}} \hat q_{k}(x)~d\mathbf{x} ,
 	\end{equation}
 	where $W_{i,j}$ is a set of merging neighborhoods to which cell $i,j$ belongs.
+        AG - IS THIS AN EXACT INTEGRAL OR ACCURATE ENOUGH APPROX ON CUT CELLS
 \end{enumerate}
 
 
