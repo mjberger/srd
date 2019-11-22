@@ -1,43 +1,75 @@
 \section{Some analysis in one dimension}\label{sec:theory}
 
-
-We study some accuracy and stability properties of the finite volume method stabilized with the state redistribution method on uniform and nonuniform grids in one dimension, on which we solve
+For insight into some properties of State Redistribution 
+we study some a one dimensional model problem for stability and
+accuracy, using both uniform and nonuniform grids.
+We solve
 $$
-u_t + a u_x = 0,
+u_t + a \, u_x = 0,
 $$
 with periodic boundary conditions.  
-The uniform grid is composed of $N$ cells with size $h = \frac{1}{N}$.  Merging neighborhoods are composed of an odd number cells, centered on cell $i$, e.g., the tile made of three cells, associated with cell $i$ is contains cells $i-1$, $i$, and $i+1$ (figure \ref{fig:overlapping1D}).
-More generally, the merging neighborhood of width $k$ has is composed of $2k+1$ cells.
-\begin{figure}
-    \centering
-    \includegraphics[width = 0.8\textwidth]{figs/overlapping1D.pdf}
-    \caption{Overlapping neighborhoods on the uniform grid composed of three cells of width $k=1$.}
-    \label{fig:overlapping1D}
-\end{figure}
+The uniform grid is composed of $N$ cells with size $h = \frac{1}{N}$.
+The merging neighborhoods are composed of an odd number cells, 
+centered on cell $i$, i.e. cell $i$'s tile with three cells  
+contains cells $i-1$, $i$, and $i+1$ .
+%(figure \ref{fig:overlapping1D}).
+%\begin{figure}
+%    \centering
+%    \includegraphics[width = 0.8\textwidth]{figs/overlapping1D.pdf}
+%    \caption{Overlapping neighborhoods on the uniform grid composed of three cells of width $k=1$.}
+%    \label{fig:overlapping1D}
+%\end{figure}
 The nonuniform grids are composed of $N$ randomly generated cells.
+This more closely mimics the sitation in two dimensions along the cut cell
+embedded boundary, especially when using the 3-by-3 merging neighborhood.
+It is not that representative of a normal merging neighborhood.
+Nevertheless it is useful to study some theoretical properties to gain
+intuition.
+AG  THE MERGING NHOOD CONTAINS CELLS TO THE LEFT AND RIGHT UNTIL  EACH SIDE IS
+DX/2 OR DX?
+OR DO WE USE YOUR REPEATING RANDON TILE OR A COMBO.
+TOOK OUT SIMPLE FIGURE OF UNIFORM MESH, BETTER TO USE RANDOM MESH EXAMPLE
+
 
 \subsection{Truncation error}
 The truncation error is
 $$
 \tau = \frac{u^{n+1}- L(u^n)}{\Delta t},
 $$
-where $u^n$ is a grid function of the exact solution at time $t^n$, and $L$ is finite volume update stabilized by the state redistribution method.  
-When the scheme is stable, the truncation error can describe the order of accuracy of the finite volume method.
-On uniform grids, a simple calculation shows that the truncation error is $||\tau|| = \mathcal{O}(h^{p+1})$.  On nonuniform grids, the truncation error is $||\tau|| = \mathcal{O}(h^{p})$.  This is a well-known phenomenon for schemes on nonuniform grids.
-In figure \ref{fig:truncationerror}, we provide a convergence plot of the truncation error for various orders of approximation on uniform and nonuniform grids.
-\begin{figure}
-    \centering
-\subfloat[Uniform grid.]{\includegraphics[width=0.45\linewidth]{figs/truncationerror_uniform.pdf}} \hfill
-\subfloat[Nonuniform grid.]{\includegraphics[width=0.45\linewidth]{figs/truncationerror_nonuniform.pdf}}
-    \caption{Influence of the merging neighborhood size and the merging tile size on the CFL number.  SHOULD I DID POINTWISE VALUES EVEN FOR P=2 HERE..SHOULD FIX THAT.}
-    \label{fig:truncationerror}
-\end{figure}
-On nonuniform grids, we observe that the truncation error loses an order of accuracy.  However, numerical examples in section \ref{sec:compResults} demonstrate that the scheme does not.
+where $u^n$ is a grid function of the exact solution at time $t^n$, 
+and $L$ is finite volume update stabilized by the state redistribution method.  
+When the scheme is stable, the truncation error can describe the 
+order of accuracy of the finite volume method.
+On uniform grids, a simple calculation shows that the truncation error 
+is $||\tau|| = \mathcal{O}(h^{p+1})$ AG FOR WHAT SCHEME - 3 or K.  
 
-\subsection{Eigenvalue stability}
-The goal of this section is twofold.  First, we confirm the intuition that the maximum allowable time step restriction increases with the size of merging neighborhoods.  Next, we show that the error in the numerical solution increases with both the size of the merging neighborhood and the size of the reconstruction stencil on the neighborhood.
+On nonuniform grids, the truncation error is $||\tau|| = \mathcal{O}(h^{p})$.  
+This is a well-known phenomenon for schemes on nonuniform grids \cite{}.
+%In figure \ref{fig:truncationerror}, we provide a convergence plot of the truncation error for various orders of approximation on uniform and nonuniform grids.
+%\begin{figure}
+%    \centering
+%\subfloat[Uniform grid.]{\includegraphics[width=0.45\linewidth]{figs/truncationerror_uniform.pdf}} \hfill
+%\subfloat[Nonuniform grid.]{\includegraphics[width=0.45\linewidth]{figs/truncationerror_nonuniform.pdf}}
+%    \caption{Influence of the merging neighborhood size and the merging tile size on the CFL number.  SHOULD I DID POINTWISE VALUES EVEN FOR P=2 HERE..SHOULD FIX THAT.}
+%    \label{fig:truncationerror}
+%\end{figure}
+Nevertheless, we observe in the numerical examples in 
+section \ref{sec:compResults} demonstrate that the global error does not lose an
+accuracy. PUT IT HERE?
 
-The finite volume update after one forward Euler time step can be written in matrix form
+\subsection{Stability}
+We look at two stability properties in this section. 
+First, we confirm the intuition that the maximum allowable time step 
+increases with the size of the merging neighborhoods.  
+Next, we show that the error in the numerical solution increases with both the 
+size of the merging neighborhood and the size of the reconstruction 
+stencil on the tile. This tradeoff helps determine the best tile size.
+(MADE IT UP - DOES IT? WOULD BE NICE TO SAY)
+This sections uses the TVD RK scheme as the base scheme and restrict
+attention to uniform grids.
+
+The finite volume update after one forward Euler time step can be written in 
+matrix form
 \begin{equation}\label{eq:L}
     \hat U = (I + \Delta t L)U^n,
 \end{equation}
@@ -46,8 +78,11 @@ The next step of the SRD method can be written in matrix form
 \begin{equation}\label{eq:merged_tile}
 \hat Q = T\hat U,
 \end{equation}
-where $\hat Q = [\hat Q_1, \hat Q_2, \hdots, \hat Q_N]$, and the matrix $T$ depends on the merging neighborhood.  The matrix $T$ is circulant due to the periodic boundary conditions.  
-The first row of the $T$ matrix associated with central merging tile of size $2n+1$ is
+where $\hat Q = [\hat Q_1, \hat Q_2, \hdots, \hat Q_N]$, and the 
+matrix $T$ depends on the merging neighborhood.  The matrix $T$ is circulant 
+due to the periodic boundary conditions.  
+The first row of the $T$ matrix associated with central merging tile of 
+size $2n+1$ is
 $$
 \frac{1}{2n+1}[\underbrace{1, 1, \hdots,1}_{n+1}, 0, \hdots, 0,\underbrace{1, 1, \hdots, 1}_{n}].
 $$
@@ -61,7 +96,10 @@ $$
 U^{n+1} = ST(I + \Delta t L)U^n.
 $$
 The matrix $S$ depends on whether a slope is reconstructed on the merging neighborhood or not.  
-If a high-order reconstruction in the finite volume method is used, we time step using an SSP-RK method of the same order.  Since SSP-RK methods are convex combinations of forward Euler time steps, we apply the SRD method after a forward Euler step.  That is, for linear and quadratic reconstructions, the final update is
+If a high-order reconstruction in the finite volume method is used, 
+we use an SSP-RK method of the same order.  Since SSP-RK methods are 
+convex combinations of forward Euler time steps, we apply the SRD method 
+after a forward Euler step (HUNH?).  That is, for linear and quadratic reconstructions, the final update is
 \begin{equation}
 \begin{aligned}
     U^{(1)} &= ST(I + \Delta t L)U^n, \\
@@ -88,14 +126,11 @@ $$
 \lambda(\Delta t) = \max_{i=1}^{N}|\lambda_i(\Delta t)|,
 $$
 where $\lambda_i$ is the $i$th eigenvalue of $A(\Delta t)$.
- We aim to compute the maximum $\Delta t$ for which $\lambda(\Delta t) \leq 1$, i.e., we want to find $\Delta t_{\text{max}}$ such that given a $\Delta t$ for which $0\leq \Delta t \leq \Delta t_{\text{max}}$, we have $\lambda(\Delta t) \leq 1$. 
- 
-
-
-
-
-
-
+We compute the maximum $\Delta t$ for which $\lambda(\Delta t) \leq 1$, so
+that given a $\Delta t$ for which $0\leq \Delta t \leq \Delta t_{\text{max}}$,
+we have stability.
+NEED TO SAY WHAT THESE FIGURES SHOW. FIX LEGENDS, P etc
+DO WE NEED MAX EVAL - COULD DO FFT AND BOUND TO ELIMINATE DEPENDENCE ON N
 
  
 %  \subsubsection*{First order method}
@@ -196,11 +231,6 @@ where $\lambda_i$ is the $i$th eigenvalue of $A(\Delta t)$.
 
 
 
-% \subsubsection*{Error versus merging neighborhood size}
-
-\subsection{GKS Stability}
-
-
 \begin{figure}
     \centering
     \includegraphics{figs/consistency.pdf}
@@ -208,4 +238,11 @@ where $\lambda_i$ is the $i$th eigenvalue of $A(\Delta t)$.
     \label{fig:consistency}
 \end{figure}
 
+\subsection{GKS stability}
+We can also look at stability at a boundary, in a problem that is closer
+to the 2D case. 
 
+
+SHOULD WE MENTION FRD IS UNSTABLE on UNIFORM 1D CASE
+
+SHOULD WE MENTION NOT MONOEONTE EVEN IN 1st ORDER CASE

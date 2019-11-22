@@ -1,7 +1,12 @@
 \section{Computational Results}\label{sec:compResults}
+In this section we show comptutional results demonstrating the properties of SRD.
+We solve
 \begin{equation} \label{eq:conslaw}
    \frac{\partial}{\partial t} \mathbf{u} + \nabla \cdot \mathbf{F} = 0
 \end{equation}
+with different functions F, to include both smooth and discontinuous
+solutions.
+
 \subsection{Linear convergence study}
 We solve \eqref{eq:conslaw} with the flux $\mathbf{F}(u) = [-2\pi y u, 2\pi x u]$ and initial condition
 $$
@@ -11,16 +16,28 @@ where
 $$
 w(\theta) = \frac{1}{2}\left( \text{erf}\left( \frac{\pi/6 - \theta}{\sqrt{4/100}} \right) + \text{erf}\left( \frac{\pi/6 + \theta}{\sqrt{4/100}} \right)\right)
 $$
-until the final time $T = 1$ on the domain enclosed by two concentric discs of radii $R_1 = 0.751$ and $R_2 = 1.251$.  Figure \ref{fig:rotatinghillgrid} shows the computational domain embedded on a $50 \times 50$ grid.  The exact solution is the initial condition rotated about the point $(1.5,1.5)$, where $T=1$ corresponds to one solid body rotation.  The errors measured in the $L_1$ and $L_\infty$ norms are provided in Tables \ref{tab:ex1_L1} and \ref{tab:ex1_Linf}.
-Figure
-\ref{fig:rotatinghillexactiso} shows isolines of solution at the initial and final time.  The exact solution is applied as the boundary condition.
+until the final time $T = 1$ on the domain enclosed by two concentric disks of 
+radii $R_1 = 0.751$ and $R_2 = 1.251$.  
+Figure \ref{fig:rotatinghillgrid} shows the computational domain 
+embedded in a $50 \times 50$ grid.  The exact solution is the initial condition 
+rotated about the point $(1.5,1.5)$, where $T=1$ corresponds to one solid 
+body rotation. This example IS FROM \cite{}, for comparison.  (AND ADD
+COMPARISON - ARE THEY OR WE MORE ACCURATE< BUT WE ARE EASIER).   The errors 
+measured in the $L_1$ and $L_\infty$ norms are provided in 
+Tables \ref{tab:ex1_L1} and \ref{tab:ex1_Linf}.  Figure
+\ref{fig:rotatinghillexactiso} shows isolines of solution at the initial 
+and final time.  The exact solution is applied as the boundary condition.
+CHEATING?
 
 \begin{figure}
 \subfloat[$50\times50$ grid and annulus domain.]{\includegraphics[width = 0.5\linewidth]{figs/rotatinghill_grid.eps} \label{fig:rotatinghillgrid}} 
 \quad
-\subfloat[Isolines of exact solution at the initial and final time.]{\includegraphics[width = 0.5\linewidth]{figs/rotatinghill_solution.eps}\label{fig:rotatinghillexactiso}}
+\subfloat[Isolines of exact solution at the initial and final time. SHOW
+COMPUTED SOLUTION TOO]{\includegraphics[width = 0.5\linewidth]{figs/rotatinghill_solution.eps}\label{fig:rotatinghillexactiso}}
 \end{figure}
     % \caption{}\label{tab:ex1_L1}
+
+{\large
 \begin{table}
 \centering
 \subfloat[$L_1$ errors. \label{tab:ex1_L1}]{
@@ -55,11 +72,15 @@ Figure
     \end{tabular}
     }
 
-\caption{Errors for the linear convergence study.}
+\caption{Errors for the linear convergence study. ADD METHOD DETAILS TO
+DESCRIPTION - USED WHICH GRADIENT RECON. ADD 400 POINTS}
 \end{table}
+}
 
 \subsection{Overlapping neighborhoods}
-The purpose of this example is to demonstrate that our algorithm can handle overlapping neighborhoods. Using the streamfunction
+The purpose of this example is to demonstrate that our algorithm can handle 
+overlapping neighborhoods. (DIDNT LAST EX HAVE ANY OVERLAPS?)  
+Using the streamfunction
 $$
 \phi = R - 0.25\sin(10\theta),
 $$
@@ -102,7 +123,9 @@ A steady state solution to \eqref{eq:conslaw} with the above flux is given by th
 \subfloat[Number of overlapping merging neighborhoods: one (blue), two (green), three (red).]{\includegraphics[width = 0.5\linewidth]{figs/waveynumhoods.eps}\label{fig:waveynumhoods}}
 % \includegraphics[width = 0.5\linewidth]{figs/waveyiso.eps} 
 \subfloat[Isolines of exact solution at the initial and final time.]{\includegraphics[width = 0.5\linewidth]{figs/waveyiso.eps} \label{fig:waveyisolines}} 
-\caption{Isolines of exact solution at the initial and final time for the wavy domain with overlapping neighborhoods.} 
+\caption{Isolines of exact solution at the initial and final time for the
+wavy domain with overlapping neighborhoods. CANT SEE COLORS. WHAT DOES
+THIS EX ADD FROM PREVIOUS ONE} 
 % \label{fig:overlappingneighborhoods}
 % \label{fig:waveyisolines}} 
 \end{figure}
@@ -112,8 +135,8 @@ In Figure \ref{fig:waveyisolines}, we show the isolines of the exact solution at
 
 \subsection{Nonlinear convergence study}
 We solve the supersonic vortex problem which describes supersonic flow 
-through a tube.  This problem has often been used in accuracy studies
-because it has an exact solution \cite{aftosmis:acc}, given by 
+through a tube.  This problem has often been used in accuracy 
+studies \cite{aftosmis:acc} since it has an exact solution given by 
 $$
 \begin{pmatrix}
 \rho\\
@@ -121,23 +144,25 @@ u \\
 v \\
 p
 \end{pmatrix} = \begin{pmatrix}
-[1 + 1.0125(1-r^{-2})]^{2.5}\\
+\left (1 + 1.0125(1-r^{-2}) \right)^{2.5}\\
 2.25r^{-1}\sin(\theta)\\
 -2.25r^{-1}\cos(\theta)\\
 \frac{1}{\gamma}\rho^{\gamma}
 \end{pmatrix},
 $$
 where $r = \sqrt{x^2+y^2}$.  The exact solution is applied to the inflow 
-and outflow, i.e., the horizontal and vertical boundaries.  
+and outflow, i.e., the horizontal and vertical boundaries. (NEED PIC OF
+DOMAIN FOR THIS TO MAKE SENSE)
 High-order reflecting boundary conditions are used on the curved
-boundaries as in \cite{}, even though  the  actual embedded boudnary is
+boundaries as in \cite{}, even though  the  actual embedded boundary is
 represented by a linear segment in each cut cell.  
 
 The simulation is run until a steady state is reached, defined by 
 $$
 \max_{i,j}|U^{n+1}_{i,j}-U^{n}_{i,j}| < 10^{-10}.
 $$
-The $L_1$ and $L_\infty$ errors are given in Table \ref{tab:ex2_L1} and \ref{tab:ex2_Linf}.
+The $L_1$ and $L_\infty$ errors are given in Table \ref{tab:ex2_L1} 
+and \ref{tab:ex2_Linf}. ADD WORDS EXPLAINING RESULT
 
 % \begin{table}
 % \centering
@@ -216,5 +241,68 @@ The $L_1$ and $L_\infty$ errors are given in Table \ref{tab:ex2_L1} and \ref{tab
 \end{table}
 
 NEED TO COMPARE TO OTHER ANSWERS, MAYBE INCLUDE  ERROR PLOT
+
+\subsection{Shock Reflection from  Cylinder}
+Next we demonstrate the method for the Euler equations using a Mach 2
+shock diffracting around a circular cylinder. The cylinder is centered at
+(0.5,0.5), and the shock is initially located at $x = 0.2$.
+For this example we use
+the MUSCL scheme as the base scheme, with the BJ limiter used to limit
+both base scheme and tile reconstruction gradients. 
+
+Figure \ref{fig:cyl1} (left) shows the solution density and pressure  at time $t=2.5$,
+using a grid of 302 cells in each direction. For comparison, this is also 
+the time shown in
+\cite{mjb-hel-rjl:hbox2}. There are 416 cut cells
+around the cylinder. 160 of the cut cells had volume fractions less than
+0.5 and had SRD applied.  The smallest volume fraction was 1.17E-4.   
+
+Figure \ref{fig:cyl2}
+shows the density profile (left) and pressure (right) 
+taken along the cylinder, at the more
+interesting time $t=0.2$. The two plots compare the two different merging
+approaches, with the same base scheme. 
+For these results, the cut cell variable is
+reconstructed to the midpoint of the cylinder line segment in each  cell.  
+As expected, the 3 by 3 cell merging results are more
+diffusive, mostly visible at the shock. The zooms show the difference more
+clearly, and also show the scale of the lack of smoothness of the less
+diffusive normal merging results, especially around extrema in the
+solution. In the future we hope to improve this
+with better gradients and limiting strategies.
+
+There is no visible 
+difference in the results contouring the entire domain.
+There are 60 contours between 1.3 and 6.5 for density, and between 0.8 and
+10.2 for pressure.
+
+\begin{figure}
+\begin{center}
+\hspace*{-.4in}
+\includegraphics[width=0.48\linewidth,trim=10 10 200 10,clip]{figs/density_302_normal_muscl_cyl.png}
+\vspace*{1.0in}
+\includegraphics[width=0.48\linewidth,trim=10 10 200 10,clip]{figs/pressure_302_normal_muscl_cyl.png}
+\caption{\sf Mach 2 shock reflection around a cylinder. Density (left),
+pressure (rght), at time t=0.25.}
+\label{fig:cyl1}
+\end{center}
+\end{figure}
+
+\begin{figure}
+\begin{center}
+%\includegraphics[width=0.48\linewidth,trim=20 20 20 30,clip]{figs/densityCompare_302_normalvs3by3.png}
+\hspace*{-.5in}
+\includegraphics[height=2.7in,trim=90 70 220 60,clip]{figs/densityWithZoom.pdf}
+\hspace*{.3in}
+%\includegraphics[width=0.48\linewidth,trim=20 20 20 30,clip]{figs/pressureCompare_302_normalvs3by3.png}
+\includegraphics[height=2.7in,trim=120 70 230 50,clip]{figs/pressureWithZoom.pdf}
+\caption{\sf The density and pressure profiles around the cylinder at time
+t=0.2,  using normal direction merging and 3-by-3 neighborhood merging.
+The latter is more diffusive.}
+\label{fig:cyl2}
+\end{center}
+% fig in amrclaw-amrcart/example/cylinder_Mach2 directory on juniper
+% using sortedcyl.dat (coied from bndry01.dat) in the various _output dirs
+\end{figure}
 
 \subsection{Double Mach Reflection problem}
