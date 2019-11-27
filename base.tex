@@ -1,20 +1,16 @@
 \section{Second-Order Accurate Base Schemes}\label{sec:basefv}
 
 There are two issues when applying an explicit finite volume scheme to a cut cell
-mesh.  You have to adapt the scheme for accuracy in the cut cells, and you
-have to stabilize the scheme if using a fixed imestep $\Delta t$ based on
-the full cells. In the $hbox$ mehtod these two concerns were handled
+mesh.  
+For accuracy, the scheme needs to be adapted in the cut cells. Second, 
+the scheme needs to be stabilized in the cut cells if using a fixed timestep $\Delta t$ 
+based on the full cells. In the $h$-box method these two concerns were addressed
 simultaneously, but in general they aren't.
 
 Our computational results will use two different finite volume schemes
-to update the cut cell mesh, showing that SRD can be used in a
+to update the cut cell mesh, to show that SRD can be used in a
 variety of situations.
 We will refer to them as the base schemes. 
-The  base scheme is applied to the entire mesh, including  
-to the small cut cells, using the same time step $\Delta t$ for all cells.  
-Since cut cells can have cell volumes that are
-orders of magnitude smaller than the time step allowed by the full
-cells, these will lead to instability without a stabilization algorithm.
 SRD will be applied after each stage or step of the base scheme.
 
 \begin{figure}
@@ -26,7 +22,7 @@ in yellow are the cut cells.}
 \end{center}
 \end{figure}
 
-Computing gradients, and for problems with discontinuities limiting
+The computation of  gradients, and for problems with discontinuities limiting
 those gradients, arises independently of the finite volume scheme used. 
 For the interior of the mesh when the stencil is completely regular (i.e. no cut
 cells), standard schemes can be used.
@@ -42,7 +38,7 @@ $D_- = (u_{i,j}-u_{i-1,j})/\Delta x$, and define the limited gradient as
                        2 \lvert {D_+}\rvert,\,
                       2 \lvert{D_-}\rvert \,  \right ) \,\times 
                       \text{ sign } D_c, \quad \text{if} \;\;  D_+ D_- >  0\\
-                      0
+                      0 \hspace*{2.8in} \text{otherwise}
                       \end{cases}
 \end{equation}
 
@@ -56,9 +52,9 @@ limiter was used.
 \subsection{Method of Lines approach}
 The simplest scheme is to use a spatial discretization over the entire
 mesh, and apply a Runge-Kutta scheme in time. This is a well-known
-standard approach
+approach
 on regular Cartesian meshes. It is adapted for the cut cells by
-using the  least squares reconstruction of the gradient mentioned above, and one of
+using the  least squares reconstruction of the gradient and one of
 the limiters described in section \ref{sec:limit}.
 
 The spatial reconstruction in the cut cells is no longer
@@ -75,8 +71,9 @@ where $(u,v)$ is the propagation velocity.
 
 With the Method of Lines scheme, SRD is applied after each Forward Euler
 step. For 2nd order and 3rd RK schemes, SRD is applied twice, or three
-times, respectvely, before the final solution is assembled at the new time
-step. It does not need to be applied to the resulting $U^{n+1}$.
+times, respectively, before the final solution is assembled at the new time
+step. If applied at the final stage, it does not need to be applied to the 
+resulting $U^{n+1}$.
 
 \subsection{MUSCL scheme}
 The MUSCL scheme is a one step method that is second order accurate in
@@ -161,8 +158,9 @@ problems due to limiting of this term.
 }
 
 The multi-dimensional MUSCL scheme due to Colella has several additional
-features to robustly handle strong shocks, such as not including terms in the
-interface state from characteristics that propagate away from the interface. These
+features to robustly handle strong shocks, such as not including terms in
+predicting the interface state from characteristics that propagate 
+away from the interface. These
 steps do not change at the cut cells, so are not discussed here.  The
 trickiest term to adapt to cut cells was an artificial viscosity 
 added to each flux with a
@@ -210,8 +208,10 @@ computational examples.
 The simplest procedure  is to use the Barth Jespersen (BJ) limiter
 \cite{barth-jespersen}. 
 This is a scalar limiter: both $\sigma_x$ and $\sigma_y$ are reduced by
-the same scalar that prevents new extrema.  The BJ limiter  can also be
-used in the interior of the mesh, and so is closer to the base scheme. 
+the same scalar that prevents new extrema.  
+% TOOK OUT SINCE USING MC NOT BJ IN INTERIOR RIGHT NOW
+% The BJ limiter  can also be
+%used in the interior of the mesh, and so is closer to the base scheme. 
 
 To limit using BJ, we compute the minimum and maximum values over the
 reconstruction stencil $R_{i,j}$, i.e.

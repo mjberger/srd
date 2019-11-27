@@ -1,7 +1,7 @@
 \section{Introduction}\label{sec:intro}
 Cut cell meshes to solve hyperbolic problems 
 are increasingly prevalent due to the ease 
-of grid generation for complicated geometries \cite{}. 
+of grid generation for complicated geometries. 
 However the {\em small cell} problem is still an active area of research, and
 a completely satisfactory solution has not yet been found.
 The small cell problem can be explained as follows: explicit
@@ -30,7 +30,7 @@ is given to the cell's neighbors.
 There are more recent additional steps that make the distribution 
 more robust and accurate. For example, the difference between a stable
 non-conservative update and the conservative update is what is
-redistributed (see \cite{} for details).
+redistributed (see \cite{vof:colella} for details).
 Flux redistribution has already been implemented for three dimensional
 calculations due to its simplicity. However it is only first order
 accurate at the cut cells.
@@ -46,7 +46,22 @@ special way that maintains stability by means of a cancellation
 property. It  has not been extended to
 three dimensions due to its complexity. 
 
-In Schneiders et al \cite{shws:2011}, the authors make
+A newer variation of cell merging is called cell linking \cite{cecereGiacomazzi,
+KirkpatrickEtAl:2003, HuKhooAdamsHuang:2006,Chung et al} 
+This has simpler data structures and maintain the original grid. 
+Many of these references tackle incompressible flow; some also include
+three dimensional examples. Several references use a staggered mesh. 
+
+In \cite{BalajiMenon:2016}, the authors improve the accuracy of cell linking,
+with a third order accurate approach for viscous flow,  and fourth order for 
+inviscid flow. 
+Their version of cell linking uses a cluster of cells,
+while still maintaining each cell in the mesh.  A high order
+polynomial is fit to the cluster, and replaces the solution values in the
+individual cells.  Our algorithm has a similar spirit to this, though the
+details are very different. 
+
+In \cite{shws:2011}, the authors make
 some improvements to flux redistribution for viscous flow in moving
 geometries. They introduce a
 smooth cutoff function of cell size for when it is applied. They also
@@ -54,18 +69,11 @@ use a non-uniform weighting in the gradient stencil to avoid abrupt
 changes, which can lead to oscillations in the solution. This is
 especially important for moving geometries.
 
-In \cite{BalajiMenon:2016}, the authors also tackle viscous flow, with a
-third order accurate (or higher) approach. They use a cluster of cells,
-akin to cell merging, but maintain each cell's identity. A high order
-polynomial is fit to the cluster, and replaces the solution values in the
-individual cells.  Our algorithm has a similar spirit to this, though the
-details are very different. HARD TO UNDERSTAND WHAT THE DO
-
 In \cite{May-Berger:JSC}, an implicit scheme was developed to
 handle stability of the cut cells, and was combined with an 
 explicit method for the full cells. In this work we will focus on 
-two explicit methods, and make modification necessary for them accuracy 
-on the cut cells.
+two explicit methods, and make modification necessary for their accuracy 
+on cut cells.
 Other approaches that have been proposed in the literature include
 interpolation-based procedures, such as the mirror-cell method by Forrer
 and Jeltsch \cite{article:FoJe98}, and a related ghost-fluid method by
@@ -80,7 +88,8 @@ In this paper we propose a framework for a stabilization algorithm in
 the spirit of flux redistribution (henceforth FRD). 
 As with FRD, it is applied as a postprocessing
 step, and is simple to implement. Cell updates on all cells are performed
-in the usual way, followed by a postprocessing step based on the
+with a fixedd $\Delta t$ using whatever the base finite volume scheme is, followed by a 
+postprocessing step based on the
 conserved state variables, not on the fluxes.
 Hence we call it {\em state redistribution} (SRD).
 
@@ -149,8 +158,8 @@ u_{k+1}^{n+1} &= \widehat{u_M} +  (x_{k+1} - x_M) \nabla \widehat{u_M}
 \end{equation}
 \end{itemize}
 }
-First  update cells $k$ and $k+1$, shown in Figure \ref{fig:modelProblem1},  using a standard finite volume scheme
-with fixed $\Delta t$ on all cells:
+First  update cells $k$ and $k+1$, shown in Figure \ref{fig:modelProblem1},  using a 
+standard finite volume scheme on all cells:
 \begin{equation}
 \bar{u}_j = u_j^n - \frac{\Delta t}{h_j} \; (f_{j+1/2} - f_{j-1/2} ), 
 \quad \forall j.
@@ -181,7 +190,7 @@ cell has size $\alpha h$ in a mesh with regular mesh width $h$.}
 
 For the simplest first order version, we simply set
 \begin{equation}
-u_k^{n+1} = u_{k+1}^{n+1} = \widehat{q_M}^{n+1} 
+u_k^{n+1} = u_{k+1}^{n+1} = \widehat{q_M} 
 \label{eqn:finalstep}
 \end{equation}
 Recognizing that $h_k+h_{k+1}$ is the merged cell volume makes 
@@ -194,12 +203,12 @@ u_{k+1}^{n+1} &= \widehat{q_M} +  (x_{k+1} - \widehat{x}_M) \, \nabla \widehat{q
 \end{split}
 \end{equation}
 then the method is linearity preserving, 
-if all gradients are computed accurately enough to preserve a linear function.  
-
+if all gradients are computed accurately enough to preserve a linear function, and
+given an accurate enough finite volume scheme.  
 By using a higher than linear polynomial and
 including more neighbors in the
 redistribution (on top of a more accurate finite volume scheme for the
-entire mes ),
+entire mesh),
 we have a path to higher order accuracy.
 The method is also conservative since the mass of the merged cell equals the 
 mass of the two cells comprising it.
@@ -213,7 +222,7 @@ which it should merge. This is what often causes complications in cell
 merging algorithms. In SRD, we will simply use all such values appropriately
 weighted.
 
-In the next section  we first review the finite volume schemes to which SRD will
+In the next section  we first discuss the finite volume schemes to which SRD will
 be applied.
 The SRD algorithm in two space dimensions will be presented in section
 \ref{sec:srdAlg}.
