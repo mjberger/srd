@@ -25,9 +25,10 @@ volume of the temporarily merged cell is at least half the area of an uncut cell
 where $M_{i,j}$ denotes the set of cell indices that belong to 
 merging neighborhood $(i,j)$.  We call this the 
 {\em  merging neighborhood} or {\em merging tile}.  
-The cutoff of 1/2 has been shown in one dimension to be sufficient for
+The cutoff of 1/2 has been shown in one dimension \cite{mjb:stability2} to be 
+sufficient for
 stability with several schemes whose stability limit is $\le 1$, and we
-have not found any stability issues with this.
+have not found any stability issues with this. AG TEST 1/4 FOR TVD AND PUT HERE
 
 A small cell can be merged with cells in the direction closest to the 
 boundary normal (Figure \ref{fig:neighborhoods}, left), or with all cells 
@@ -234,7 +235,7 @@ reconstruction.
 %on merging neighborhood $i$.  That is, the reconstruction on the merged neighborhood is the linear function of best fit through the points $(\widehat x_k, \widehat y_k, \widehat Q_k)$ $\forall k \in R_{i,j}$ and that passes exactly through $(\widehat x_{i,j}, \widehat y_{i,j}, \widehat{Q}_{i,j})$.
 
 
-We use a 3-by-3 neighborhood around the tile for cell $(i,j)$, again
+We use a $3 \times 3$ neighborhood around the tile for cell $(i,j)$, again
 ignoring solid cells.
 However it could happen that the 3-by-3 neighborhood does not have enough cells,
 or that the centroids are too close to each other to compute a 
