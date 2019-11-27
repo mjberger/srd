@@ -1,9 +1,15 @@
-\section{Base Finite Volume Schemes}\label{sec:basefv}
+\section{Second-Order Accurate Base Schemes}\label{sec:basefv}
 
-Our computational results use two different finite volume schemes
-to update the cut cell mesh, to show that SRD can be used in a
+There are two issues when applying an explicit finite volume scheme to a cut cell
+mesh.  You have to adapt the scheme for accuracy in the cut cells, and you
+have to stabilize the scheme if using a fixed imestep $\Delta t$ based on
+the full cells. In the $hbox$ mehtod these two concerns were handled
+simultaneously, but in general they aren't.
+
+Our computational results will use two different finite volume schemes
+to update the cut cell mesh, showing that SRD can be used in a
 variety of situations.
-We will refer to these as the base schemes. 
+We will refer to them as the base schemes. 
 The  base scheme is applied to the entire mesh, including  
 to the small cut cells, using the same time step $\Delta t$ for all cells.  
 Since cut cells can have cell volumes that are
@@ -20,12 +26,27 @@ in yellow are the cut cells.}
 \end{center}
 \end{figure}
 
-The question of computing gradients, and for problems with discontinuities limiting
-those gradients, arises independently of which finite volume scheme is used. 
+Computing gradients, and for problems with discontinuities limiting
+those gradients, arises independently of the finite volume scheme used. 
 For the interior of the mesh when the stencil is completely regular (i.e. no cut
-cells), standard schemes such as monotonicized central differencing can be 
-applied, so we do not discuss this further.
-For cut cells, we use a least squares gradient reconstruction algorithm which is
+cells), standard schemes can be used.
+In all our examples we use monotonicized central differencing (also known
+as van Leer limiting), shown here for the $x$
+component of the gradient. In the formula below we use the differencing notation
+$D_c = (u_{i+1,j}-u_{i-1,j})/(2 \, \Delta x)$,
+$D_+ = (u_{i+1,j}-u_{i,j})/\Delta x$, and
+$D_- = (u_{i,j}-u_{i-1,j})/\Delta x$, and define the limited gradient as
+\begin{equation}
+\sigma_{x,i,j} =  \begin{cases} 
+                       \min \left ( \,  \lvert{ D_c}\rvert,\,
+                       2 \lvert {D_+}\rvert,\,
+                      2 \lvert{D_-}\rvert \,  \right ) \,\times 
+                      \text{ sign } D_c, \quad \text{if} \;\;  D_+ D_- >  0\\
+                      0
+                      \end{cases}
+\end{equation}
+
+For cut cells and the immediately adjacent full cells we use a least squares gradient reconstruction algorithm which is
 linearly exact.  We outline the gradient reconstruction, and
 discuss two  limiting procedures for the cut cells in 
 section \ref{sec:limit}. Our examples will always report which scheme and
@@ -46,12 +67,16 @@ include both $x$ and $y$ components of the gradient to
 reconstruct to the midpoint of the cell edge. 
 Figure \ref{fig:2dfig}  indicates this face location with a green $\times$.
 Note that the time step restriction that results from the von Neumann 
-stability analysis of this scheme applied to the linear advection equation is  (AG -
-TRUE or this is for positivity?)
+stability analysis of this scheme applied to the linear advection equation is
 \begin{equation}
 \Delta t \,  \max\left(\frac{u}{\Delta x},\frac{v}{\Delta y}\right) \leq \frac{1}{2} ,
 \end{equation}
 where $(u,v)$ is the propagation velocity.  
+
+With the Method of Lines scheme, SRD is applied after each Forward Euler
+step. For 2nd order and 3rd RK schemes, SRD is applied twice, or three
+times, respectvely, before the final solution is assembled at the new time
+step. It does not need to be applied to the resulting $U^{n+1}$.
 
 \subsection{MUSCL scheme}
 The MUSCL scheme is a one step method that is second order accurate in
@@ -90,7 +115,7 @@ of cell $(i,j)$.
 
 In the original method, the term $\partial g / \partial y$ is computed by solving Riemann
 problems in the vertical direction,  evaluating the flux $g$, and computing the
-difference in fluxes divided bt $\Delta y$.
+difference in fluxes divided by $\Delta y$.
 Since this only needs to be done to first order accuracy (the term is multiplied
 by $\Delta t$)  no reconstruction to the cell edge  in the transverse 
 direction was necessary,
@@ -102,6 +127,7 @@ giving the MUSCL scheme a stability limit of
 \label{eqn:bigcfllimit}
 \Delta t \, \max \left (\frac{u+c}{\Delta x} , \frac{v+c}{\Delta y} \right) < 1
 \end{equation}
+instead of $1/2$.
 
 At the cut cells this procedure will no longer work.   We make two modifications to the
 computation of the transverse derivatives. First,
@@ -117,6 +143,7 @@ $ \partial G / \partial y \, = \,  \partial G / \partial q \times \partial q / \
 as with the horizontal fluxes. This is linearly exact in the cut cells, 
 if the gradients themselves are.
 
+\commentout{
 As remarked above, it is the transverse derivatives that allows for the larger time
 step given in \eqref{eqn:bigcfllimit}.
 However, in the neighborhood of a shock the derivatives will be limited, and
@@ -131,6 +158,7 @@ boundary cells can have
 a local {\em cfl} number that is up to twice the stable {\em cfl} of the regular
 mesh and the overall scheme remains stable.  We have not found any stability
 problems due to limiting of this term.  
+}
 
 The multi-dimensional MUSCL scheme due to Colella has several additional
 features to robustly handle strong shocks, such as not including terms in the
@@ -151,7 +179,7 @@ problem with shocks, limit it.
 We use the least squares approach, standard for unstructured meshes,
 to compute a gradient on the cut cells, and one adjacent cell.
 Cells that are two away from a cut cell
-can use any limiter with a standard stencil size. 
+can use any limiter with a five point stencil. 
 
 A linear reconstruction of the solution in cell $(i,j)$
 either a cut cell or cell with an irregular stencil, is of the form
@@ -161,16 +189,23 @@ u(x,y) = u_{ij}^n + \sigma_{x,i,j} \,(x-x_{i,j}) +
 \label{eqn:lls}
 \end{equation}
 where $(\sigma_{x,i,j},\sigma_{y,i,j})$ is the gradient in 
-cell $(i,j)$, and $(x_{i,j},y_{i,j})$ is the cell centroid. The least squares procedure
+cell $(i,j)$ and $(x_{i,j},y_{i,j})$ is the cell centroid. The least squares procedure
 finds the gradient that minimizes the $l_2$ residual when evaluating  $u(x,y)$
-at a neighboring cell centroid. We typically use vertex neighbors to form the matrix,
-since it can happen that a cell only has two edge neighbors (e.g. cell $(i,j-1)$ in
-Figure \ref{fig:2dfig}.  This procedure is linearly exact.  
+at a neighboring cell centroid. 
+For flow cells with irregular stencils we use cells in a 1-by-1
+neighborhood of cell $(i,j)$.
+For cut cells this is extended to included cells whose L1 distance is $\le
+2$ away, which gives smoother results.
+%We typically use vertex neighbors to form the matrix,
+%since it can happen that a cell only has two edge neighbors (e.g. cell $(i,j-1)$ in
+%Figure \ref{fig:2dfig}.  
+This procedure is linearly exact. AG - CHECK WE DO THE SAME.  
 
 For problems with discontinuities, the gradient will need to be limited
 to prevent overshoots and retain positivity for quantities like density and
 pressure.
-We use two possible methods, and compare them in the some of the 
+We use two possible methods, and take this opportunity to
+compare them in the some of the 
 computational examples.
 The simplest procedure  is to use the Barth Jespersen (BJ) limiter
 \cite{barth-jespersen}. 
@@ -181,43 +216,39 @@ used in the interior of the mesh, and so is closer to the base scheme.
 To limit using BJ, we compute the minimum and maximum values over the
 reconstruction stencil $R_{i,j}$, i.e.
 \begin{equation}
-     m_{i,j} = \max_{k \in R_{i,j}} {u}_k^n \text{ and } M_{i,j} = \max_{k \in R_{i,j}} 
-     {u}_k^n.
+     m_{i,j} = \max_{k \in R_{i,j}} {u}_k^n \text{ and } 
+     M_{i,j} = \max_{k \in R_{i,j}} {u}_k^n.
 \label{eqn:bj}
 \end{equation}
 The reconstructed gradient on cell $(i,j)$ is limited by a non-negative 
-scalar $\alpha \in [0,1]$, so that the linear function becomes 
-\begin{equation}
-     u(x,y) = {u}_{i,j}^n + \alpha [{\sigma}_{x,i,j} ( x -  x_{i,j}) \, 
-   + {\sigma}_{y,i,j}( y -  y_{i,j})].
-\end{equation}
-The scalar $\alpha$ reduces the gradient such that when ${u}(x,y)$ 
+scalar $\alpha \in [0,1]$, so that when ${u}(x,y)$ 
 is evaluated at the centroids of the neighborhoods in $R_{i,j}$ it
 lies between $m_{i,j}$ and $M_{i,j}$.
-It is given by
-AG - NOT RIGHT
-$$
-\alpha = \max\left(0,\min_{k \in R_{i,j}} \alpha_k \right),
-$$
-where
+The linear function becomes 
+\begin{equation}
+     u(x,y) = {u}_{i,j}^n + \alpha \, [{\sigma}_{x,i,j} ( x -  x_{i,j}) \, 
+   + {\sigma}_{y,i,j}( y -  y_{i,j})].
+\end{equation}
+Define
 \begin{equation}
     \alpha_k = \begin{cases}
-    \frac{{u}( x_{k},  y_{k}) - {u}_{i,j}^n}{M_{i,j} -
-    {u}_{i,j}} \quad  \text{  if  } {u}( x_{k},  y_{k}) - {u}_{i,j}^n \geq 0,\\[.08in]
-     \frac{{u}( x_{k},  y_{k}) - {u}_{i,j}^n}{m_{i,j} -
-     {u}_{i,j}^n}  \quad \text{  if  } {u}(x_{k}, y_{k}) - {u}_{i,j}^n < 0.
+           \min (1,\frac{M_{i,j}-u_{i,j}^m}{u_(x_k,y_k) - u_{i,j}^n})
+    \quad  \text{ if } \,  {u}( x_{k},  y_{k}) - {u}_{i,j}^n >  0,\\[.08in]
+            \min(1, \frac{m_{i,j}-{u}_{i,j}^n}{u(x_k,y_k) - {u}_{i,j}^n} )  
+    \quad  \text{ if }  \, {u}(x_{k}, y_{k}) - {u}_{i,j}^n < 0.\\[.08in]
+             1    \hspace*{1.45in}  \text{if} \; \, {u}(x_{k}, y_{k}) - {u}_{i,j}^n = 0
     \end{cases}
 \end{equation}
-With this limited gradient, the reconstruction for each cell satisfies a
-local maximum principle
-\begin{equation}
-m_{i,j} \le u(x,y) \le M_{i,j} \quad \forall k \in R_{i,j}
-\end{equation}
+Then choose
+$$
+\alpha = \min_{k \in R_{i,j}} \alpha_k .
+$$
 
 The other limiter we test is the LP limiter 
 \cite{May_Berger_LP}. This is a vector limiter, where both components of
 the gradient are reduced by the smallest amount that still satisfies some
-constraints. An small LP problem is solved to obtain these quantities.
+overshoot and positivity constraints. A small LP problem is solved to 
+obtain these quantities.
 The LP limiter retains more of the original gradient
 and is less diffusive than the BJ limiter at cut cells, 
 but is roughly twice the computational cost.

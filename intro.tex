@@ -27,26 +27,45 @@ is proportional to the cell's volume
 fraction $V_{i,j}/V_{\mbox{\em full}}$, the update should be stable. 
 To maintain conservation, the rest of the update ($1-\eta)\delta M$
 is given to the cell's neighbors.  
-There are additional steps to make the distribution more robust and
-accurate - see \cite{} for details.
+There are more recent additional steps that make the distribution 
+more robust and accurate. For example, the difference between a stable
+non-conservative update and the conservative update is what is
+redistributed (see \cite{} for details).
 Flux redistribution has already been implemented for three dimensional
 calculations due to its simplicity. However it is only first order
 accurate at the cut cells.
 
-Cell merging \cite{} is most frequently the first idea people 
-think of . It is conceptually simple, but 
+Cell merging is most frequently the first idea people 
+think of. It is conceptually simple, but 
 we are not aware of any production codes that implement this in a fully
 general, robust manner for complicated engineering geometries. 
-The $h$-box method \cite{}
+The $h$-box method \cite{mjb-hel-rjl:hbox2,mjb-hel:hboxsimple}
 is a second order accurate method at the cut cells. It extends the 
 domain of dependence for the fluxes around a small cell in a 
 special way that maintains stability by means of a cancellation
 property. It  has not been extended to
 three dimensions due to its complexity. 
 
-MORE OVERVIEW - the GEORGIA TECH
-GUYS, the GERMAN GROUP, SANDRA IMPLICIT/EXPLICIT APPROACH, OTHERS?
+In Schneiders et al \cite{shws:2011}, the authors make
+some improvements to flux redistribution for viscous flow in moving
+geometries. They introduce a
+smooth cutoff function of cell size for when it is applied. They also
+use a non-uniform weighting in the gradient stencil to avoid abrupt
+changes, which can lead to oscillations in the solution. This is
+especially important for moving geometries.
 
+In \cite{BalajiMenon:2016}, the authors also tackle viscous flow, with a
+third order accurate (or higher) approach. They use a cluster of cells,
+akin to cell merging, but maintain each cell's identity. A high order
+polynomial is fit to the cluster, and replaces the solution values in the
+individual cells.  Our algorithm has a similar spirit to this, though the
+details are very different. HARD TO UNDERSTAND WHAT THE DO
+
+In \cite{May-Berger:JSC}, an implicit scheme was developed to
+handle stability of the cut cells, and was combined with an 
+explicit method for the full cells. In this work we will focus on 
+two explicit methods, and make modification necessary for them accuracy 
+on the cut cells.
 Other approaches that have been proposed in the literature include
 interpolation-based procedures, such as the mirror-cell method by Forrer
 and Jeltsch \cite{article:FoJe98}, and a related ghost-fluid method by
@@ -65,28 +84,10 @@ in the usual way, followed by a postprocessing step based on the
 conserved state variables, not on the fluxes.
 Hence we call it {\em state redistribution} (SRD).
 
-The simplest version is first order,
-the use of a gradient makes it linearly exact, and the framework can be
-extended to include higher order implementations as well. 
-It is based on the following simple idea which we illustrate
-here in one space dimension using the  first order upwind scheme.
-We use the notation in  figure \ref{fig:modelProblem1}, which shows a
-model problem with one
-small cell with mesh width  $\alpha h, 0 < \alpha \leq 1$ in an
-otherwise regular grid with mesh width $h$.
 
-\begin{figure}
-\begin{center}
-%\vspace*{-.5in}
-\includegraphics[height=1.3in]{figs/1dfig.pdf}
-\caption{\sf Notation for model problem in one space dimension. The small
-cell has size $\alpha h$ in a mesh with regular mesh width $h$.}
-\label{fig:modelProblem1}
-\end{center}
-\end{figure}
-
-To set the stage, notice that cell merging can
+To set the stage, notice that cell merging itself can
 be rewritten as a postprocessing step.
+\commentout{
 To take one step to update a finite volume approximation to
 $u_t + u_x = 0$ we do the following:
 \begin{itemize}
@@ -108,7 +109,7 @@ or both of its neighbors so that it the merged cell is of sufficient
 size (to be discussed later).  For simplicity here we will merge 
 only with the neighbor on the right,
 \begin{equation}
-\widehat{u_M} =  \frac{ h_k \bar{u}_k + h_{k+1} \bar{u}_{k+1} } {h_k +
+\widehat{q_M} =  \frac{ h_k \bar{u}_k + h_{k+1} \bar{u}_{k+1} } {h_k +
 h_{k+1}} .
 \label{eqn:mergestep}
 \end{equation}
@@ -124,7 +125,7 @@ Two simple possibilities are
 which does not use the merged cell,
 or
 \begin{equation}
-\nabla \widehat{u_M} = \frac{\bar{u}_{k+2} - \widehat{u_{M}}} {x_{k+2}-x_{M}}
+\nabla \widehat{u_M} = \frac{\bar{q}_{k+2} - \widehat{u_{M}}} {x_{k+2}-x_{M}}
 \label{eqn:gradLim2}
 \end{equation}
 which uses the merged cell, and $x_M$ is the centroid of the merged
@@ -147,31 +148,63 @@ u_{k+1}^{n+1} &= \widehat{u_M} +  (x_{k+1} - x_M) \nabla \widehat{u_M}
 \end{split}
 \end{equation}
 \end{itemize}
-This method is clearly linearity preserving if all gradients are
-computed accurately enough to preserve a linear function.  
-It is conservative since the mass of the merged cell equals the mass of
-the two cells comprising it, and the linear function through the
-centroid also has the same amount of total mass.
-
-When written in one-step form instead of as a post-processing step, 
-it is seen to be closely related to cell merging. 
-In the first order case without gradient, the above gives
+}
+First  update cells $k$ and $k+1$, shown in Figure \ref{fig:modelProblem1},  using a standard finite volume scheme
+with fixed $\Delta t$ on all cells:
 \begin{equation}
-u_k^{n+1} = u_{k+1}^{n+1} = \widehat{u_M}^{n+1} 
+\bar{u}_j = u_j^n - \frac{\Delta t}{h_j} \; (f_{j+1/2} - f_{j-1/2} ), 
+\quad \forall j.
+\label{eqn:fvupdate}
 \end{equation}
-Pluging in the updates for $\widehat{u_M}$ we get
+Next form the merged cell
 \begin{equation}
-\widehat{u_M}^{n+1} = \widehat{u_M}^n - 
+\widehat{q_M} =  \frac{ h_k \bar{u}_k + h_{k+1} \bar{u}_{k+1} } {h_k +
+h_{k+1}} .
+\label{eqn:mergestep}
+\end{equation}
+which works out to
+\begin{equation}
+\widehat{q_M} = \widehat{q_M}^n - 
 \frac{\Delta t}{h_k + h_{k+1}} (f_{k+3/2} - f_{k-1/2})
 \end{equation}
-Recognizing that $h_k+h_{k+1}$ is the merged cell volume makes this
-clear.
+
+\begin{figure}
+\begin{center}
+%\vspace*{-.5in}
+\includegraphics[height=1.3in]{figs/1dfig.pdf}
+\caption{\sf Notation for model problem in one space dimension. The small
+cell has size $\alpha h$ in a mesh with regular mesh width $h$.}
+\label{fig:modelProblem1}
+\end{center}
+\end{figure}
+
+
+For the simplest first order version, we simply set
+\begin{equation}
+u_k^{n+1} = u_{k+1}^{n+1} = \widehat{q_M}^{n+1} 
+\label{eqn:finalstep}
+\end{equation}
+Recognizing that $h_k+h_{k+1}$ is the merged cell volume makes 
+clear the relationship to cell merging.
+If the final update step \eqref{eqn:finalstep}  is replaced by 
+\begin{equation}
+\begin{split}
+u_k^{n+1} &= \widehat{q_M} +  (x_k - \widehat{x}_M) \,\, \nabla \widehat{q_M}\\
+u_{k+1}^{n+1} &= \widehat{q_M} +  (x_{k+1} - \widehat{x}_M) \, \nabla \widehat{q_M}
+\end{split}
+\end{equation}
+then the method is linearity preserving, 
+if all gradients are computed accurately enough to preserve a linear function.  
+
 By using a higher than linear polynomial and
 including more neighbors in the
-redistribution (on top of a more accurate scheme for the entire grid),
+redistribution (on top of a more accurate finite volume scheme for the
+entire mes ),
 we have a path to higher order accuracy.
-%By including gradients it provides a path to higher dimensions, possibly 
-%overlapping neighborhoods. 
+The method is also conservative since the mass of the merged cell equals the 
+mass of the two cells comprising it.
+
+
 
 The choice of merging neighborhoods and gradients is what makes up the
 specifics of SRD in two space dimensions. Furthermore, it can happen

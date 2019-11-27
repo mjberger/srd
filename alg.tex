@@ -4,8 +4,7 @@ We first describe the second order accurate version of the State
 Redistribution Algorithm. 
 This helps simplify the notation and make the
 algorithm more intuitive.   
-At several places there are choices
-to make, and we discuss the alternatives and the reason behind our
+At several places we discuss the alternatives and the reason behind our
 choices.  
 Section \ref{sec:ho} presents the higher order version of the algorithm in full generality.
 
@@ -23,15 +22,20 @@ volume of the temporarily merged cell is at least half the area of an uncut cell
 \begin{equation} \label{eqn:vmerge}
 \sum_{k \in M_{i,j}} V_{k} \geq \frac{1}{2}\Delta x\Delta y,
 \end{equation}
-where $M_{i,j}$ denotes the set of cell indices that belong to merging neighborhood $(i,j)$.
-We call this the 
+where $M_{i,j}$ denotes the set of cell indices that belong to 
+merging neighborhood $(i,j)$.  We call this the 
 {\em  merging neighborhood} or {\em merging tile}.  
+The cutoff of 1/2 has been shown in one dimension to be sufficient for
+stability with several schemes whose stability limit is $\le 1$, and we
+have not found any stability issues with this.
+
 A small cell can be merged with cells in the direction closest to the 
 boundary normal (Figure \ref{fig:neighborhoods}, left), or with all cells 
 that are at most e.g. one cell away, that is, cells located on the $3 \times 3$ 
 tile centered at the small cell (Figure \ref{fig:neighborhoods}, right).
 The larger the neighborhood the more diffusive the results. 
-For smooth solutions a $3 \times 3$ is fine, but for shocks this is less so.
+For smooth solutions a $3 \times 3$ neighborhood is fine, but for shocks this 
+yields unsatisfactory results.
 Therefore we use the normal neighborhood everywhere possible.
 
 \begin{figure}[t]
@@ -71,6 +75,7 @@ merging neighborhood is not sufficiently large (Figure \ref{fig:normalneighborho
 {\bf Each cell counts how many neighborhoods it is a part of.}
 
 \vspace*{.1in}
+We compute $N_k$, the number of neighborhoods cell $k$ is part of.
 A full cell is its own merging neighborhood, since it has sufficient
 volume all by itself.
 %However, we will still refer to all cells as having a
@@ -91,13 +96,11 @@ volume all by itself.
 %\end{figure}
 But a full cell can be part of 
 two (or more)  merging neighborhoods  if it is placed next to 
-one (or more)  tiny cut cells. This is the case for the left cell in figure
+one (or more)  tiny cut cells. This is the case for the highlighted green
+cell on the left in figure
 \ref{fig:neighborhoods}. The full cell is its own merging neighborhood, 
 as well as being part of the cut cell's neighborhood. Thus the full cell has a
 count of 2, and the cut cell has a count of 1.
-%An example is shown in
-%figure \ref{fig:2nborTile}. The cells in green are part of two
-%neighborhoods, and those in red are part of three.   
 
 Most full
 cells are only members of their own tile and will have a count of one.
@@ -155,16 +158,16 @@ be done at each step.
 Using the merging tiles and the cell counts, the  state redistribution
 algorithm is applied after one step or stage of the base scheme,
 $$
-\widehat{U} = U^n + \Delta t \, L(U^n),
+\bar{U} = U^n + \Delta t \, L(U^n),
 $$
 where $L$ is given by one of the finite volume schemes
-described in section \ref{sec:basefv}. The variable $\widehat{U}$ refers to the
+described in section \ref{sec:basefv}. The variable $\bar{U}$ refers to the
 provisionally updated value before SRD postprocessing.
 
 \begin{enumerate}
 \item
-{\bf Compute the volume-weighted,  count-weighted solution for all
-merging tiles.}   
+{\bf Compute the solution averages on the merged tiles weighted by volume
+and count.}   
 
 \vspace*{.1in}
 The solution $\widehat{Q}$ for each neighborhood is computed,
@@ -183,7 +186,7 @@ of cell $(i,j)$ included in its merging tile.
 In words, the contribution of each cell is divided by the number of neighborhoods 
 it is part of (i.e. its count). 
 Most full cells will have ${\widehat V}_{i,j} = V_{i,j}$, 
-and $\widehat{Q}_{i,j}  = \widehat{U}_{i,j}$, since they have a count of one.
+and $\widehat{Q}_{i,j}  = \bar{U}_{i,j}$, since they have a count of one.
 At the other extreme, if all cells merged with the same number of neighbors, the $N_k$'s
 would cancel, and the resulting solution would be the standard volume-weighted
 solution over the included cells. 
@@ -192,15 +195,16 @@ solution over the included cells.
 {\bf Compute and limit a gradient for each merging tile.}
 
 \vspace*{.1in}
-A gradient needs to be computed for each cut cell neighborhood. This will be needed
-to accurately update the provisional solution in the next step.
+All cut cells with area < $1/2 \, dx \, dy$ were merged, and will ned a
+gradient.
+%A gradient needs to be computed for each cut cell neighborhood. 
 A least squares procedure  similar to the one used in eq.~\eqref{eqn:lls} 
 for the finite volume update of the cut cells is an 
 obvious choice.  
 
-We use a 3-by-3 neighborhood around $(i,j)$, ignore solid cells, and fit a least
+We use a $3 \times 3$ neighborhood around $(i,j)$, ignore solid cells, and fit a least
 squares solution using the weighted centroids.
-As in eq. \eqref{eqn:lls}, the reconstruction on the merged 
+As in eq.~\eqref{eqn:lls}, the reconstruction on the merged 
 neighboorhood is of the form
 \begin{equation}
 \widehat{q}(x,y) = \widehat{Q}_{i, j} + \widehat{\sigma}_{x,i,j}(x - \widehat{x}_{i,j}) + \widehat{\sigma}_{y,i,j}(y - \widehat{y}_{i,j}),
@@ -209,14 +213,17 @@ where $\widehat{Q}_{i, j}$ is the solution average from eq. \eqref{tiledef} and 
 the gradient on the merging neighborhood.
 The quantities $(\widehat{\sigma}_{x,i,j},\widehat{\sigma}_{y,i,j})$ satisfy in the least squares sense
 \begin{equation}\label{eqn:linrecon}
-\widehat{\sigma}_{x,i,j}(\widehat{x}_{k} - \widehat{x}_{i,j}) + \widehat{\sigma}_{y,i,j}(\widehat{y}_{k} - \widehat{y}_{i,j})= \widehat{Q}_{k} - \widehat{Q}_{i, j} \quad \forall k \in R_{i,j},
+\widehat{\sigma}_{x,i,j}(\widehat{x}_{k} - \widehat{x}_{i,j}) +
+\widehat{\sigma}_{y,i,j}(\widehat{y}_{k} - \widehat{y}_{i,j})=
+\widehat{Q}_{k} - \widehat{Q}_{i, j} \quad \forall k \in \widehat{R}_{i,j},
 \end{equation}
 Note that eq. \eqref{eqn:linrecon} uses the merging tile's weighted centroid
 $(\widehat{x}_{i,j},\widehat{y}_{i,j})$ instead of the cell centroid. 
 We use 
-$W_{i,j}$ to refer to the set of indices of neighborhoods used for reconstruction,
+$\widehat{R}_{i,j}$ to refer to the set of indices of neighborhoods 
+used for tile gradient reconstruction,
 since it need not be the same as the $R_{i,j}$ used in the cut cell gradient
-reconstruction. DO I HAVE NOTATION RIGHT
+reconstruction. 
 
 
 %The gradient on the merging neighborhood $(\widehat{\sigma}_{x,i,j},\widehat{\sigma}_{y,i,j})$ satisfies in the least squares sense
@@ -258,10 +265,10 @@ the appropriate reconstruction neighborhood is $3\times 5$ reconstruction tile.
 \end{figure}
 
 Note that full cells, where the merged  solutions $\widehat{Q} =
-\widehat{U}$ (the
+\bar{U}$ (the
 provisionally updated solution), do not need a gradient. The solution will only be
-evaluated at the cell centroid, which is the same as the neighborhood centroid, so
-no offsets will be computed. However the merging neighborhood of the cut cell will
+evaluated at the cell centroid, which is the same as the neighborhood centroid. 
+Note that the merging neighborhood of the cut cell will
 also contributed to the full cell.
 
 To limit the gradient we again apply BJ, this time over the neighboring merging tiles 
@@ -320,11 +327,7 @@ neigborhoods it contributes to.
 
 
 The final update formula \eqref{eqn:final_update_linear} can easily be implemented with a 
-nested for loop in algorithm \ref{alg:finalupdate}.  
-The outer loop iterates over the merging neighborhoods $i,j$ and the inner loop 
-iterates over each cell $k$ in merging neighborhood $i,j$.  Each merging 
-neighborhood $(i,j)$ gives a contribution $ \hat{q}_{i,j}(x_{k}, y_k)/N_{k} $ to the 
-cells $k$ that belong to it.
+nested for loop in algorithm \ref{alg:finalupdate}:  
 
 \begin{algorithm}[H]
 \SetAlgoLined
@@ -336,6 +339,11 @@ $U^{n+1}(:,:) := 0$\\
  }
  \caption{\sf Final solution update} \label{alg:finalupdate}
 \end{algorithm}
+The outer loop iterates over the merging neighborhoods $i,j$ and the inner loop 
+iterates over each cell $k$ in merging neighborhood $i,j$.  Each merging 
+neighborhood $(i,j)$ gives a contribution $ \hat{q}_{i,j}(x_{k}, y_k)/N_{k} $ 
+to the cells $k$ that belong to it. Note that this algorithm does not use
+$W_{i,j}$ referred to in eq. \eqref{eqn:final_update_linear}.
 
 \begin{figure}
 	\subfloat[]{\includegraphics[width=0.40\textwidth]{figs/modelexample2D_1.pdf} \label{fig:2nborTile1}}
@@ -346,9 +354,7 @@ $U^{n+1}(:,:) := 0$\\
 
 The conservation properties of the algorithm will be discussed after the
 higher order SRD algorithm is presented in the next
-section (PR PUT IT HERE). It will also be prseented more generally.   
-OTHER THINGS HERE? DEMONSTRATE LINEARLY EXACT SECOND ORDER CONVERGENCE
-HERE INSTEAD OF COMPRESULTS SECTION?
+section. It will also be prseented more generally.   
 
 Different choices of neighborhoods, the minimum volume for the merging
 neighborhood, gradient neighborhoods, and limiting will give
@@ -360,10 +366,12 @@ We will also show computational results using different neighborhood
 choices in section \ref{sec:compResults} in two space dimensions.
 
 \subsection{Linear exactness}
-In this section, we show that the SRD method preserves linear functions.  Consider the grid function of the numerical solution after one time step or stage, $\widehat{U}$.  Assume that it can be written in terms of a linear function $f(x,y)$ of the $x$ and $y$ coordinates, i.e.,
+In this section, we show that the SRD method preserves linear functions.
+Consider the grid function of the numerical solution after one time step
+or stage, $\bar{U}$.  Assume that it can be written in terms of a linear function $f(x,y)$ of the $x$ and $y$ coordinates, i.e.,
 \begin{equation}
     \label{eqn:uhatlinear}
-\widehat{U}_{i,j} = f(x_{i,j},y_{i,j}) = ax_{i,j} + by_{i,j} + c.
+\bar{U}_{i,j} = f(x_{i,j},y_{i,j}) = ax_{i,j} + by_{i,j} + c.
 \end{equation}
 From \eqref{eqn:uhatlinear} and the expression for the average on the merging neighborhood $i,j$, \eqref{tiledef}, we have
 \begin{equation}
@@ -411,11 +419,12 @@ This becomes
 \begin{equation} 
 U^{n+1}_{i,j} := f(x_{i,j},y_{i,j}),
 \end{equation}
-i.e., $U^{n+1}_{i,j} = \widehat{U}_{i,j}$, which shows that the SRD method is linearity preserving.
+i.e., $U^{n+1}_{i,j} = \bar{U}_{i,j}$, which shows that the SRD method is linearity preserving.
 
-We conclude that the SRD algorithm will preserve the accuracy of a second order accurate 
-base scheme. In section \ref{sec:ho} we will extend both SRD and the RK
-schemes to third order or higher accuracy.
+The computational examples will show that the SRD algorithm preserves 
+the accuracy of a second order accurate base scheme. In section \ref{sec:ho} 
+we will extend both SRD and the RK
+schemes to third order and higher accuracy.
 
 % The linear advection equation
 % $$
