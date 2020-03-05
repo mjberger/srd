@@ -6,12 +6,14 @@
 \setlength{\oddsidemargin}{.2in}
 %\usepackage{showkeys}
 
-\usepackage{algorithm2e}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
 \usepackage{graphicx,amsmath,amssymb,wrapfig,color,amsfonts}
 \usepackage[section]{placeins}
 %\usepackage{showkeys}
 \usepackage{enumitem}
 \usepackage{subfig}
+\usepackage[margin=0.5in]{geometry}
 
 \newcommand{\SWE}{shallow water equations }
 \newcommand{\onehalf}{\frac{1}{2}}
@@ -31,7 +33,7 @@
 
 \begin{document}
 
-\title{A State Redistribution Algorithm for Cut Cells}
+\title{A high order state redistribution algorithm for cut cells}
 \author{Marsha Berger\footnote{Courant Institute, New York University, 251 Mercer St.,
 NY, NY 10012}  \hspace{1in} Andrew Giuliani $^*$}
 
@@ -41,20 +43,19 @@ NY, NY 10012}  \hspace{1in} Andrew Giuliani $^*$}
 \end{abstract}
 
 \input{intro.tex}
+\input{srdintro.tex}
 \input{base.tex}
 \input{alg.tex}
-\input{hoalg.tex}
-\input{1dtheory.tex}
 \input{compResults.tex}
 \input{Conclusions}
-
+\input{hoalg.tex}
 
 
 %\subsection*{Acknowledgments} 
 
 
 
-\bibliography{/Users/berger/references}
+\bibliography{references}
 \bibliographystyle{plain}
 
 
