@@ -1,6 +1,7 @@
 \section{State redistribution in two dimensions}\label{sec:srdAlg}
 
-For simplicity, we restrict our description to the second order accurate state redistribution algorithm for scalar conservation laws.  A framework for extension to arbitrarily high order accuracy is presented in Appendix \ref{sec:ho}.  The extension to systems of conservation laws is direct and discussed at the start of Section \ref{sec:srd_postprocessing}.
+For simplicity, we restrict our description to the second order accurate state redistribution algorithm for scalar conservation laws.  A framework for extension to arbitrarily high order accuracy is presented in Appendix \ref{sec:ho}.  
+%The extension to systems of conservation laws is direct and discussed at the start of Section \ref{sec:srd_postprocessing}.
 %We first describe the second order accurate version of the state
 %redistribution algorithm. 
 %This helps simplify the notation and make the algorithm more intuitive.   
@@ -13,7 +14,7 @@ For simplicity, we restrict our description to the second order accurate state r
 %In this section, we describe mesh dependent quantities that will be used in the second order accurate state redistribution method, i.e., the two-dimensional analogue of preprocessing on one-dimensional nonuniform grids presented in Section \ref{sec:srd1d}.
 In this section, we describe preprocessing of mesh-dependent quantities on two-dimensional meshes with overlapping neighborhoods, i.e., the analogue of preprocessing on one-dimensional nonuniform grids presented in Section \ref{sec:srd1d}.
 
-We first discuss merging neighborhoods, then weighted volumes and centroids.  These quantities only need to be computed once during a mesh preprocessing step since as will not vary over the course of a simulation.  
+Preprocessing determines merging neighborhoods, weighted volumes and centroids.  These quantities only need to be computed once during a mesh preprocessing step since as will not vary over the course of a simulation.  
 %We describe here the two dimensional analogue of Section \ref{sec:srd1d}, which describes preprocessing on a one dimensional nonuniform grid.
 
 %, although for a moving geometry, 
@@ -72,20 +73,18 @@ Each cell in the base grid counts the number of neighborhoods that overlap it, w
 %A full cell is its own merging neighborhood, since it has sufficient volume all by itself.
 
 The merging neighborhood of each cell and its overlap count is precomputed and stored during the mesh preprocessing operation.  This is done once before the iterative portion of the finite volume code is executed.
-\begin{figure}[h]
+\begin{figure}
 \hspace*{.5in}
 	\subfloat[\sf Normal neighborhood (in red) for the cut cell $(i,j)$.]{\includegraphics[width=.30\textwidth]{figs/normaldirection1.pdf} \label{fig:normalneighborhood}}
 	\hfill
-	\subfloat[\sf $3\times 3$ merging neighborhood for the cut cell $(i,j)$.]{\includegraphics[width=.35\textwidth]{figs/normaldirection2.pdf} \label{fig:3x3neighborhood}}
+	\subfloat[\sf $3\times 3$ merging neighborhood (in green) for centered on cut cell $(i,j)$.]{\includegraphics[width=.35\textwidth]{figs/normaldirection2.pdf} \label{fig:3x3neighborhood}}
 	\caption{\sf It can happen that merging only in the normal neighborhood is not 
-        large enough, e.g. if the small cell merges with another small cell.  
-        In this case, we use the $3\times 3$ tile, or $5\times5$ neighborhood 
-        until the volume constraint \eqref{eqn:vmerge} is satisfied.}
+        large enough, e.g. if the small cell merges with another small cell, and \eqref{eqn:vmerge} is not satisfied.  In this case, we use the $3\times 3$ neighborhood. }
 \end{figure}
 
 
 To illustrate overlapping merging neighborhoods in two dimensions, consider the cut cell mesh in Figure \ref{fig:2nborTile} where neighborhoods $(i,j)$ and $(i,j+1)$ overlap on cell $(i,j+1)$ in the base grid.  The normal merging neighborhood of cut cell $(i,j)$ is highlighted in green in Figure \ref{fig:2nborTile1}.  
-Since the volume of cell $(i,j)$ does not satisfy the volume constraint in \eqref{eqn:vmerge}, the neighborhood of $(i,j)$, $M_{i,j}$, must include both $(i,j)$ and $(i,j+1)$.  
+Since cell $(i,j)$ does not satisfy the volume constraint in \eqref{eqn:vmerge}, the neighborhood of $(i,j)$, $M_{i,j}$, must include both $(i,j)$ and $(i,j+1)$.  
 The neighborhood associated to $(i,j+1)$ in highlighted in green in Figure \ref{fig:2nborTile2}.  Since the volume of cell $(i,j+1)$ satisfies the volume constraint in \eqref{eqn:vmerge}, $M_{i,j+1}$, only contains cell $(i,j+1)$.
   
 
@@ -95,7 +94,7 @@ The neighborhood associated to $(i,j+1)$ in highlighted in green in Figure \ref{
 	\subfloat[Merging neighborhood of cell $(i,j)$.]{\includegraphics[width=0.30\textwidth]{figs/modelexample2D_2.pdf} \label{fig:2nborTile1}}
 	\qquad
 	\subfloat[Merging neighborhood of cell $(i,j+1)$.]{\includegraphics[width=.30\textwidth]{figs/modelexample2D_1.pdf} \label{fig:2nborTile2}}
-	\caption{\sf Two-dimensional example of overlapping neighborhoods.  The unweighted centroids of cells $(i,j)$ and $(i,j+1)$ are indicated with solid squares ($\blacksquare$).} \label{fig:2nborTile}
+	\caption{\sf Example of two neighborhoods, highlighted in green, that overlap on cell $(i,j+1)$.} \label{fig:2nborTile}
 \end{figure}
 
 % If the neighboring cell 
@@ -163,19 +162,19 @@ The weighted centroid of the merging neighborhood is defined as
 \label{centroiddef}
 ({\widehat x}_{i,j},{\widehat y}_{i,j}) = \frac{1}{\widehat V_{i,j}} \sum_{(r,s) \in M_{i,j} } \,  \frac{V_{r,s}}{N_{r,s}}(x_{r,s},y_{r,s}),
 \end{equation}
-The weighted centroid and the physical centroid of the merging neighborhood are not generally the same, we illustrate this in Figure \ref{fig:centroids}.
+Note that the weighted centroid and the physical centroid of the merging neighborhood are not generally the same.
 %The difference between the physical and weighted centroids of neighborhoods $(\widehat{x}_{i,j}, \widehat{y}_{i,j})$ is illustrated in Figure \ref{fig:centroids}.
 
 
 
-\begin{figure}[h]
-    \centering
-    \hspace*{.5in}
-    \subfloat[]{\includegraphics[width=0.4\linewidth]{figs/centroids3.pdf}}
-%    \subfloat[]{\includegraphics[width=0.35\linewidth]{figs/centroids4.pdf}}
-    \caption{\sf The physical and weighted centroids of the merging neighborhoods associated to cells $(i,j)$ and $(i-1, j+3)$ are indicated with a square ($\blacksquare$) and a cross ($\times$), respectively. The centroids of the Cartesian and cut cells are indicated with a solid circle ($\bullet$).  Note that the physical centroids and weighted centroid of the cut cell neighborhoods do not necessarily coincide.}
-    \label{fig:centroids}
-\end{figure}
+%\begin{figure}[h]
+%    \centering
+%    \hspace*{.5in}
+%    \subfloat[]{\includegraphics[width=0.4\linewidth]{figs/centroids3.pdf}}
+%%    \subfloat[]{\includegraphics[width=0.35\linewidth]{figs/centroids4.pdf}}
+%    \caption{\sf The physical and weighted centroids of the merging neighborhoods associated to cells $(i,j)$ and $(i-1, j+3)$ are indicated with a square ($\blacksquare$) and a cross ($\times$), respectively. The centroids of the Cartesian and cut cells are indicated with a solid circle ($\bullet$).  Note that the physical centroids and weighted centroid of the cut cell neighborhoods do not necessarily coincide.}
+%    \label{fig:centroids}
+%\end{figure}
 
 %\end{itemize}
 
@@ -199,7 +198,7 @@ Once the preprocessing step has been completed, we are able to stabilize the bas
 In this section, we describe postprocessing on two-dimensional meshes with overlapping neighborhoods, i.e., the analogue of postprocessing on one-dimensional nonuniform grids presented in Section \ref{sec:srd1d}.
 %We describe here the two dimensional analogue of Section \ref{sec:srd1d}, which describes postprocessing on a one dimensional nonuniform grid.
 
-\textit{Note}: we describe here the state redistribution procedure for scalar conservation laws.  The generalization to systems of conservation laws is direct, in that state redistribution can be applied to each component of the vector of conserved quantities independently of one another.
+%\textit{Note}: we describe here the state redistribution procedure for scalar conservation laws.  The generalization to systems of conservation laws is direct, in that state redistribution can be applied to each component of the vector of conserved quantities independently of one another.
 
 \subsubsection*{Compute the provisionally updated numerical solution}   
 Compute one stage or step of one of the finite volume schemes presented in Section \ref{sec:basefv}, i.e.,
@@ -224,7 +223,7 @@ The solution average on each neighborhood is given by
 \frac{V_{r,s}}{N_{r,s}}  \widehat{U}_{r,s}
 \end{equation}
 where the volume ${\widehat V}_{i,j}$ is the weighted neighborhood volume defined in \eqref{voldef} and $N_{i,j}$ is the overlap count associated to cell $i,j$ defined in Section \ref{sec:preprocessing}.  
-Analogous to the one dimensional case in Section \ref{sec:srd1d}, the weighted solution averages on the merging neighborhood is a convex combination of the provisional solution averages on the neighborhood associated to cell $(i,j)$.  Recall that $M_{i,j}$ is a set of cell indices that belong to the neighborhood associated to cell $(i,j)$.
+Analogous to the one dimensional case in Section \ref{sec:srd1d}, the weighted solution averages on the merging neighborhood is a convex combination of the provisional solution averages on the neighborhood associated to cell $(i,j)$.  Recall that $M_{i,j}$ is a set of cell indices in the neighborhood of cell $(i,j)$.
 
 
 
@@ -276,7 +275,7 @@ Note that \eqref{eqn:linrecon} uses the neighborhood's weighted centroids $(\wid
 %on merging neighborhood $i$.  That is, the reconstruction on the merged neighborhood is the linear function of best fit through the points $(\widehat x_k, \widehat y_k, \widehat Q_k)$ $\forall k \in R_{i,j}$ and that passes exactly through $(\widehat x_{i,j}, \widehat y_{i,j}, \widehat{Q}_{i,j})$.
 
 
-The set of neighborhoods used for gradient reconstruction on neighborhood $(i,j)$, $\widehat R_{i,j}$, that we use is the $3 \times 3$ tile.
+The set of neighborhoods used for gradient reconstruction on neighborhood $(i,j)$, $\widehat R_{i,j}$, is the $3 \times 3$ tile.
 It could happen that this set does not contain enough neighborhoods, or that the weighted centroids of these neighborhoods are too close to compute a well-conditioned gradient.
 This is the case in Figure \ref{fig:tooclose}, where the weighted centroids are too close in the $y$ direction.
 
@@ -311,7 +310,7 @@ the appropriate reconstruction neighborhood is the $3\times 5$ reconstruction ti
 %Note that the merging neighborhood of the cut cell will
 %also contributed to the full cell.
 
-To limit the reconstructed gradient we apply the BJ limiter, this time over $\widehat{R}_{i,j}$ rather than $R_{i,j}$ in in \eqref{eqn:bj} and \eqref{eqn:alpha}.  This procedure is linearity preserving since the points to which the neighborhood solutions are reconstructed in \eqref{eq:bj_alpha}, i.e. $(\widehat{x}_{r,s}, \widehat{y}_{r,s})$, are contained in the convex hull of the points at which the minimum and maximums in \eqref{eqn:bj} are computed,  see \cite{giuliani2018analysis} for a detailed analysis of Barth Jespersen limiters on unstructured meshes.
+To limit the reconstructed gradient we apply the BJ limiter, this time over $\widehat{R}_{i,j}$ rather than $R_{i,j}$ in \eqref{eqn:bj} and \eqref{eqn:alpha}.  This procedure is linearity preserving since the points to which the neighborhood solutions are reconstructed in \eqref{eq:bj_alpha}, i.e. $(\widehat{x}_{r,s}, \widehat{y}_{r,s})$, are contained in the convex hull of the points at which the minimum and maximums in \eqref{eqn:bj} are computed \cite{giuliani2018analysis}.
 
 
 \subsubsection*{Final solution update} 
@@ -326,7 +325,7 @@ Since $\widehat{q}_{i,j}(x,y)$ is a linear function, the above simplifies to
 \begin{equation} \label{eqn:final_update_linear2}
 	U^{n+1}_{i,j} =   \frac{1}{N_{i,j}}\sum_{(r,s)  \in W_{i,j}}\hat{q}_{r,s}(x_{i,j},y_{i,j}),
 \end{equation}
-i.e., the final update on merging neighborhood $(i,j)$ is the average of all neighborhood reconstructions $(r,s) \in W_{i,j}$ evaluated at $(i,j)$'s physical centroid $(x_{i,j},y_{i,j})$. 
+i.e., the final update oncell $(i,j)$ is the average of all its neighborhood reconstructions evaluated at $(i,j)$'s physical centroid $(x_{i,j},y_{i,j})$. 
 
 
 \noindent\textit{Note 1}: when we are stabilizing the method of lines scheme, $U^{n+1}_{i,j}$ corresponds to either the first or second stage of Heun's method, i.e., $U^{(1)}_{i,j}$ or $U^{(2)}_{i,j}$ in \eqref{eq:molscheme}.  
@@ -424,7 +423,8 @@ or stage, $\widehat{U}$.  Assume that it can be written in terms of a linear fun
     \label{eqn:uhatlinear}
 \widehat{U}_{i,j} = f(x_{i,j},y_{i,j}) = ax_{i,j} + by_{i,j} + c.
 \end{equation}
-This assumption is valid since both the method of lines (Section \ref{sec:mol}) and the MUSCL scheme (Section \ref{sec:muscl}) are linearity preserving.  That is, after one step or stages of these numerical methods, a linear solution remains linear.
+This assumption is valid since both the method of lines (Section \ref{sec:mol}) and the MUSCL scheme (Section \ref{sec:muscl}) are linearity preserving.  
+%That is, after one step or stages of these numerical methods, a linear solution remains linear.
 From \eqref{eqn:uhatlinear} and the expression for the average on the merging neighborhood $(i,j)$ in \eqref{tiledef}, we have
 \begin{equation}
     \label{eqn:linear1}
@@ -471,7 +471,7 @@ This becomes
 \begin{equation} 
 U^{n+1}_{i,j} = f(x_{i,j},y_{i,j}),
 \end{equation}
-i.e., $U^{n+1}_{i,j} = \widehat{U}_{i,j}$, which shows that second order accurate state redistribution is linearity preserving.
+i.e., $U^{n+1}_{i,j} = \widehat{U}_{i,j}$, which shows that second order accurate state redistribution is linearity preserving. Numerical experiments in Section \ref{sec:compResults} will demonstrate the scheme's order of accuracy.
 
 %The computational examples will show that the SRD algorithm preserves 
 %the accuracy of a second order accurate base scheme. In Section \ref{sec:theory}, we present some analysis that discusses the stability and accuracy of our scheme in one dimension.
@@ -500,45 +500,49 @@ where the mass contribution of merging neighborhood $(i,j)$ is
 \begin{equation}\label{eq:mi}
 \widehat{\mathcal{M}}_{i,j} = \sum_{(r,s) \in M_{i,j}}\frac{1}{N_{r,s}} \int_{\Omega_{r,s}}\widehat q_{i,j}(x,y) ~dx~dy,
 \end{equation}
-and $\widehat q_{i,j}(x)$ is that neighborhood's polynomial reconstruction defined in \eqref{eq:qrecon}.  Taking into account the linearity of $\widehat{q}_{i,j}(x,y)$, \eqref{eq:mi} can be written
- \begin{equation}\label{eq:mi_lin}
- \widehat{\mathcal{M}}_{i,j} = \sum_{(r,s) \in M_{i,j}}\frac{V_{r,s}}{N_{r,s}} \widehat q_{i,j}(x_{r,s},y_{r,s}),
- \end{equation}
-
-To illustrate this, consider the simple one dimensional grid in Figure \ref{fig:modelProblem1} composed of seven cells, where $\Omega_{-1}$ and $\Omega_{1}$ are the only small cells.  The red arrows indicate the associated merging neighborhoods, i.e., the merging neighborhood of cell $-1$ comprises $-2$, $-1$, $0$.
-Substituting the final solution update \eqref{eqn:final_update_linear2} into \eqref{eq:total_mass}, the total mass of the numerical solution on this grid at $t^{n+1}$ can be written
-\begin{equation}
-\begin{aligned}
-\mathcal{M}^{n+1} &= V_{-3} \widehat q_{-3}(x_{-3}) + \frac{V_{-2}}{2} \left(  \widehat q_{-2}(x_{-2}) + \widehat q_{-1}(x_{-2}) \right) + V_{-1} \widehat q_{-1}(x_{-1}) \\
-& + \frac{V_0}{3}\left( \widehat q_{-1}(x_0) + \widehat q_{0}(x_0) + \widehat q_{1}(\widehat{x}_0)\right) \\
-&+ V_{1} \widehat q_{1}(x_{1}) + \frac{V_{2}}{2} \left(  \widehat q_{1}(x_{2}) + \widehat q_{2}(x_{2}) \right)  + V_{3} \widehat q_{3}(x_{3}) .
-\end{aligned}
-\end{equation}
-Regrouping terms, the total mass can be rewritten in terms of mass contributions from each merging tile in the form of \eqref{eq:total_mass2} and \eqref{eq:mi}, i.e.,
-\begin{equation}
-\begin{aligned}
-\mathcal{M}^{n+1} = &\underbrace{V_{-3} \widehat q_{-3}(x_{-3}) }_{\widehat{\mathcal{M}}_{-3}} + \underbrace{\frac{1}{2}V_{-2} \widehat q_{-2}(x_{-2})}_{\widehat{\mathcal{M}}_{-2}} \\
-& + \underbrace{\frac{1}{2}V_{-2}\widehat q_{-1}(x_{-2})+V_{-1}\widehat q_{-1}(x_{-1}) + \frac{1}{3}V_{0}\widehat q_{-1}(x_{0})}_{\widehat{\mathcal{M}}_{-1}} +  \underbrace{\frac{1}{3}V_0\widehat q_{0}(x_{0})}_{\widehat{\mathcal{M}}_{0}} \\
-& + \underbrace{\frac{1}{3}V_{0}\widehat q_{1}(x_{0}) + V_{1}\widehat q_{1}(x_{1}) + \frac{1}{2}V_{2}\widehat q_{1}(x_{2})}_{\widehat{\mathcal{M}}_{1}} \\
- & + \underbrace{\frac{1}{2}V_{2} \widehat q_{2}(x_{2})}_{\widehat{\mathcal{M}}_{2}} + \underbrace{V_{3} \widehat q_{3}(x_{3}) }_{\widehat{\mathcal{M}}_{3}} .
-\end{aligned}
-\end{equation}
+and $\widehat q_{i,j}(x)$ is that neighborhood's polynomial reconstruction defined in \eqref{eq:qrecon}.
+Evaluating the integral in \eqref{eq:mi}, we have
+\begin{equation}\label{eq:mi1}
+\widehat{\mathcal{M}}_{i,j} = \widehat Q_{i,j} \widehat V_{i,j}, 
+\end{equation} 
+where $\widehat Q_{i,j}$ is the weighted average on neighborhood $(i,j)$.
+%Taking into account the linearity of $\widehat{q}_{i,j}(x,y)$, \eqref{eq:mi} can be written
+% \begin{equation}\label{eq:mi_lin}
+% \widehat{\mathcal{M}}_{i,j} = \sum_{(r,s) \in M_{i,j}}\frac{V_{r,s}}{N_{r,s}} \widehat q_{i,j}(x_{r,s},y_{r,s}),
+% \end{equation}
+%To illustrate this, consider the simple one dimensional grid in Figure \ref{fig:modelProblem1} composed of seven cells, where $\Omega_{-1}$ and $\Omega_{1}$ are the only small cells.  The red arrows indicate the associated merging neighborhoods, i.e., the merging neighborhood of cell $-1$ comprises $-2$, $-1$, $0$.
+%Substituting the final solution update \eqref{eqn:final_update_linear2} into \eqref{eq:total_mass}, the total mass of the numerical solution on this grid at $t^{n+1}$ can be written
+%\begin{equation}
+%\begin{aligned}
+%\mathcal{M}^{n+1} &= V_{-3} \widehat q_{-3}(x_{-3}) + \frac{V_{-2}}{2} \left(  \widehat q_{-2}(x_{-2}) + \widehat q_{-1}(x_{-2}) \right) + V_{-1} \widehat q_{-1}(x_{-1}) \\
+%& + \frac{V_0}{3}\left( \widehat q_{-1}(x_0) + \widehat q_{0}(x_0) + \widehat q_{1}(\widehat{x}_0)\right) \\
+%&+ V_{1} \widehat q_{1}(x_{1}) + \frac{V_{2}}{2} \left(  \widehat q_{1}(x_{2}) + \widehat q_{2}(x_{2}) \right)  + V_{3} \widehat q_{3}(x_{3}) .
+%\end{aligned}
+%\end{equation}
+%Regrouping terms, the total mass can be rewritten in terms of mass contributions from each merging tile in the form of \eqref{eq:total_mass2} and \eqref{eq:mi}, i.e.,
+%\begin{equation}
+%\begin{aligned}
+%\mathcal{M}^{n+1} = &\underbrace{V_{-3} \widehat q_{-3}(x_{-3}) }_{\widehat{\mathcal{M}}_{-3}} + \underbrace{\frac{1}{2}V_{-2} \widehat q_{-2}(x_{-2})}_{\widehat{\mathcal{M}}_{-2}} \\
+%& + \underbrace{\frac{1}{2}V_{-2}\widehat q_{-1}(x_{-2})+V_{-1}\widehat q_{-1}(x_{-1}) + \frac{1}{3}V_{0}\widehat q_{-1}(x_{0})}_{\widehat{\mathcal{M}}_{-1}} +  \underbrace{\frac{1}{3}V_0\widehat q_{0}(x_{0})}_{\widehat{\mathcal{M}}_{0}} \\
+%& + \underbrace{\frac{1}{3}V_{0}\widehat q_{1}(x_{0}) + V_{1}\widehat q_{1}(x_{1}) + \frac{1}{2}V_{2}\widehat q_{1}(x_{2})}_{\widehat{\mathcal{M}}_{1}} \\
+% & + \underbrace{\frac{1}{2}V_{2} \widehat q_{2}(x_{2})}_{\widehat{\mathcal{M}}_{2}} + \underbrace{V_{3} \widehat q_{3}(x_{3}) }_{\widehat{\mathcal{M}}_{3}} .
+%\end{aligned}
+%\end{equation}
 %Thus, the respective mass contribution of merging neighborhoods 1, 2, and 3, are
 %\begin{align*}
 %\widehat{\mathcal{M}}_{1} & = \frac{1}{2} \int_{\Omega_1} \widehat q_1(x)~dx, \\
 %\widehat{\mathcal{M}}_{2} & =  \frac{1}{2}\int_{\Omega_1} \widehat q_2(x)~dx +  \int_{\Omega_2} \widehat q_2(x)~dx +\frac{1}{2}\int_{\Omega_3} \widehat q_2(x)~dx, \\
 %\widehat{\mathcal{M}}_{3} & = \frac{1}{2}\int_{\Omega_3} \widehat q_3(x)~dx.
 %\end{align*}
-
-With the above in mind, we now return to proving mass conservation on a general two dimensional cut cell mesh.
-From the definition of the weighted centroids \eqref{centroiddef} and the linearity of $\widehat{q}_{i,j}$ in \eqref{eq:qrecon}, the mass contribution from an arbitrary merging neighborhood in \eqref{eq:mi_lin} can be written
-\begin{equation*}
-\widehat{\mathcal{M}}_{i,j} = \widehat q_{i,j}(\widehat{x}_{i,j}, \widehat{y}_{i,j}) \widehat V_{i,j},
-\end{equation*}
-i.e.,
-\begin{equation}\label{eq:mi1}
-\widehat{\mathcal{M}}_{i,j} = \widehat Q_{i,j} \widehat V_{i,j}.
-\end{equation}
+%With the above in mind, we now return to proving mass conservation on a general two dimensional cut cell mesh.
+%From the definition of the weighted centroids \eqref{centroiddef} and the linearity of $\widehat{q}_{i,j}$ in \eqref{eq:qrecon}, the mass contribution from an arbitrary merging neighborhood in \eqref{eq:mi_lin} can be written
+%\begin{equation*}
+%\widehat{\mathcal{M}}_{i,j} = \widehat q_{i,j}(\widehat{x}_{i,j}, \widehat{y}_{i,j}) \widehat V_{i,j},
+%\end{equation*}
+%i.e.,
+%\begin{equation}\label{eq:mi1}
+%\widehat{\mathcal{M}}_{i,j} = \widehat Q_{i,j} \widehat V_{i,j}.
+%\end{equation}
 % \subsection{First order algorithm}
 % When $\widehat q_i(x)$ is constant, i.e. $\widehat q_i(x) = \widehat Q_i$ by \eqref{eq:q_avg} and Step 2 in Section \ref{sec:first_order}, \eqref{eq:mi} becomes 
 % Substituting \eqref{eq:mi} into \eqref{eq:total_mass2}, we have
@@ -560,14 +564,14 @@ Since $N_{r,s}$ indicates the number of times cell $(r,s)$ is overlapped by merg
 \end{equation}
 which demonstrates that $\mathcal{M}^{n+1}  = \mathcal{M}^{n}$.
 
-It may not be immediately obvious how \eqref{eq:totalsum} becomes \eqref{eq:final}, so consider again the simple one dimensional example in Figure \ref{fig:modelProblem1}.  The total mass on this simple grid according to \eqref{eq:totalsum} is
-\begin{equation}
-\begin{aligned}\label{eq:massexample}
-\mathcal{M}^{n+1} = & \underbrace{V_{-3} \widehat U_{-3}}_{\widehat{\mathcal{M}}_{-3}} + \underbrace{\frac{1}{2}V_{-2} \widehat U_{-2} }_{\widehat{\mathcal{M}}_{-2}} + \underbrace{ \frac{V_{-2}}{2}\widehat U_{-2} + V_{-1}\widehat U_{-1} + \frac{V_{0}}{3}\widehat U_{0} }_{\widehat{\mathcal{M}}_{-1}} \\
-&+  \underbrace{\frac{1}{3}V_{0} \widehat U_{0}}_{\widehat{\mathcal{M}}_{0}}  + \underbrace{ \frac{V_{2}}{2}\widehat U_{2} + V_{1}\widehat U_{1} + \frac{V_{0}}{3}\widehat U_{0} }_{\widehat{\mathcal{M}}_{1}}  + \underbrace{\frac{1}{2}V_{2} \widehat U_{2} }_{\widehat{\mathcal{M}}_{2}} + \underbrace{V_{3} \widehat U_{3}}_{\widehat{\mathcal{M}}_{3}}.
-\end{aligned}
-\end{equation}
-Again, $N_{r,s}$ indicates the number of times $\frac{V_{r,s}}{N_{r,s}} \widehat U_{r,s}$ term is repeated in \eqref{eq:totalsum}.  On cell $\Omega_0$, we have $N_0=3$, thus $\frac{V_0}{3} \widehat U_0$ is repeated three times in \eqref{eq:massexample}.  When added together, these three terms become simply $V_0 \widehat U_0$.  The same argument can be applied to the other terms in the sum.  Thus, after simplifying \eqref{eq:massexample}, we have $\mathcal{M}^{n+1} = \mathcal{M}^{n}$.
+%It may not be immediately obvious how \eqref{eq:totalsum} becomes \eqref{eq:final}, so consider again the simple one dimensional example in Figure \ref{fig:modelProblem1}.  The total mass on this simple grid according to \eqref{eq:totalsum} is
+%\begin{equation}
+%\begin{aligned}\label{eq:massexample}
+%\mathcal{M}^{n+1} = & \underbrace{V_{-3} \widehat U_{-3}}_{\widehat{\mathcal{M}}_{-3}} + \underbrace{\frac{1}{2}V_{-2} \widehat U_{-2} }_{\widehat{\mathcal{M}}_{-2}} + \underbrace{ \frac{V_{-2}}{2}\widehat U_{-2} + V_{-1}\widehat U_{-1} + \frac{V_{0}}{3}\widehat U_{0} }_{\widehat{\mathcal{M}}_{-1}} \\
+%&+  \underbrace{\frac{1}{3}V_{0} \widehat U_{0}}_{\widehat{\mathcal{M}}_{0}}  + \underbrace{ \frac{V_{2}}{2}\widehat U_{2} + V_{1}\widehat U_{1} + \frac{V_{0}}{3}\widehat U_{0} }_{\widehat{\mathcal{M}}_{1}}  + \underbrace{\frac{1}{2}V_{2} \widehat U_{2} }_{\widehat{\mathcal{M}}_{2}} + \underbrace{V_{3} \widehat U_{3}}_{\widehat{\mathcal{M}}_{3}}.
+%\end{aligned}
+%\end{equation}
+%Again, $N_{r,s}$ indicates the number of times $\frac{V_{r,s}}{N_{r,s}} \widehat U_{r,s}$ term is repeated in \eqref{eq:totalsum}.  On cell $\Omega_0$, we have $N_0=3$, thus $\frac{V_0}{3} \widehat U_0$ is repeated three times in \eqref{eq:massexample}.  When added together, these three terms become simply $V_0 \widehat U_0$.  The same argument can be applied to the other terms in the sum.  Thus, after simplifying \eqref{eq:massexample}, we have $\mathcal{M}^{n+1} = \mathcal{M}^{n}$.
 
 % The linear advection equation
 % $$

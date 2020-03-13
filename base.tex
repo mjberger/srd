@@ -2,10 +2,10 @@
 We are interested in solving hyperbolic conservation laws 
 \begin{equation}
 \begin{aligned} \label{eq:conslaw2D}
-\frac{\partial}{\partial t}	\mathbf{u} + \nabla \cdot \mathbf{F}(\mathbf{u}) = \mathbf{0}
+\frac{\partial}{\partial t}	\mathbf{u} + \nabla \cdot \mathbfcal{F}(u)  = \mathbf{0}
 \end{aligned}
 \end{equation}
-on the domain $\Omega \subset \mathbb{R}^2$ where $\mathbf{u}(x,y,t) \in \Omega \times (0,T]$ is a vector of conserved quantities, $T$ is the final time, and $\mathbf{F} = [\mathbf{F}_1, \mathbf{F}_2]$ is a flux function.  We discretize $\Omega$ into a cut cell mesh of elements $\Omega_{i,j}$.  A typical cut cell mesh, called the base grid, is given in Figure \ref{fig:2dfig}.  On the domain interior, the elements $\Omega_{i,j}$ are Cartesian cells (quadrilaterals) of size $\Delta x$ in the $x$ direction and $\Delta y$ in the $y$ direction.  On the domain boundary there is a border of irregular polygonal cells, called cut cells.  
+on the domain $\Omega \subset \mathbb{R}^2$ where $\mathbf{u}(x,y,t) \in \Omega \times (0,T]$ is a vector of conserved quantities, $T$ is the final time, and $\mathbfcal{F} = [\mathbf{F}, \mathbf{G}]$ is the flux function.  We discretize $\Omega$ into a cut cell mesh of cells $\Omega_{i,j}$.  A typical cut cell mesh, called the base grid, is given in Figure \ref{fig:2dfig}.  On the domain interior, the elements $\Omega_{i,j}$ are Cartesian cells (quadrilaterals) of size $\Delta x$ in the $x$ direction and $\Delta y$ in the $y$ direction.  On the domain boundary there is a border of irregular polygonal cells, called cut cells.  
 
 
 %These gradients are then used in the computation of the numerical flux in \eqref{eq:fvscheme}.
@@ -24,14 +24,14 @@ on the domain $\Omega \subset \mathbb{R}^2$ where $\mathbf{u}(x,y,t) \in \Omega 
 %Our computational results will use two different finite volume schemes to update the cut cell mesh, to show that SRD can be used in a variety of situations.
 %along with appropriate initial and boundary conditions
 We will use two different second order discretizations of \eqref{eq:conslaw2D}: the method of lines approach and the MUSCL scheme.
-These fully discrete finite volume methods, described in Section \ref{sec:mol} and \ref{sec:muscl}, are referred to as the base schemes.  Both schemes require linear reconstructions on cells that we outline in Section \ref{sec:limit}.  
+These fully discrete finite volume methods, described in Section \ref{sec:mol} and \ref{sec:muscl}, are referred to as the base schemes.  Both schemes require linear reconstructions on cells that we outline in Section \ref{sec:limit}.  The high-order extension will be described in Appendix \ref{sec:ho}. 
 %We outline the gradient reconstruction, and discuss two  limiting procedures for the cut cells in Section \ref{sec:limit}.  
 %SRD will be applied after each stage or step of the base scheme.
 
 \begin{figure}
 \begin{center}
 \includegraphics[width=3.0in]{figs/example_ccmesh.pdf}
-\caption{\sf Example base grid in two space dimensions. The cells shaded in yellow are the cut cells.  Both the method of lines (Section \ref{sec:mol}) and MUSCL (Section \ref{sec:muscl}) schemes require gradient information to reconstruct to the edge midpoint, indicated with a hollow square ($\square$).} 
+\caption{\sf Example base grid in two space dimensions. The cells shaded in yellow are the cut cells.  Both the method of lines (Section \ref{sec:mol}) and MUSCL (Section \ref{sec:muscl}) schemes require gradient information to reconstruct to the edge midpoint, indicated with a cross ($\times$).} 
 \label{fig:2dfig}
 \end{center}
 \end{figure}
@@ -41,14 +41,14 @@ These fully discrete finite volume methods, described in Section \ref{sec:mol} a
 
 \subsection{Method of lines} \label{sec:mol}
 
-After generating the cut cell mesh, we solve \eqref{eq:conslaw2D} on this base grid using a finite volume method of the form
+After generating the cut cell mesh, we approximate the solution to \eqref{eq:conslaw2D} on this base grid using a finite volume method of the form
 \begin{equation}\label{eq:fvscheme}
-\frac{d}{dt}\mathbf{U}_{i,j} =- \frac{1}{V_{i,j}} \int_{\partial \Omega_{i,j}} \mathbf{F}^* \cdot \mathbf{n} ~dl,
+\frac{d}{dt}\mathbf{U}_{i,j} =- \frac{1}{V_{i,j}} \int_{\partial \Omega_{i,j}} \mathbfcal{F} ^* \cdot \mathbf{n} ~dl,
 \end{equation}
-where $\mathbf{U}_{i,j}$ is a vector of the cell averages on $\Omega_{i,j}$, $\partial \Omega_{i,j}$ is the cell boundary, $\mathbf{n}$ is an outward facing normal, and $\mathbf{F}^*$ is a numerical flux function.
+where $\mathbf{U}_{i,j}$ is a vector of the cell averages on $\Omega_{i,j}$, $\partial \Omega_{i,j}$ is the cell boundary, $\mathbf{n}$ is an outward facing normal, and $\mathbfcal{F}^*$ is a numerical flux function.
 
 Second order accuracy in space is achieved by reconstructing a gradient on each cell and using it to evaluate the numerical flux at the face midpoints (Figure \ref{fig:2dfig}).  
-In our numerical experiments, we use the local Lax-Friedrichs, or Rusanov, numerical flux.
+In our numerical experiments, we use the local Lax-Friedrichs, or Rusanov, numerical flux to solve the Riemann problem at cell interfaces.
 %Figure \ref{fig:2dfig}  indicates this face location with a green $\times$.
 %The simplest scheme is to use a spatial discretization over the entire
 %mesh, and apply a Runge-Kutta scheme in time. This is a well-known
@@ -71,12 +71,17 @@ Second order accuracy in time is obtained by integrating \eqref{eq:fvscheme} in 
 \end{aligned}
 \end{equation}
 where $\mathbf{U}^{n}$ is the vector of solution averages on the entire cut cell mesh at time $t^n$, $\mathbf{U}^{(1)}$,$\mathbf{U}^{(2)}$, are intermediate stages, and $L$ is the operator that results from the right-hand-side of \eqref{eq:fvscheme}.
-We use the time step restriction
-\begin{equation}
-\Delta t   \max_{i,j}\sqrt{\left(\frac{u_{i,j}}{\Delta x}\right)^2 + \left(\frac{v_{i,j}}{\Delta y}\right)^2} \leq \frac{\sqrt{2}}{2},
+We derive the maximum stable time step on the base grid by using \eqref{eq:molscheme} to solve the linear advection equation on a Cartesian grid with advection velocity $(a,b)$.
+Numerical evaluation of the amplification factor that results from a linear stability analysis reveals that a stable time step satisfies
+\begin{equation}\label{eq:vn1}
+\Delta t   \left( \frac{|a|}{\Delta x} + \frac{|b|}{\Delta y} \right)\leq 1.
 \end{equation}
-where $(u_{i,j},v_{i,j})$ is the propagation velocity on cell $(i,j)$.  
-
+%We have verified \eqref{eq:vn1} by numerical evaluation of the amplification factor that results from a linear stability analysis.
+Note that this is less restrictive than the time step required for a discrete maximum principle to be satisfied, which is 
+\begin{equation}
+\Delta t  \left( \frac{2\Delta x + 2 \Delta y}{\Delta x \Delta y} \right) \sqrt{a^2 + b^2}\leq 1,
+\end{equation}
+which follows from analysis in, e.g., \cite{giuliani2018analysis}.
 %\begin{equation}
 %\Delta t \,  \max\left(\frac{u}{\Delta x},\frac{v}{\Delta y}\right) \leq \frac{1}{2} ,
 %\end{equation}
@@ -114,14 +119,24 @@ cell center, and using the equation to replace the derivative in time, gives
 \begin{equation}\label{taylor}
 \begin{split}
 \mathbf{U}_{i+1/2,j}^{n+1/2}   = \mathbf{U}_{i,j}^n - \frac{\Delta t}{2} \, 
-             \frac{\partial (\mathbf{F}_2)_{i,j}^n}{\partial y}  -
+             \frac{\partial \mathbf{G}_{i,j}^n}{\partial y}  -
             \left( \frac{\Delta t}{2} 
-            \frac{\partial (\mathbf{F}_1)_{i,j}^n}{\partial \mathbf{U}^n_{i,j}} -
+            \frac{\partial \mathbf{F}_{i,j}^n}{\partial \mathbf{U}^n_{i,j}} -
              \frac{\Delta x}{2} \right) \,\frac{\partial \mathbf{U}_{i,j}^n}{\partial x}, \\[.08in]
 \end{split}
 \end{equation}
-where the $\mathbf{F}_1$, $\mathbf{F}_2$ are the $x$ and $y$ components of the flux $\mathbf{F}$ in \eqref{eq:conslaw2D}.  This is a second order accurate solution value at time $t^{n+1/2}$ and cell interface $(i+1/2,j)$, i.e., the midpoint of the edge shared by cells $(i,j)$ and $(i+1,j)$.
+%where the $\mathbf{f}$, $\mathbf{g}$ are the $x$ and $y$ components of the flux $\mathbf{F}$ in \eqref{eq:conslaw2D}.
+  This is a second order accurate solution value at time $t^{n+1/2}$ and cell interface $(i+1/2,j)$, i.e., the midpoint of the edge shared by cells $(i,j)$ and $(i+1,j)$.
 The values at the other interfaces of full cells are similarly defined.
+
+
+%In the original method, the term $\partial \mathbf{G}_{i,j}^n / \partial y$ is computed by solving Riemann problems in the vertical direction,  evaluating the flux $\mathbf{G} $, and computing the difference in fluxes divided by $\Delta y$.
+In the original method, the term $\partial \mathbf{G}_{i,j}^n / \partial y$ is approximated by $(\mathbf{G}_{i,j+1} - \mathbf{G}_{i,j})/\Delta y$ at edge $(i,j+1/2)$.
+Since this only needs to be done to first order accuracy (the term is multiplied
+by $\Delta t$)  no reconstruction to the cell edge  in the transverse 
+direction was necessary,
+and differencing the edge fluxes was appropriately cell-centered.
+For more details the reader is referred to \cite{Colella:Unsplit}.
 
 At the cut cells the above procedure is no longer accurate.   We make two modifications to the
 computation of the transverse derivatives. First,
@@ -133,23 +148,15 @@ Secondly, most cut cells will not have a flux on the other side to form a
 transverse derivative, for example cell $(i+1,j)$. Even for cell $(i,j)$ is would
 be difficult to find a location where the vertical fluxes could be accurately differenced.
 For these cut cells, the transverse derivative term is handled by instead computing
-$ \partial (\mathbf{F}_2)_{i,j}^n / \partial y = ( \partial (\mathbf{F}_2)_{i,j}^n / \partial \mathbf{U}_{i,j}^n)( \partial \mathbf{U}_{i,j}^n / \partial y)$,
+$ \partial \mathbf{G}_{i,j}^n / \partial y = ( \partial \mathbf{G}_{i,j}^n / \partial \mathbf{U}_{i,j}^n)( \partial \mathbf{U}_{i,j}^n / \partial y)$,
 like the horizontal fluxes in \eqref{taylor}. This is linearly exact in the cut cells, 
 if the gradients themselves are.
 
 
-In the original method, the term $\partial (\mathbf{F}_2)_{i,j}^n / \partial y$ is computed by solving Riemann
-problems in the vertical direction,  evaluating the flux $\mathbf{F}_2 $, and computing the
-difference in fluxes divided by $\Delta y$.
-Since this only needs to be done to first order accuracy (the term is multiplied
-by $\Delta t$)  no reconstruction to the cell edge  in the transverse 
-direction was necessary,
-and differencing the edge fluxes was appropriately cell-centered.
-For more details the reader is referred to \cite{Colella:Unsplit}.
 
 Using the interface states computed using the approach described above, the fully discrete MUSCL scheme can be written as a one step update
 \begin{equation}\label{eq:onestep}
-\mathbf{U}_{i,j}^{n+1} = \mathbf{U}^n_{i,j} - \frac{\Delta t}{V_{i,j}} \int_{\partial \Omega_{i,j}} \mathbf{F}^* \cdot \mathbf{n}~dl,
+\mathbf{U}_{i,j}^{n+1} = \mathbf{U}^n_{i,j} - \frac{\Delta t}{V_{i,j}} \int_{\partial \Omega_{i,j}} \mathbfcal{F}^* \cdot \mathbf{n}~dl,
 \end{equation}
 where 
 %$\mathbf{U}^n_{i,j}$ is a vector of the cell averages on cell $(i,j)$ at time $t^{n}$, $\partial \Omega_{i,j}$ is the cell boundary, $V_{i,j}$ is the cell volume, and $\mathbf{n}$ is an outward facing normal. 
@@ -163,13 +170,12 @@ Unlike the fully discrete method of lines scheme \eqref{eq:molscheme}, the fully
 where $L$ is the operator that results from the right-hand-side of \eqref{eq:onestep} and $\mathbf{U}^{n}$ is a vector of solution averages on all cells in the grid at $t^n$.
 
 
-\textit{Note:} it is the transverse derivative that provides the so-called corner coupling,
-giving the MUSCL scheme a stability limit of
+\textit{Note:} it is the transverse derivative that provides the so-called corner coupling, giving the MUSCL scheme a linear stability limit of
 \begin{equation}
 \label{eqn:bigcfllimit}
-\Delta t \, \max_{i,j} \left (\frac{|u_{i,j}|}{\Delta x} , \frac{|v_{i,j}|}{\Delta y} \right) \leq 1,
+\Delta t \, \max \left (\frac{|a|}{\Delta x} , \frac{|b|}{\Delta y} \right) \leq 1,
 \end{equation}
-where $(u_{i,j}, v_{i,j})$ is the propagation velocity on cell $(i,j)$.
+where $(a,b)$ is the advection velocity.  
 
 
 \commentout{
@@ -207,22 +213,21 @@ neighborhood, so that cut cells get this dissipation too.
 
 The computation of gradients, and for problems with discontinuities limiting
 those gradients, arises independently of the finite volume scheme used. 
-For the interior of the mesh when the stencil is completely regular, i.e. no cut
-cells, standard schemes can be used.
+On the domain interior, when the stencil is regular and does not contain cut cells, standard schemes can be used.
 In all our examples we use monotonized central (MC) differencing in both $x$ and $y$ directions.  The MC limited slope in the $x$ direction is
 \begin{equation}
 \sigma^n_{x,i,j} =  \begin{cases} 
 \min \left ( \,  \lvert{ D_c}\rvert,\,
 2 \lvert {D_+}\rvert,\,
 2 \lvert{D_-}\rvert \,  \right ) \,\times 
-\text{ sign } D_c, \quad \text{if} \;\;  D_+ D_- >  0\\
+\text{ sign } D_c, \quad \text{if} \;\;  D_+ D_- >  0,\\
 0 \hspace*{2.8in} \text{otherwise}.
 \end{cases}
 \end{equation}
-where we use the differencing notation
-$D_c = (U^n_{i+1,j}-U^n_{i-1,j})/(2 \, \Delta x)$,
-$D_+ = (U^n_{i+1,j}-U^n_{i,j})/\Delta x$, and
-$D_- = (U^n_{i,j}-U^n_{i-1,j})/\Delta x$.  The MC limited slope in the $y$ direction is similarly defined.
+We use the differencing notation
+$D_c = (U^n_{i+1,j}-U^n_{i-1,j})/(2 \, \Delta x)$ for the second order accurate central difference and
+$D_+ = (U^n_{i+1,j}-U^n_{i,j})/\Delta x$,
+$D_- = (U^n_{i,j}-U^n_{i-1,j})/\Delta x$ for the one-sided differences.  The MC limited slope in the $y$ direction is similarly defined.
 
 For cut cells and their neighboring full cells, we use a least squares gradient reconstruction algorithm, which is standard for unstructured meshes.
 %Cells that are two away from a cut cell can use any limiter with a five point stencil. 
@@ -232,14 +237,25 @@ u^n_{i,j}(x,y) = U_{i,j}^n + \sigma^n_{x,i,j} \,(x-x_{i,j}) +
                      \sigma^n_{y,i,j}\,(y-y_{i,j}),
 \label{eqn:lls}
 \end{equation}
-where $(i,j)$ is the index of either a cut cell or cell with an irregular stencil, $(\sigma^n_{x},\sigma^n_{y})_{i,j}$ and $(x,y)_{i,j}$ are its gradient and cell centroid, respectively. The least squares procedure finds the gradient that minimizes the $L_2$ residual when evaluating  $u_{i,j}(x,y)$ at a neighboring cell centroid.  
-The reconstructed gradient satisfies in the least squares sense
+where $(i,j)$ is the index of either a cut cell or cell with an irregular stencil, $(\sigma^n_{x},\sigma^n_{y})_{i,j}$ and $(x,y)_{i,j}$ are its gradient and cell centroid, respectively. The least squares procedure finds the gradient that minimizes the $L_2$ residual when evaluating  $u_{i,j}(x,y)$ at a neighboring cell centroid. 
+
+In this work, we consider both first and second order accurate gradients.  The reconstructed first order gradient satisfies in the least squares sense
 \begin{equation}\label{eqn:linrecon_base}
 \sigma^n_{x,i,j}(x_{r,s} - x_{i,j}) +
 \sigma^n_{y,i,j}(y_{r,s} - y_{i,j})=
-U^n_{r,s} - U^n_{i, j} \quad \forall (r,s) \in R_{i,j}.
+U^n_{r,s} - U^n_{i, j} \quad \forall (r,s) \in R_{i,j},
 \end{equation}
-The set of cell indices used for slope reconstruction on cell $(i,j)$ in the base scheme is called $R_{i,j}$.
+where set of cell indices used for slope reconstruction on cell $(i,j)$ in the base scheme is called $R_{i,j}$.  In this case, $R_{i,j}$ is the $3\times 3$ tile centered on $(i,j)$.
+The reconstructed second order gradient satisfies in the least squares sense
+\begin{equation}
+\begin{aligned}\label{eqn:linrecon_base2}
+&\sigma^n_{x,i,j}(x_{r,s} - x_{i,j}) +
+\sigma^n_{y,i,j}(y_{r,s} - y_{i,j})  + \frac{1}{2}\sigma^n_{xx,i,j}(x_{r,s} - x_{i,j})^2 +\sigma^n_{xy,i,j}(x_{r,s} - x_{i,j})(y_{r,s} - y_{i,j})\\
+&+ \frac{1}{2}\sigma^n_{yy,i,j}(y_{r,s} - y_{i,j})^2=
+U^n_{r,s} - U^n_{i, j} \quad \forall (r,s) \in R_{i,j},
+\end{aligned}
+\end{equation}
+where $\sigma_{xx,i,j}$, $\sigma_{xy,i,j}$, $\sigma_{yy,i,j}$ are quadratic degrees of freedom and are discarded.  In this case, $R_{i,j}$ is either the $3\times 3$ tile centered on $(i,j)$ when $(i,j)$ is a whole cell neighboring a cut cell, or the $5\times 5$ tile centered on $(i,j)$ when $(i,j)$ is a a cut cell.
 %For flow cells with irregular stencils we use cells in a 1-by-1
 %neighborhood of cell $(i,j)$.
 %For cut cells this is extended to included cells whose L1 distance is $\le
@@ -262,12 +278,17 @@ The Barth Jespersen (BJ) limiter is a scalar limiter, where both $\sigma_{x,i,j}
 % TOOK OUT SINCE USING MC NOT BJ IN INTERIOR RIGHT NOW
 % The BJ limiter  can also be
 %used in the interior of the mesh, and so is closer to the base scheme. 
-To limit using BJ, we compute the minimum and maximum values over the
-reconstruction stencil $R_{i,j}$, i.e.
+To limit using BJ, we compute the minimum and maximum values over the reconstruction stencil $R_{i,j}$, i.e.
 \begin{equation} 
-     m_{i,j} = \max_{(r,s) \in R_{i,j}} U_{r,s}^n \text{ and } 
-     M_{i,j} = \max_{(r,s) \in R_{i,j}} U_{r,s}^n.
+     m_{i,j} = \max_{(r,s) \in R_{i,j}} u^n_{r,s}(x_{r,s}, y_{r,s}) \text{ and } 
+     M_{i,j} = \max_{(r,s) \in R_{i,j}} u^n_{r,s}(x_{r,s}, y_{r,s}).
 \label{eqn:bj}
+\end{equation}
+or equivalently
+\begin{equation} 
+m_{i,j} = \max_{(r,s) \in R_{i,j}} U^n_{r,s} \text{ and } 
+M_{i,j} = \max_{(r,s) \in R_{i,j}} U^n_{r,s}.
+\label{eqn:bj1}
 \end{equation}
 The reconstructed gradient on cell $(i,j)$ is limited by a non-negative 
 scalar $\alpha \in [0,1]$, so that when ${u}_{i,j}(x,y)$ 
@@ -294,6 +315,8 @@ Then choose
 \alpha = \min_{(r,s) \in R_{i,j}} \alpha_{r,s} .
 \end{equation}
 This procedure is linearity preserving since the points to which the solutions are reconstructed in \eqref{eq:bj_alpha}, i.e. $(x_{r,s}, y_{r,s})$, are contained in the convex hull of the points at which the minimum and maximums in \eqref{eqn:bj} are computed, see \cite{giuliani2018analysis} for a detailed analysis of Barth Jespersen limiters on unstructured meshes.
+The approach described above differs slightly from that the original Barth-Jespersen limiter in \cite{barth-jespersen}, where the numerical solution is reconstructed to the edge midpoints.  This is generally not linearity preserving on cut cell meshes, which motivates our slight modification of the limiter.  
+%It is for this reason that we reconstruct to the neighboring centroids in \eqref{eq:bj_alpha}.
 
 We also use the LP limiter in our numerical experiments. This is a vector limiter where both components of the gradient are reduced by the smallest amount that still satisfies some overshoot and positivity constraints. A small LP problem is solved to  obtain these quantities.
 The LP limiter retains more of the original gradient and is less diffusive than the BJ limiter at cut cells, but is roughly twice the computational cost. We will always specify which limiter is used in the numerical experiments.  

@@ -1,17 +1,19 @@
 \appendix
 \section{High order accurate base scheme}\label{sec:ho}
-In this section, we provide a framework to extend the method of lines finite volume scheme to high order.  The high order state redistribution could also be applied to a high order MUSCL scheme but we do not do this here.  In Section \ref{sec:ho_basescheme}, we describe the high order method of lines scheme.  This base scheme requires a high order polynomial reconstruction on each cell of the base grid in conserved or primitive variables, described in Section \ref{sec:ho_reconstruction} and \ref{sec:ho_reconstruction_primitive}, respectively.
+This section provides a framework to extend the method of lines finite volume scheme to high order.  
+%The high order state redistribution could also be applied to a high order MUSCL scheme but we do not do this here.  
+In Section \ref{sec:ho_basescheme}, we describe the high order method of lines scheme.  This base scheme requires a high order polynomial reconstruction on each cell of the base grid described in Sections \ref{sec:ho_reconstruction} and \ref{sec:ho_reconstruction_primitive}.
 
 
 \subsection{Method of lines} \label{sec:ho_basescheme}
 
-We solve conservation laws \eqref{eq:conslaw2D} using a finite volume scheme of the form
+We approximate solutions to \eqref{eq:conslaw2D} using a finite volume scheme of the form
 \begin{equation}\tag{\ref{eq:fvscheme}} 
 \frac{d}{dt}\mathbf{U}_{i,j} =- \frac{1}{V_{i,j}} \int_{\partial \Omega_{i,j}} \mathbf{F}^* \cdot \mathbf{n} ~dl,
 \end{equation}
 on the base grid composed of cells $\Omega_{i,j}$, $\mathbf{U}_{i,j}$ is the vector of cell averages on $\Omega_{i,j}$, $\partial \Omega_{i,j}$ is the cell boundary, $\mathbf{n}$ is an outward facing normal, and $\mathbf{F}^*$ is a numerical flux function.
 
-High order accuracy in space is achieved by reconstructing a high order polynomial on each cell and using it to evaluate the numerical flux at the face quadrature points (Figure \ref{fig:2dfig}).  For simulations of order accuracy $p=0,1$, we use the midpoint quadrature rule and for simulations of order accuracy $p=2,3$, we use the two-point Gauss Legendre quadrature rule (Figure \ref{fig:2dfig_ho}).  In our numerical experiments, we use the local Lax-Friedrichs, or Rusanov, numerical flux.
+High order accuracy in space is achieved by reconstructing a high order polynomial on each cell and using it to evaluate the numerical flux at the face quadrature points (Figure \ref{fig:2dfig}).  For simulations of first and second order accuracy, we use the midpoint quadrature rule and for third and fourth order accurate schemes, we use the two-point Gauss Legendre quadrature rule (Figure \ref{fig:2dfig_ho_vquad}).  In our numerical experiments, we use the local Lax-Friedrichs, or Rusanov, numerical flux.
 
 The high order method of lines scheme requires quadrature rules on volumes for 
 \begin{enumerate}
@@ -19,7 +21,7 @@ The high order method of lines scheme requires quadrature rules on volumes for
 	\item geometrical constants used in polynomial reconstruction (Sections \ref{sec:ho_reconstruction} and \ref{sec:ho_reconstruction_q}),
 	\item reconstruction in primitive variables (Section \ref{sec:ho_reconstruction_primitive}).
 \end{enumerate}
-On both full and cut cells,  we use quadrature rules of order $p$ when $p$ is the polynomial degree of the spatial reconstruction.  
+On both full and cut cells,  we use quadrature rules with degree accuracy that is the same or higher than the polynomial degree of the spatial reconstruction.
 On full cells, we use quadrature rules for quadrilaterals.  
 On cut cells, integrals are computed by first triangulating the cut cell, then using a quadrature rule of sufficient order on each subtriangle.  The triangulation is not necessarily Delaunay and we do not introduce new vertices to triangulate the cut cells.  This approach can result in thin and small triangles on the cut cell (Figure \ref{fig:2dfig_ho_vquad}).  It is simple to show that the accuracy of volume integrals approximated in this manner on cut cells will not be affected \cite{QIN201324}.
 
@@ -28,19 +30,15 @@ On cut cells, integrals are computed by first triangulating the cut cell, then u
 		\includegraphics[width=3.0in]{figs/example_ccmesh_ho_vquad.pdf}
 		\caption{\sf 
 %			The high order method of lines scheme reconstructs to Gauss-Legendre quadrature points. 
-			The two-point Gauss-Legendre quadrature points used for reconstructions of degree $p=2,3$ are indicated by a hollow square ($\square$).  The triangulations used for volume integration on cut cells are indicated by red lines and the volume quadrature points for $p=2,3$ are indicated by hollow circles ($\circ$).} 
+			The two-point Gauss-Legendre quadrature points used for third and fourth order methods are indicated by a square ($\blacksquare$).  The triangulations used for volume integration on cut cells are indicated by red lines and the volume quadrature points for third and fourth order methods are indicated by a cross ($\times$).} 
 		\label{fig:2dfig_ho_vquad}
 	\end{center}
 \end{figure}
 
 
-High order accuracy in time is obtained by applying a Runge-Kutta method of appropriate order to \eqref{eq:fvscheme}.  That is, we pair a RK time stepping scheme of order $p+1$ with a polynomial degree $p$ spatial reconstruction.  When $p=0$, we use the forward Euler scheme and when $p=1$ we use the two stage TVD-RK2 scheme in \eqref{eq:molscheme}.
-When $p=0,1$, we use the time step restriction
-\begin{equation}
-\Delta t   \max_{i,j} \sqrt{\left(\frac{u_{i,j}}{\Delta x}\right)^2 + \left(\frac{v_{i,j}}{\Delta x}\right)^2} \leq \frac{\sqrt{2}}{2},
-\end{equation}
-where $(u_{i,j},v_{i,j})$ is the propagation velocity on cell $(i,j)$.
-When $p=2$, we use the three stage TVD-RK3 method
+High order accuracy in time is obtained by applying a Runge-Kutta method of appropriate order to \eqref{eq:fvscheme}.  
+That is, we pair a RK time stepping scheme with the same degree accuracy as the spatial reconstruction.  For example, we use the two stage TVD-RK2 scheme in \eqref{eq:molscheme} with linear reconstructions and the time step restriction given in \eqref{eq:vn1}.
+For the third order method, we use the three stage TVD-RK3 method
 \begin{equation}\label{eq:molscheme_ho2}
 \begin{aligned}
 \mathbf{U}^{(1)} &= \mathbf{U}^{n} + \Delta t L(\mathbf{U}^n), \\
@@ -49,7 +47,11 @@ When $p=2$, we use the three stage TVD-RK3 method
 \mathbf{U}^{n+1} &= \frac{1}{3}\mathbf{U}^{n} + \frac{2}{3}\mathbf{U}^{(3)}  ,	
 \end{aligned}
 \end{equation}
-and when $p=3$, we use the four stage RK4 scheme
+and the time step restriction
+\begin{equation}
+\Delta t \left( \frac{|a|}{\Delta x} + \frac{|b|}{\Delta y} \right) \leq 1.8.
+\end{equation}
+For the fourth order method, we use the four stage RK4 scheme
 \begin{equation}\label{eq:molscheme_ho4}
 \begin{aligned}
 \mathbf{k}^{(1)} &= \Delta t L(\mathbf{U}^n), \\
@@ -59,19 +61,24 @@ and when $p=3$, we use the four stage RK4 scheme
 \mathbf{U}^{n+1} &=\mathbf{U}^n + \frac{1}{6}(\mathbf{k}^{(1)} + \mathbf{k}^{(2)}+ \mathbf{k}^{(3)}+ \mathbf{k}^{(4)}),
 \end{aligned}
 \end{equation}
-since a four-stage TVD-RK4 scheme does not exist.
-\begin{figure}
-	\begin{center}
-		\includegraphics[width=3.0in]{figs/example_ccmesh_ho.pdf}
-		\caption{\sf Example base grid in two space dimensions. The cells shaded in yellow are the cut cells. The high order method of lines scheme reconstructs to Gauss-Legendre quadrature points.  We have indicated by the hollow cross ($\square$) the two-point Gauss-Legendre quadrature points used for reconstructions of degree $p=2,3$.} 
-		\label{fig:2dfig_ho}
-	\end{center}
-\end{figure}
-For these schemes, we use the following time step restriction
+and the time step restriction
 \begin{equation}
-\Delta t   \max_{i,j}\sqrt{\left(\frac{u_{i,j}}{\Delta x}\right)^2 + \left(\frac{v_{i,j}}{\Delta x}\right)^2} \leq 1,
+\Delta t \left( \frac{|a|}{\Delta x} + \frac{|b|}{\Delta y} \right) \leq .
 \end{equation}
-where $(u_{i,j},v_{i,j})$ is the propagation velocity on cell $(i,j)$.
+For both third and fourth order accurate methods, we have obtained their associated time step restrictions by numerical evaluation of the amplification factor resulting from a linear stability analysis.
+%since a four-stage TVD-RK4 scheme does not exist
+%\begin{figure}
+%	\begin{center}
+%		\includegraphics[width=3.0in]{figs/example_ccmesh_ho.pdf}
+%		\caption{\sf Example base grid in two space dimensions. The cells shaded in yellow are the cut cells. The high order method of lines scheme reconstructs to Gauss-Legendre quadrature points.  We have indicated by the hollow cross ($\square$) the two-point Gauss-Legendre quadrature points used for reconstructions of degree $p=2,3$.} 
+%		\label{fig:2dfig_ho}
+%	\end{center}
+%\end{figure}
+%For these schemes, we use the following time step restriction
+%\begin{equation}
+%\Delta t   \max_{i,j}\left( \frac{|a_{i,j}|}{\Delta x} + \frac{|b_{i,j}|}{\Delta y} \right) \leq 1.
+%\end{equation}
+
 
 %It has been proven that this approach does not affect the accuracy
 
@@ -83,10 +90,10 @@ where $(u_{i,j},v_{i,j})$ is the propagation velocity on cell $(i,j)$.
 On both full and cut cells, the base finite volume scheme requires a reconstructed polynomial of the form
 \begin{equation}\label{eq:uu}
 \begin{aligned}
-u^n_{i,j} (x,y) = U^n_{i,j} +  \sum_{1 \leq |\alpha| \leq p}  \frac{1}{\alpha!} \sigma^n_{\alpha,i,j} [h_{i,j}^{\alpha}- S_{\alpha,i,j}]
+u^n_{i,j} (x,y) = U^n_{i,j} +  \sum_{1 \leq |\alpha| \leq p}  \frac{1}{\alpha!} \sigma^n_{\alpha,i,j} [(x- x_{i,j})^{\alpha_1}(y-y_{i,j})^{\alpha_2}- S_{\alpha,i,j}]
 \end{aligned}
 \end{equation}
-where $\alpha = (\alpha_1, \alpha_2)$, $|\alpha| = \alpha_1 + \alpha_2$, $h_{i,j}^{\alpha} = (x- x_{i,j})^{\alpha_1}(y-\widehat y_{i,j})^{\alpha_2}$, $\sigma^n_{\alpha,i,j}$ is the $\alpha$th reconstruction coefficient, and $ (x_{i,j}, y_{i,j})$ is the physical centroid of cell $(i,j)$. 
+where $\alpha = (\alpha_1, \alpha_2)$, $|\alpha| = \alpha_1 + \alpha_2$, $\sigma^n_{\alpha,i,j}$ is the $\alpha$th reconstruction coefficient, and $ (x_{i,j}, y_{i,j})$ is the physical centroid of cell $(i,j)$. 
 The $  S_{\alpha, i,j}$ are geometric constants given by
 $$
 S_{\alpha, i,j} = \frac{1}{ V_{i,j}}  \int_{\Omega_{i,j}} h_{i,j}^{\alpha}~d\mathbf{x},
@@ -95,7 +102,7 @@ i.e., they force that
 \begin{equation} \label{eq:uaverage}
 \frac{1}{ V_{i,j}}  \int_{\Omega_{i,j}} u^n_{i,j}(\mathbf{x}) ~d\mathbf{x} = U^n_{i,j}.
 \end{equation}
-That is, the $ S_{\alpha, i,j}$ constants ensure that the average of the polynomial reconstruction $u^n_{i,j}(x,y)$ on cell $i,j$ is $U^n_{i,j}$.  On whole cells, these constants are
+The $ S_{\alpha, i,j}$ constants ensure that the average of the polynomial reconstruction $u^n_{i,j}(x,y)$ on cell $i,j$ is $U^n_{i,j}$.  On whole cells, these constants are
 \begin{equation}
 	\begin{aligned}
 		S_{(1,0)} &= 0, ~ S_{(0,1)} = 0 \\
@@ -103,7 +110,7 @@ That is, the $ S_{\alpha, i,j}$ constants ensure that the average of the polynom
 		S_{(3,0)} &= 0, ~ S_{(2,1)} = 0, ~ S_{(1,2)} = 0, ~ S_{(3,0)} = 0.
 	\end{aligned}
 \end{equation}
-On cut cells, the above constants must be precomputed during a mesh preprocessing operation.
+On cut cells, the above constants are precomputed during a mesh preprocessing operation.
 
 On whole cells without cut cells in their reconstruction stencil, the derivatives of $u^n_{i,j}(x,y)$ are computed using standard finite difference formulas of sufficient accuracy.
 On cut cells and edge neighbors of cut cells, the derivatives are determined by solving in the least squares sense
@@ -115,14 +122,14 @@ where the reconstruction neighborhoods $R_{i,j}$ depend on the order of approxim
 	\centering
 	\begin{tabular}{|c|c|}
 		\hline 
-		$p$ & $R_{i,j}$ and $\hat R_{i,j}$ \\
+		Order accuracy & $R_{i,j}$ and $\hat R_{i,j}$ \\
 		\hline
 		%0 & -\\
-		1 & haven't decided on this yet \\
+%		1 & haven't decided on this yet \\
+%		\hline
+		3 & $5 \times 5$ \\
 		\hline
-		2 & $5 \times 5$ \\
-		\hline
-		3 & $7 \times 7$ \\
+		4 & $7 \times 7$ \\
 		\hline
 	\end{tabular} 
 	\caption{Reconstruction neighborhoods centered on cell $i,j$ used for the base finite volume scheme $R_{i,j}$ and on neighborhoods $\widehat{R}_{i,j}$ in terms of the degree of the polynomial reconstruction $p$.  
@@ -130,18 +137,16 @@ where the reconstruction neighborhoods $R_{i,j}$ depend on the order of approxim
 } \label{tab:reconneigh}
 \end{table}
 
-The issue of obtaining a well-conditioned derivatives can occur as they do for the second order algorithm (Section \ref{sec:srd_postprocessing}).  Here, we adopt the same proposed remedy, i.e., if the weighted centroids are not at minimum distance apart in the $x$ or $y$ direction then we increase the stencil size for the least squares computation.  These minimum distances are provided in Table \ref{tab:mindist}.  For example, when $p=2$, if the $ R_{i,j}$ does not have a cell that is at least $\frac{5}{2}\Delta x$ away from the centroid, we use a $9 \times 7$ neighborhood.
+The issue of obtaining a well-conditioned derivatives can occur as they do for the second order algorithm (Section \ref{sec:srd_postprocessing}).  Here, we adopt the same proposed remedy, i.e., if the weighted centroids are not at minimum distance apart in the $x$ or $y$ direction then we increase the stencil size for the least squares computation.  These minimum distances are provided in Table \ref{tab:mindist}.  For the third order accurate method, if the $ R_{i,j}$ does not have a cell that is at least $\frac{5}{2}\Delta x$ away from the centroid, we use a $9 \times 7$ neighborhood.
 \begin{table}
 	\centering
 	\begin{tabular}{|c|c|}
 		\hline 
-		$p$ & Minimum distance in $x$, $y$ direction \\ 
+		Order accuracy & Minimum distance in $x$, $y$ direction \\ 
 		\hline 
-		1 & $\frac{1}{2}\Delta x$, $\frac{1}{2}\Delta y$ \\ 
+		3 & $\frac{3}{2}\Delta x$, $\frac{3}{2}\Delta y$ \\ 
 		\hline
-		2 & $\frac{3}{2}\Delta x$, $\frac{3}{2}\Delta y$ \\ 
-		\hline
-		3 & $\frac{5}{2}\Delta x$, $\frac{5}{2}\Delta y$ \\ 
+		4 & $\frac{5}{2}\Delta x$, $\frac{5}{2}\Delta y$ \\ 
 		\hline 
 	\end{tabular}  
 	\caption{We require that there be cells in the reconstruction stencils, $R_{i,j}$ and $\widehat R_{i,j}$, that lie at least the above distances from the cell centroid.} \label{tab:mindist}
@@ -151,49 +156,52 @@ The issue of obtaining a well-conditioned derivatives can occur as they do for t
 In this section, we describe how we evaluate the interface states for the numerical fluxes in \eqref{eq:fvscheme} when solving the Euler equations of gas dynamics.  It is well known that gas flow can be difficult to compute when reconstructing and limiting the numerical solution in conserved variables, i.e., $(\rho, \rho u, \rho v, E)$.  Thus, we adopt the common approach of reconstructing the numerical solution in primitive variables $(\rho, u, v, p)$.  First, we reconstruct in conserved variables, i.e., on each cell we obtain a polynomial of degree $p$ for $\rho(\mathbf{x})$, $\rho u(\mathbf{x})$, $\rho v(\mathbf{x})$, and $E(\mathbf{x})$.  Next, we compute approximations to the primitive solution averages on each cell, i.e.,
 \begin{align} 
 \begin{aligned}
-u_{i,j} &= \frac{1}{|\Omega_{i,j}|} \int_{\Omega_{i,j}} \frac{\rho u(\mathbf{x})}{\rho(\mathbf{x})} d\mathbf{x} \\
-v_{i,j} &= \frac{1}{|\Omega_{i,j}|} \int_{\Omega_{i,j}} \frac{\rho v(\mathbf{x})}{\rho(\mathbf{x})} d\mathbf{x} \\
-p_{i,j} &= \frac{1}{|\Omega_{i,j}|}\int_{\Omega_{i,j}} (\gamma-1) \left[E(\mathbf{x}) - \frac{1}{2}\frac{\rho u(\mathbf{x})^2+\rho v(\mathbf{x})^2}{\rho(\mathbf{x})} \right] ~d\mathbf{x}
+u_{i,j} &= \frac{1}{V_{i,j}} \int_{\Omega_{i,j}} \frac{\rho u(\mathbf{x})}{\rho(\mathbf{x})} d\mathbf{x} \\
+v_{i,j} &= \frac{1}{V_{i,j}} \int_{\Omega_{i,j}} \frac{\rho v(\mathbf{x})}{\rho(\mathbf{x})} d\mathbf{x} \\
+p_{i,j} &= \frac{1}{V_{i,j}}\int_{\Omega_{i,j}} (\gamma-1) \left[E(\mathbf{x}) - \frac{1}{2}\frac{\rho u(\mathbf{x})^2+\rho v(\mathbf{x})^2}{\rho(\mathbf{x})} \right] ~d\mathbf{x}
 \end{aligned}\label{eq:primitive}
 \end{align}
 The above integrals are computed with quadrature rules of order at least $p$ when the polynomial of spatial reconstruction is of degree $p$, see section \ref{sec:ho_basescheme} for more information about volume quadrature on cut cell meshes.  Finally, the solution is reconstructed to the cell interfaces in primitive variables using the solution averages computed in \eqref{eq:primitive}.  Then, using these interface values located at surface quadrature points, the numerical fluxes in \eqref{eq:fvscheme} are computed.
 
 \section{High order state redistribution method} \label{sec:ho_reconstruction_q}
 
-The high order version is similar to the second order version except the postprocessing step uses high order polynomial reconstructions.  High order state redistribution preprocessing is entirely similar to the one used for the second order method, i.e., we determine merging neighborhoods, weighted centroids and volumes as in the second order case (Section \ref{sec:preprocessing}).  High order state redistribution postprocessing requires some additional details, which we outline below.
+%The high order version is similar to the second order version except the postprocessing step uses high order polynomial reconstructions.  High order state redistribution preprocessing is entirely similar to the one used for the second order method, i.e., we determine merging neighborhoods, weighted centroids and volumes as in the second order case (Section \ref{sec:preprocessing}).  High order state redistribution postprocessing requires some additional details, which we outline below.
 
+We determine merging neighborhoods, weighted centroids and volumes as in the second order case (Section \ref{sec:preprocessing}).  The few additional details are outlined below.
 
 %\subsection{State redistribution preprocessing} \label{sec:preprocessing_ho}
 %In this section, we describe postprocessing on two-dimensional meshes for high order polynomial reconstructions on merging neighborhoods. We determine merging neighborhoods, weighted centroids and volumes as in the second order case (Section \ref{sec:preprocessing}).
 
 %We require additional the precomputation of geometric constants and a larger stencil for high order reconstruction on merging neighborhoods.  
 \subsection{State redistribution postprocessing} \label{sec:postprocessing_ho}
+The first two steps of the high order state redistribution are the same as in the second order method described in Section \ref{sec:srd_postprocessing}.  The method differs in that we reconstruct a high order polynomial on each neighborhood as we describe below.
 
-We describe here the high order state redistribution procedure for scalar conservation laws.  The generalization to systems of conservation laws is direct, in that state redistribution can be applied to each component of the vector of conserved quantities independently of one another.
+%We describe here the high order state redistribution procedure for scalar conservation laws.  
+%The generalization to systems of conservation laws is direct, in that state redistribution can be applied to each component of the vector of conserved quantities independently of one another.
 
-\subsubsection*{Compute the provisionally updated numerical solution}
-Compute forward Euler update (for $p=2$) or intermediate solution value (for $p=3$) of the method of lines scheme presented in Section \ref{sec:ho_basescheme}, i.e., the update is of the form
-\begin{equation} \label{eq:stage_ho2}
-\widehat{U} = U^n + \Delta t  L(U^n),
-\end{equation}
-where $L$ is the operator that results from the right-hand-side of \eqref{eq:fvscheme} and $\widehat{U}$ is a vector of provisionally updated, unstable solution averages on the entire grid before state redistribution.
-
-
-%The update in \eqref{eq:stage_step} corresponds to one stage of the high order method of.
-
-
-\subsubsection*{Compute weighted solution averages on each neighborhood}
-
-This step is the same as the second order case, i.e., we form the merged solution averages
-\begin{equation}\label{eq:q_avg1}
-\widehat{Q}_{i,j} =  \frac{1}{ \widehat{V}_{i,j}} \,  \sum_{(r,s) \in M_{i,j} }\frac{V_{r,s}}{N_{r,s}} \widehat{U}_{r,s},
-\end{equation}
-\noindent where $M_{i,j}$ is again the set of indices of cells in the 
-merging neighborhood, and the weighted volume of the merged tile 
-\begin{equation}\label{eq:modV}
-\widehat{V}_{i,j} = \sum_{(r,s) \in M_{i,j} }\frac{V_{r,s}}{N_{r,s}} .
-\end{equation}
-The merging neighborhoods are constructed in the same fashion as the second order method.  That is, we merge in the normal direction from the boundary until the volume constraint \eqref{voldef} is satisfied.  If there are not enough cells in the normal direction, we use a centered tile of sufficient area, e.g., $3 \times 3$ tile, or $5 \times 5$ tiles.
+%\subsubsection*{Compute the provisionally updated numerical solution}
+%Compute forward Euler update (for the third order method) or intermediate solution value (for the fourth order method) of the method of lines scheme presented in Section \ref{sec:ho_basescheme}, i.e., the update is of the form
+%\begin{equation} \label{eq:stage_ho2}
+%\widehat{U} = U^n + \Delta t  L(U^n),
+%\end{equation}
+%where $L$ is the operator that results from the right-hand-side of \eqref{eq:fvscheme} and $\widehat{U}$ is a vector of provisionally updated, unstable solution averages on the entire grid before state redistribution.
+%
+%
+%%The update in \eqref{eq:stage_step} corresponds to one stage of the high order method of.
+%
+%
+%\subsubsection*{Compute weighted solution averages on each neighborhood}
+%
+%This step is the same as the second order case, i.e., we form the merged solution averages
+%\begin{equation}\label{eq:q_avg1}
+%\widehat{Q}_{i,j} =  \frac{1}{ \widehat{V}_{i,j}} \,  \sum_{(r,s) \in M_{i,j} }\frac{V_{r,s}}{N_{r,s}} \widehat{U}_{r,s},
+%\end{equation}
+%\noindent where $M_{i,j}$ is again the set of indices of cells in the 
+%merging neighborhood, and the weighted volume of the merged tile 
+%\begin{equation}\label{eq:modV}
+%\widehat{V}_{i,j} = \sum_{(r,s) \in M_{i,j} }\frac{V_{r,s}}{N_{r,s}} .
+%\end{equation}
+%The merging neighborhoods are constructed in the same fashion as the second order method.  That is, we merge in the normal direction from the boundary until the volume constraint \eqref{voldef} is satisfied.  If there are not enough cells in the normal direction, we use a centered tile of sufficient area, e.g., $3 \times 3$ tile, or $5 \times 5$ tiles.
 
 
 
@@ -209,10 +217,10 @@ For high order accuracy in space, we reconstruct a polynomial of degree $p$ on e
 % \end{equation}
 \begin{equation}\label{eq:q}
 \begin{aligned}
-    \widehat q_{i,j} (x,y) = \widehat{Q}_{i,j} +  \sum_{1 \leq |\alpha| \leq p}  \frac{1}{\alpha!} \widehat \sigma_{\alpha,i,j} [h^{\alpha, i,j}-\widehat S_{\alpha}]
+    \widehat q_{i,j} (x,y) = \widehat{Q}_{i,j} +  \sum_{1 \leq |\alpha| \leq p}  \frac{1}{\alpha!} \widehat \sigma_{\alpha,i,j} [(x-\widehat x_{i,j})^{\alpha_1}(y-\widehat y_{i,j})^{\alpha_2}-\widehat S_{\alpha}]
 \end{aligned}
 \end{equation}
-where $\alpha = (\alpha_1, \alpha_2)$, $|\alpha| = \alpha_1 + \alpha_2$, $h_{i,j}^{\alpha} = (x-\widehat x_{i,j})^{\alpha_1}(y-\widehat y_{i,j})^{\alpha_2}$, $\sigma_{\alpha,i,j}$ is the $\alpha$th reconstruction coefficient,
+where $\alpha = (\alpha_1, \alpha_2)$, $|\alpha| = \alpha_1 + \alpha_2$, $\sigma_{\alpha,i,j}$ is the $\alpha$th reconstruction coefficient,
 and $\widehat x_{i,j}$, $\widehat y_{i,j}$ is again the weighted centroid of the merging neighborhood for cell $(i,j)$. 
 The $ \widehat S_{\alpha, i,j}$ are a geometric constants given by
 $$
@@ -227,7 +235,8 @@ The reconstruction coefficients $\widehat \sigma_{\alpha,i,j}$ are computed by s
 \begin{equation}\label{eq:qi}
 \frac{1}{\widehat{V}_{r,s}}\sum_{(r',s') \in M_{r,s}}\frac{1}{N_{r',s'}}\int_{\Omega_{r',s'}} \widehat q_{i,j}(\mathbf{x})~d\mathbf{x} = \widehat Q_{r,s} \quad \forall (r,s) \in \widehat R_{i,j},
 \end{equation}
-in the least squares sense, where $\widehat R_{i,j}$ is the set of indices of neighborhoods used for reconstruction on merging neighborhood $(i,j)$ (Table \ref{tab:reconneigh}).  When $p=1$, \eqref{eq:qi} simplifies to \eqref{eqn:linrecon}, i.e., the linearity of $\widehat{q}_{i,j}$ allows us to write \eqref{eq:qi} in terms of the weighted neighborhood centroids is done in \eqref{eqn:linrecon}.
+in the least squares sense, where $\widehat R_{i,j}$ is the set of indices of neighborhoods used for reconstruction on merging neighborhood $(i,j)$ (Table \ref{tab:reconneigh}).  For linear reconstructions, \eqref{eq:qi} simplifies to \eqref{eqn:linrecon}, i.e., the linearity of $\widehat{q}_{i,j}$ allows us to write \eqref{eq:qi} in terms of the weighted neighborhood centroids as done in \eqref{eqn:linrecon}.
+Note that there are 5 and 9 reconstruction coefficients $\widehat{\sigma}_{\alpha, i,j}$, when the order of accuracy is three and four, respectively.
 
 \subsubsection*{Final solution update}
 The final solution update on cell $(i,j)$ is
@@ -238,17 +247,17 @@ The final solution update on cell $(i,j)$ is
 %\end{enumerate}
 The integrals in \eqref{eq:qi} and \eqref{eq:final_update} are computed exactly on both full and cut cells, see Section \ref{sec:ho_basescheme} for more information about volume quadrature on cut cells.  
 
-\textit{Note}: when $p=2$, $U^{n+1}_{i,j}$ corresponds to a stage of the TVD-RK3 scheme.  Thus, when stabilized by state redistribution, the method of lines scheme in \eqref{eq:molscheme_ho2} becomes
+\textit{Note}: for the third order accurate method, $U^{n+1}_{i,j}$ corresponds to a stage of the TVD-RK3 scheme.  Thus, when stabilized by state redistribution, the method of lines scheme in \eqref{eq:molscheme_ho2} becomes
 \begin{equation}\label{eq:molscheme_ho2_srd}
 \begin{aligned}
 \mathbf{U}^{(1)} &= S\left(\mathbf{U}^{n} + \Delta t L(\mathbf{U}^n) \right), \\
-\mathbf{U}^{(2)} &=  S\left(\frac{3}{4}\mathbf{U}^{n} + \frac{1}{4}(\mathbf{U}^{(1)} + \Delta t L(\mathbf{U}^{(1)})) \right), \\
+\mathbf{U}^{(2)} &=  \left(\frac{3}{4}\mathbf{U}^{n} + \frac{1}{4}S(\mathbf{U}^{(1)} + \Delta t L(\mathbf{U}^{(1)})) \right), \\
 \mathbf{U}^{(3)} &= S\left(\mathbf{U}^{(2)} + \Delta t L(\mathbf{U}^{(2)}) \right),  \\
 \mathbf{U}^{n+1} &= \frac{1}{3}\mathbf{U}^{n} + \frac{2}{3}\mathbf{U}^{(3)},	
 \end{aligned}
 \end{equation}
 where $S$ is the linear state redistribution operator applied after each forward Euler step of the TVD-RK3 scheme.
-When $p=3$, $U^{n+1}_{i,j}$ corresponds to an intermediate solution value of a four stage RK4 scheme.  Thus, when stabilized by state redistribution, the method of lines scheme in \eqref{eq:molscheme_ho4} becomes
+For the fourth order accurate method, $U^{n+1}_{i,j}$ corresponds to an intermediate solution value of a four stage RK4 scheme.  Thus, when stabilized by state redistribution, the method of lines scheme in \eqref{eq:molscheme_ho4} becomes
 \begin{equation}\label{eq:molscheme_ho4_srd}
 \begin{aligned}
 \mathbf{k}^{(1)} &= \Delta t L(\mathbf{U}^n), \\
