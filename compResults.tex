@@ -1,5 +1,8 @@
 \section{Computational Results}\label{sec:compResults}
-%In this section we show comptutional results demonstrating the properties of SRD.
+In this section we show several computational experiments using the Euler
+equations to demonstrate the properties of SRD. We will also use these
+examples to examine 
+properties of different gradient choices and base schemes. 
 %We solve the conservation law \eqref{eq:conslaw2D} with different fluxes $\mathbf{F}$, to include both smooth and discontinuous
 %solutions.
 
@@ -155,7 +158,7 @@ is $r = 1.384$. The second order MOL scheme is used, and we march
 to steady state, until the maximum density update is below $10^{-10}$.  
 The exact solution is used to set the ghost cells at the inflow and
 outflow boundaries. The domain size is 1.43 by 1.4301 (slightly different
-to remove degeneracies).  
+to prevent mesh  degeneracies).  
 
 We also use this example to compare the accuracy of two different formulations
 for the cut cell gradients, and the effect of state redistribution versus 
@@ -170,30 +173,8 @@ V_{ij} \lvert e_{ij } \rvert$ and at the boundary is $ \sum_{{i,j} \in \partial 
 } \rvert$ where $A_{ij}$ is the length of the boundary segment in cut cell $(i,j)$.
 These are given in Table \ref{tab:ex1_L1vol} and \ref{tab:ex1_L1bndry}. 
 
-%\begin{equation}
-%\left\lvert \lvert  \rho - \rho(x,y) \right\rvert \rvert_1 
-%= \left \lvert \lvert e_{ij} \right \rvert \rvert_1  = \sum_{i,j} \,
-%V_{ij} \lvert e_{ij } \rvert
-%\label{eqn:L1vol}
-%\end{equation}
-%and the norm along the boundary cells only is
-%\begin{equation}
-%\left\lvert \rho - \rho(x,y) \right \rvert  = \left\lvert
-%e_{ij} \right\rvert  = \sum_{{i,j} \in \partial} \, b_{ij} \lvert e_{ij
-%} \rvert
-%\label{eqn:L1bndry}
-%\end{equation}
-%where $b_{ij}$ is the length of the boundary segment in cut cell $(i,j)$.
 
-Note that the error at the cut cells is larger than in the volume cells, and has a
-slower convergence rate. Since they are of lower dimension, the $L_1$
-accuracy in the entire flow field is still second order.  At the boundary,
-Richardson extrapolation shows that the convergence rate is seems to be
-between 1.38 and 1.5.
-This has also been found in other cut cell studies \cite{}, and is not due to
-SRD.
-
-\begin{table}
+\begin{table}[h]
 	\hspace*{-.5in}
 	\subfloat[$L_1$ volume errors. \label{tab:ex1_L1vol}]{
 		\begin{tabular}{|c|l|l||l|l|}
@@ -246,6 +227,13 @@ SRD.
 		vortex example.}
 \end{table}
 
+Note that the error at the cut cells is larger than in the volume cells, and has a
+slower convergence rate. Since they are of lower dimension, the $L_1$
+accuracy in the entire flow field is still second order.  At the boundary,
+Richardson extrapolation shows that the convergence rate is seems to be
+between 1.38 and 1.5.
+This has also been found in other cut cell studies \cite{XX}, and is not due to
+SRD.
 
 Figure \ref{fig:ssv} shows that using second order cut cell gradients is about
 a factor of 2 more accurate on coarser grids. Ultimately the gradient
@@ -270,68 +258,68 @@ to the merging neighborhoods.
 \end{figure}
 
 
+\clearpage
 
 \subsection{Shock Reflection from  Cylinder}
 Next we demonstrate the method for the Euler equations using a Mach 2
-shock diffracting around a circular cylinder. The cylinder with radius $0.15$ is centered at
+shock diffracting around a circular cylinder. A cylinder with radius $0.15$ is centered at
 (0.5,0.5), and the shock is initially located at $x = 0.2$.
-For this example we use the MUSCL scheme as the base scheme, with the BJ limiter used to limit
-both base scheme and tile reconstruction gradients. 
+For this example we compare results using the MUSCL scheme and
+the Method of Lines as the base schemes, both using local Lax Friedrichs for the Riemann
+solver. The BJ limiter is used to limit
+both the base scheme irregular cells  and tile reconstruction gradients. 
 
-Figure \ref{fig:cyl1} (left) shows the solution density and pressure  at time $t=0.25$,
-using a grid of 302 cells in each direction. For comparison, this is also 
-the time shown in
-\cite{mjb-hel-rjl:hbox2}. There are 416 cut cells
+Figure \ref{fig:cyl1} (left) shows the solution density from MUSCL, and
+right from MOL, at time $t=0.25$. 
+Both grids use 302 cells in each
+directions, and the domain is  $[0.0,0.0,]$ by  $[1.00001, 1.0]$, again to
+prevent mesh degeneracies.
+There are 416 cut cells
 around the cylinder. 160 of the cut cells had volume fractions less than
 0.5 and had SRD applied.  The smallest volume fraction was 1.17E-4.   
+For comparison, this is also the time shown in \cite{mjb-hel-rjl:hbox2}. 
 
-Figure \ref{fig:cyl2}
-shows the density profile (left) and pressure (right) 
-taken along the cylinder, at the more
-interesting time $t=0.2$. The two plots compare the two different merging
-approaches, with the same base scheme. 
-For these results, the cut cell variable is
-reconstructed to the midpoint of the cylinder line segment in each  cell.  
-As expected, the 3 by 3 cell merging results are more
-diffusive, mostly visible at the shock. The zooms show the difference more
-clearly, and also show the scale of the lack of smoothness of the less
-diffusive normal merging results, especially around extrema in the
-solution. In the future we hope to improve this
-with better gradients and limiting strategies.
-
-There is no visible 
-difference in the results contouring the entire domain.
-There are 60 contours between 1.3 and 6.5 for density, and between 0.8 and
-10.2 for pressure.
-
-\begin{figure}
+\begin{figure}[h]
 \begin{center}
+\vspace*{-.1in}
 \hspace*{-.4in}
-\includegraphics[width=0.48\linewidth,trim=10 10 200 10,clip]{figs/density_302_normal_muscl_cyl.png}
-\vspace*{1.0in}
-\includegraphics[width=0.48\linewidth,trim=10 10 200 10,clip]{figs/pressure_302_normal_muscl_cyl.png}
-\caption{\sf Mach 2 shock reflection around a cylinder. Density (left),
-pressure (rght), at time t=0.25.}
-\label{fig:cyl1}
+\includegraphics[width=0.48\linewidth,trim=10 10 200 10,clip]{figs/muscl_302cells.png}
+\includegraphics[width=0.48\linewidth,trim=10 10 200 10,clip]{figs/MOL_302cells.png}
+\caption{\sf Density profile of Mach 2 shock reflection around a cylinder,
+at time t=0.25.  Left computation used MUSCL, right used MOL. 
+There are 52 contours between 1.3 and 6.5.
+The front of the cylinder is better behaved with MUSCL, but the solution
+at the cut cells is better  with the method of lines.
+\label{fig:cyl1}}
 \end{center}
+\vspace*{-.1in}
 \end{figure}
+
+Figure \ref{fig:cylbndry}
+shows the density profile from both schemes
+taken along the cylinder.
+For this plot, the cut cell variable is
+reconstructed to the midpoint of the cylinder line segment in each  cell.  
+The zoom shows the difference more
+clearly.
 
 \begin{figure}
 \begin{center}
 %\includegraphics[width=0.48\linewidth,trim=20 20 20 30,clip]{figs/densityCompare_302_normalvs3by3.png}
 \hspace*{-.5in}
-\includegraphics[height=2.7in,trim=90 70 220 60,clip]{figs/densityWithZoom.pdf}
+\includegraphics[height=2.7in]{figs/MM_densityBndry.pdf}
 \hspace*{.3in}
 %\includegraphics[width=0.48\linewidth,trim=20 20 20 30,clip]{figs/pressureCompare_302_normalvs3by3.png}
-\includegraphics[height=2.7in,trim=120 70 230 50,clip]{figs/pressureWithZoom.pdf}
-\caption{\sf The density and pressure profiles around the cylinder at time
-t=0.2,  using normal direction merging and 3-by-3 neighborhood merging.
-The latter is more diffusive.}
-\label{fig:cyl2}
+%\includegraphics[height=2.7in,trim=120 70 230 50,clip]{figs/pressureWithZoom.pdf}
+\caption{\sf The density profile  around the cylinder for the MUSCL and MOL schemes anat time
+t=0.25.  The MOL scheme has smoother results.}
+\label{fig:cylbndry}
 \end{center}
 % fig in amrclaw-amrcart/example/cylinder_Mach2 directory on juniper
 % using sortedcyl.dat (coied from bndry01.dat) in the various _output dirs
 \end{figure}
+
+\clearpage
 
 \subsection{Double Mach Reflection problem}
 In this section, we reflect a Mach 10 shock obliquely over a wedge, where the shock and wall form a $60^{\circ}$ angle.  

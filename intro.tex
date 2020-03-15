@@ -11,11 +11,13 @@ stability. However cut cells can have volumes that are arbitrarily smaller than 
 The most commonly used stabilization algorithm is called flux
 redistribution \cite{chern:colella,vof:colella}. The main idea is illustrated below in two space
 dimensions for ease of notation.
-The update of the solution average on cut cell $(i,j)$ is given by
+The update of the solution average 
+$U^n_{i,j}$ on cut cell $(i,j)$ with volume
+$V_{i,j}$ is given by
 \begin{equation*}
 V_{i,j} U_{i,j} ^{n+1}  = V_{i,j} U_{i,j}^n  -  \Delta t \sum_{k \in \text{ faces}}A_k \mathbf{F}_k^* \cdot \mathbf{n}_k,
 \end{equation*}
-where $U^n_{i,j}$ is the solution average at time $t^n$ on cell $(i,j)$, $V_{i,j}$ is the cell's volume,  $\Delta t$ is the time step, $A_k$, $\mathbf{F}_k^*$, and $\mathbf{n}_k$ are the area, the numerical flux, and the outward facing normal on the $k$th face, respectively.
+Here, $\Delta t$ is the time step, $A_k$, $\mathbf{F}_k^*$, and $\mathbf{n}_k$ are the area, the numerical flux, and the outward facing normal on the $k$th face, respectively.
 The above can also be written
 \begin{equation*}
 V_{i,j} U_{i,j} ^{n+1} = V_{i,j} U_{i,j}^n  +  \delta  M_{i,j} ,
@@ -73,7 +75,7 @@ Their version of cell linking uses a cluster of cells, while still maintaining e
 %that preserve conservation we do not explore these alternatives further.
 
 In this paper we propose a framework for a stabilization algorithm in
-the spirit of flux redistribution. Similar to flux redistribution, state redistribution is applied as a postprocessing step and is simple to implement. An unstable update on all cells is performed with a fixed $\Delta t$ using a base finite volume scheme, followed by a postprocessing step based on the conserved state variables, not on the fluxes.  It is for this reason that we call it state redistribution.  Our approach is fully conservative and can be generalized to arbitrarily high order accuracy.
+the spirit of flux redistribution. Similar to flux redistribution, state redistribution is applied as a postprocessing step and is simple to implement. An unstable update on all cells is performed with a fixed $\Delta t$ using a base finite volume scheme, followed by a postprocessing step based on the conserved state variables, not on the fluxes.  It is for this reason that we call it state redistribution.  Our approach is fully conservative and can be generalized to high order accuracy.
 
 
 
