@@ -173,7 +173,8 @@ V_{ij} \lvert e_{ij } \rvert$ and at the boundary is $ \sum_{{i,j} \in \partial 
 } \rvert$ where $A_{ij}$ is the length of the boundary segment in cut cell $(i,j)$.
 These are given in Table \ref{tab:ex1_L1vol} and \ref{tab:ex1_L1bndry}. 
 
-
+{
+\small
 \begin{table}[h]
 	\hspace*{-.5in}
 	\subfloat[$L_1$ volume errors. \label{tab:ex1_L1vol}]{
@@ -226,6 +227,7 @@ These are given in Table \ref{tab:ex1_L1vol} and \ref{tab:ex1_L1bndry}.
 	\caption{\sf L1 norm of the error in the domain volume and along the boundary, for the supersonic
 		vortex example.}
 \end{table}
+}
 
 Note that the error at the cut cells is larger than in the volume cells, and has a
 slower convergence rate. Since they are of lower dimension, the $L_1$
