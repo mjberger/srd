@@ -15,15 +15,16 @@ the scheme needs to be stabilized in the cut cells if using a fixed timestep $\D
 based on the full cells. In the $h$-box method these two concerns were addressed
 simultaneously, but in general they aren't.
 
-%Our computational results will use two different finite volume schemes to update the cut cell mesh, to show that SRD can be used in a variety of situations.
-%along with appropriate initial and boundary conditions
 We will use two different second order discretizations of \eqref{eq:conslaw2D}: the method of lines
 (MOL) approach and the MUSCL scheme.
 These fully discrete finite volume methods, described in Section \ref{sec:mol} and \ref{sec:muscl},
 are referred to as the base schemes.  Both schemes require linear 
 reconstructions on cells 
 outlined in Section \ref{sec:limit}.  The high-order extension of MOL and SRD  will be described 
-in Appendix \ref{sec:ho}. 
+in Appendix \ref{sec:ho}. Finally, both the second order schemes evaluate the flux at
+the boundary in the exmaples of section \ref{sec:compResults} by extrapolating the
+pressure to the boundary midpoint. Something more elaborate is done in the higher
+order case. 
 
 \begin{figure}
 \begin{center}

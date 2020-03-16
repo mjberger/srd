@@ -127,6 +127,7 @@ On cut cells and edge neighbors of cut cells, the derivatives are determined by 
 where the reconstruction neighborhoods $R_{i,j}$ depend on the order of approximation of the scheme (Table \ref{tab:reconneigh}).
 \begin{table}
 	\centering
+        \ra{1.2}
 	\begin{tabular}{|c|c|}
 		\hline 
 		Order accuracy & $R_{i,j}$ and $\hat R_{i,j}$ \\
@@ -148,18 +149,18 @@ where the reconstruction neighborhoods $R_{i,j}$ depend on the order of approxim
 The issue of obtaining a well-conditioned derivatives can occur as they do for the second order algorithm (Section \ref{sec:srd_postprocessing}).  Here, we adopt the same proposed remedy, i.e., if the weighted centroids are not at minimum distance apart in the $x$ or $y$ direction then we increase the stencil size for the least squares computation.  These minimum distances are provided in Table \ref{tab:mindist}.  For the third order accurate method, if the $ R_{i,j}$ does not have a cell that is at least $\frac{5}{2}\Delta x$ away from the centroid, we use a $9 \times 7$ neighborhood.
 \begin{table}
 	\centering
+        \ra{1.2}
 	\begin{tabular}{|c|c|}
 		\hline 
 		Order accuracy & Minimum distance in $x$, $y$ direction
-                    \\[.1in] \hline 
+                    \\[.08in] \hline 
 		2 (1st order gradients)  & $\frac{1}{2}\Delta x$,
-                    $\frac{1}{2}\Delta y$ \\[.1in] \hline 
+                    $\frac{1}{2}\Delta y$ \\[.08in] \hline 
 		2 (2nd order gradients)  & $\frac{3}{2}\Delta x$, 
-                     $\frac{3}{2}\Delta y$ \\ [.1in] \hline 
+                     $\frac{3}{2}\Delta y$ \\ [.08in] \hline 
 		3 & $\frac{3}{2}\Delta x$, $\frac{3}{2}\Delta y$ \\
-                   [.1in] \hline
-		4 & $\frac{5}{2}\Delta x$, $\frac{5}{2}\Delta y$ \\ 
-		\hline 
+                   [.08in] \hline
+		4 & $\frac{5}{2}\Delta x$, $\frac{5}{2}\Delta y$ \\ [.08in] \hline 
 	\end{tabular}  
 	\caption{We require that there be cells in the reconstruction stencils, $R_{i,j}$ and $\widehat R_{i,j}$, that lie at least the above distances from the cell centroid.} \label{tab:mindist}
 \end{table}
@@ -363,4 +364,74 @@ it becomes
 %$$
 %which is in the form of \eqref{eq:final}.
 
+\subsection{High-order supersonic vortex study}
 
+To illustrate the higher order SRD algorithm, we continue the convergence 
+study of the supersonic vortex problem in Section \ref{sec:ssv}, 
+extending it to use a 3rd order and 4th order MOL and SRD scheme.  Here,
+the $L_1$ norm of the error in density on the volume is, 
+$$
+\sum_{i,j}\int_{\Omega_{i,j}}|\rho(x,y) - \rho_{i,j}(x,y)|~dx~dy,
+$$
+and
+$$
+\sum_{i,j}\int_{i,j \in \partial \Omega}|\rho(x,y) - \rho_{i,j}(x,y)|~dl,
+$$
+is the $L_1$ norm of the boundary error in density.
+In both cases the numerical solution is reconstructed to the quadrature points.
+and the integral is approximated with a quadrature rule, 
+We observe the expected rate of convergence in the $L_1$ norm on the volume and a slower convergence rate in the cut cells.
+
+{\small 
+\begin{table}[h]
+\centering
+\hspace*{-.3in}
+\subfloat[$L_1$ volume errors.\label{tab:hoL1vol}]{
+\begin{tabular}{|l|c|l|l||l|l|}
+\hline
+$h$ & $N_x ,N_y$ & \multicolumn{2}{|c||}{3rd order} & \multicolumn{2}{|c|}{4th order} \\
+\hline
+& & LTS & SRD & LTS & SRD \\
+\hline
+.5297 & 27 & 2.68e-003  & 2.75e-003   & 1.29e-003 &  1.20e-003 \\
+\hline
+.2648 & 54  & 3.86e-004 (6.9)  & 3.80e-004 (7.2)  & 8.41e-005 (15.3) & 8.36e-005 (14.3) \\
+\hline
+.1324 & 108 & 5.18e-005 (7.4)  & 5.00e-005 (7.6)  & 5.65e-006 (14.8) & 5.29e-006 (15.8) \\
+\hline
+.662E-2 & 216 &  ()  & 6.48e-006 (7.7)  &  () & 3.39e-007 (15.6) \\
+\hline
+\end{tabular}
+} 
+\quad
+\vspace*{.2in}
+
+\hspace*{-.3in}
+\subfloat[$L_1$ boundary errors. \label{tab:hoL1bndry}]{
+\begin{tabular}{|l|c|l|l||l|l|}
+\hline
+$h$ & $N_x ,N_y$ & \multicolumn{2}{|c||}{3rd order} & \multicolumn{2}{|c|}{4th order} \\
+\hline
+& & LTS & SRD & LTS & SRD \\
+\hline
+.5297 & 27 &  4.81e-002  & 4.94e-002   &    1.73e-002     &  1.45e-002 \\
+\hline
+.2648 & 54  & 9.14e-003 (5.2)   & 9.47e-003 (5.2)  & 2.38e-003 (7.2) & 2.26e-003 (6.4) \\
+\hline
+.1324 & 108 & 2.08e-003 (4.3)  & 2.09e-003 (4.5)  & 2.48e-004 (9.5) & 2.29e-004 (9.8) \\
+\hline
+.662E-2 & 216 &  ()  & 4.69e-004 (4.4)  & () & 2.65e-005 (8.6) \\
+\hline
+\end{tabular}
+}
+\caption{\sf  Supersonic vortex example using 3rd and 4th order accurate
+method of lines and state redistribution. As before, the volume error
+shows the expected order of convergence, and the boundary error has a
+reduced convergence rate.}
+\end{table}
+
+Also as before, in tables  \ref{tab:hoL1vol} and \ref{tab:hoL1bndry}  
+we compare local time-stepping (LTS)  with SRD,  to see if the
+latter has any negative effect on the solution. The results are essentially identical,
+showing no clear prefrence for which is slightly more accurate at a given resolution.
+We conclude again that SRD maintains the accuracy of the underlying base scheme
