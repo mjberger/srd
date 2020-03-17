@@ -53,7 +53,8 @@ with the time step restriction
 where $(a,b)$ are the wave speeds.
 Note that this L2 stability limit is larger the SSP limit.
 For the fourth order method, we use the standard four stage Runge-Kutta
-scheme, since a four-stage TVD\_RK4 scheme does not exist..
+scheme.
+%since a four-stage TVD\_RK4 scheme does not exist..
 %\begin{equation}\label{eq:molscheme_ho4}
 %\begin{aligned}
 %\mathbf{k}^{(1)} &= \Delta t L(\mathbf{U}^n), \\
@@ -72,7 +73,7 @@ scheme, since a four-stage TVD\_RK4 scheme does not exist..
 %\begin{figure}
 %	\begin{center}
 %		\includegraphics[width=3.0in]{figs/example_ccmesh_ho.pdf}
-%		\caption{\sf Example base grid in two space dimensions. The cells shaded in yellow are the cut cells. The high order method of lines scheme reconstructs to Gauss-Legendre quadrature points.  We have indicated by the hollow cross ($\square$) the two-point Gauss-Legendre quadrature points used for reconstructions of degree $p=2,3$.} 
+%		\caption{\sf Example base grid in two space dimensions. The cells shaded in yellow are the cut cells. The high order method of lines scheme reconstructs to Gauss-Legendre quadrature points.  We have indicated by the hollow cross ($\square$) the two-point Gauss-Legendre quadrature points used for reconstructions of degree $d=2,3$.} 
 %		\label{fig:2dfig_ho}
 %	\end{center}
 %\end{figure}
@@ -102,7 +103,7 @@ where $\alpha = (\alpha_1, \alpha_2)$, $|\alpha| = \alpha_1 + \alpha_2$, $\sigma
 The $  S_{\alpha, i,j}$ are geometric constants given by
 $$
 S_{\alpha, i,j} = \frac{1}{ V_{i,j}}  \int_{\Omega_{i,j}} 
-(x-x{i,j})^{\alpha_1} \, (y-y_{i,j})^{\alpha_2} ~ d\mathbf{x} .
+(x-x_{i,j})^{\alpha_1} \, (y-y_{i,j})^{\alpha_2} ~ d\mathbf{x} .
 $$
 They enforce that 
 \begin{equation} \label{eq:uaverage}
@@ -141,7 +142,8 @@ where the reconstruction neighborhoods $R_{i,j}$ depend on the order of approxim
 		4 & $7 \times 7$ \\
 		\hline
 	\end{tabular} 
-	\caption{Reconstruction neighborhoods centered on cell $i,j$ used for the base finite volume scheme $R_{i,j}$ and on neighborhoods $\widehat{R}_{i,j}$ in terms of the degree of the polynomial reconstruction $p$.  
+	\caption{Reconstruction neighborhoods centered on cell $i,j$ used for the base finite volume scheme $R_{i,j}$ and on neighborhoods $\widehat{R}_{i,j}$ in terms of the 
+        order of accuracy of the method.   
 %	If $i,j$ is cut, then not all cells in, e.g., the $7 \times 7$ neighborhood centered on $i,j$ will exist and thus cannot be included in the least squares system \eqref{eq:ls_base}.
 } \label{tab:reconneigh}
 \end{table}
@@ -166,7 +168,9 @@ The issue of obtaining a well-conditioned derivatives can occur as they do for t
 \end{table}
 
 \subsection{High order reconstruction in primitive variables} \label{sec:ho_reconstruction_primitive}
-In this section, we describe how we evaluate the interface states for the numerical fluxes in \eqref{eq:fvscheme} when solving the Euler equations of gas dynamics.  It is well known that gas flow can be difficult to compute when reconstructing and limiting the numerical solution in conserved variables, i.e., $(\rho, \rho u, \rho v, E)$.  Thus, we adopt the common approach of reconstructing the numerical solution in primitive variables $(\rho, u, v, p)$.  First, we reconstruct in conserved variables, i.e., on each cell we obtain a polynomial of degree $p$ for $\rho(\mathbf{x})$, $\rho u(\mathbf{x})$, $\rho v(\mathbf{x})$, and $E(\mathbf{x})$.  Next, we compute approximations to the primitive solution averages on each cell, i.e.,
+In this section, we describe how we evaluate the interface states for the numerical fluxes in \eqref{eq:fvscheme} when solving the Euler equations of gas dynamics.  It is well known that gas flow can be difficult to compute when reconstructing and limiting the numerical solution in conserved variables, i.e., $(\rho, \rho u, \rho v, E)$.  Thus, we adopt the common approach of reconstructing the numerical solution in primitive variables $(\rho, u, v, p)$.  First, we reconstruct in conserved variables, i.e., on each cell we obtain a polynomial 
+%of degree $p$ 
+for $\rho(\mathbf{x})$, $\rho u(\mathbf{x})$, $\rho v(\mathbf{x})$, and $E(\mathbf{x})$.  Next, we compute approximations to the primitive solution averages on each cell, i.e.,
 \begin{align} 
 \begin{aligned}
 u_{i,j} &= \frac{1}{V_{i,j}} \int_{\Omega_{i,j}} \frac{\rho u(\mathbf{x})}{\rho(\mathbf{x})} d\mathbf{x} \\
@@ -174,9 +178,8 @@ v_{i,j} &= \frac{1}{V_{i,j}} \int_{\Omega_{i,j}} \frac{\rho v(\mathbf{x})}{\rho(
 p_{i,j} &= \frac{1}{V_{i,j}}\int_{\Omega_{i,j}} (\gamma-1) \left[E(\mathbf{x}) - \frac{1}{2}\frac{\rho u(\mathbf{x})^2+\rho v(\mathbf{x})^2}{\rho(\mathbf{x})} \right] ~d\mathbf{x}
 \end{aligned}\label{eq:primitive}
 \end{align}
-The above integrals are computed with quadrature rules of order at 
-least $p$ when the polynomial of spatial reconstruction is of 
-degree $p$.  
+The above integrals are approximated with quadrature rules that integrate polynomials
+of degree $d$ exactly for spatial reconstructions of degree $d$.
 Finally, the solution is reconstructed to the cell interfaces in 
 primitive variables using the solution averages 
 computed in \eqref{eq:primitive}.  
@@ -231,28 +234,36 @@ For high order accuracy in space, we reconstruct a polynomial of degree $p$ on e
 % \end{equation}
 \begin{equation}\label{eq:q}
 \begin{aligned}
-    \widehat q_{i,j} (x,y) = \widehat{Q}_{i,j} +  \sum_{1 \leq |\alpha| \leq p}  \frac{1}{\alpha!} \widehat \sigma_{\alpha,i,j} [(x-\widehat x_{i,j})^{\alpha_1}(y-\widehat y_{i,j})^{\alpha_2}-\widehat S_{\alpha}]
+    \widehat q_{i,j} (x,y) = \widehat{Q}_{i,j} +  \sum_{1 \leq
+    |\alpha| \leq p}  \frac{1}{\alpha!} \widehat \sigma_{\alpha,i,j}
+    [(x-\widehat x_{i,j})^{\alpha_1}(y-\widehat
+    y_{i,j})^{\alpha_2}-\widehat S_{\alpha,i,j}]
 \end{aligned}
 \end{equation}
 where $\alpha = (\alpha_1, \alpha_2)$, $|\alpha| = \alpha_1 + \alpha_2$, $\sigma_{\alpha,i,j}$ is the $\alpha$th reconstruction coefficient,
 and $\widehat x_{i,j}$, $\widehat y_{i,j}$ is again the weighted centroid of the merging neighborhood for cell $(i,j)$. 
-The $ \widehat S_{\alpha, i,j}$ are a geometric constants given by
+The $ \widehat S_{\alpha, i,j}$ are  geometric constants given by
 $$
-\widehat S_{\alpha, i,j} = \frac{1}{ \widehat{V}_{i,j}} \sum_{(r,s) \in M_{i,j} }\frac{V_{r,s}}{N_{r,s}} \int_{\Omega_{r,s}} h^{\alpha}~d\mathbf{x},
+\widehat S_{\alpha, i,j} = \frac{1}{ \widehat{V}_{i,j}} \sum_{(r,s) \in M_{i,j} }\frac{V_{r,s}}{N_{r,s}} \int_{\Omega_{r,s}} 
+(x-\widehat{x}_{i,j})^\alpha_1 (y-\widehat{y}_{i,j})^\alpha_2 
+~d\mathbf{x},
 $$
-i.e., they force that 
-\begin{equation} \label{eq:average}
-\frac{1}{ \widehat{V}_{i,j}} \sum_{(r,s) \in M_{i,j} }\frac{1}{N_{r,s}} \int_{\Omega_{r,s}} \widehat{q}_{i,j}(\mathbf{x}) ~d\mathbf{x} = \widehat{Q}_{i,j}.
-\end{equation}
 As in \eqref{eq:uu}, the $\widehat S_{\alpha, i,j}$ constants 
 ensure that the weighted average of the polynomial 
 reconstruction $\widehat q_{i,j}(x,y)$ on the merging neighborhood 
-associated to cell $i,j$ is $\widehat{Q}_{i,j}$.
+associated to cell $i,j$ is $\widehat{Q}_{i,j}$,
+\begin{equation} \label{eq:average}
+\frac{1}{ \widehat{V}_{i,j}} \sum_{(r,s) \in M_{i,j} }\frac{1}{N_{r,s}} \int_{\Omega_{r,s}} \widehat{q}_{i,j}(\mathbf{x}) ~d\mathbf{x} = \widehat{Q}_{i,j}.
+\end{equation}
+
+
 The reconstruction coefficients $\widehat \sigma_{\alpha,i,j}$ are computed by solving
 \begin{equation}\label{eq:qi}
 \frac{1}{\widehat{V}_{r,s}}\sum_{(r',s') \in M_{r,s}}\frac{1}{N_{r',s'}}\int_{\Omega_{r',s'}} \widehat q_{i,j}(\mathbf{x})~d\mathbf{x} = \widehat Q_{r,s} \quad \forall (r,s) \in \widehat R_{i,j},
 \end{equation}
-in the least squares sense, where $\widehat R_{i,j}$ is the set of indices of neighborhoods used for reconstruction on merging neighborhood $(i,j)$ (Table \ref{tab:reconneigh}).  
+in the least squares sense, where $\widehat R_{i,j}$ is the set of
+indices of neighborhoods used for reconstruction on merging
+neighborhood $(i,j)$, shown in  Table \ref{tab:reconneigh}.  
 Unlike the case for linear reconstructions, \eqref{eq:qi} does not
 simplify to \eqref{eqn:linrecon} where we could use only the  
 weighted centroids; we have to evaluate the integral instead.
@@ -431,7 +442,7 @@ reduced convergence rate.}
 \end{table}
 }
 
-Also as before, in tables  \ref{tab:hoL1vol} and \ref{tab:hoL1bndry}  
+Also as before, in Tables  \ref{tab:hoL1vol} and \ref{tab:hoL1bndry}  
 we compare local time-stepping (LTS)  with SRD,  to see if the
 latter has any negative effect on the solution. The results are essentially identical,
 showing no clear prefrence for which is slightly more accurate at a given resolution.

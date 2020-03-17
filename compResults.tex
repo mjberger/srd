@@ -1,6 +1,7 @@
 \section{Computational Results}\label{sec:compResults}
-In this section we show several computational experiments using the Euler
-equations to demonstrate the properties of SRD. We will also use these
+In this section we show several computational experiments using state
+redistribution to solve the Euler
+equations. We will also use these
 examples to examine 
 properties of different gradient choices and base schemes. 
 %We solve the conservation law \eqref{eq:conslaw2D} with different fluxes $\mathbf{F}$, to include both smooth and discontinuous
@@ -141,15 +142,16 @@ through a quarter circle.  This problem has often been used in accuracy
 studies \cite{aftosmis:acc} since it has an exact solution to the Euler
 equations that is smooth, given by 
 \begin{equation}
-\rho = \rho_i \{ 1 + \frac{\gamma-1}{2} \, M_i^2 \left [ 1 - (\frac{r_i}{r})^2 \right ]\} ^
-{\frac{1}{gamma-1}}
+\rho = \rho_i \left \{ 1 + \frac{\gamma-1}{2} \, M_i^2 \left [ 1 - (\frac{r_i}{r})^2
+\right ] \right \} ^
+{\frac{1}{\gamma-1}}
 \end{equation}
-and $ u = a_i M_i (\frac{r_i}{r}) \sin(\theta)$, 
-$ v = a_i M_i (\frac{r_i}{r}) \cos(\theta)$, and
-$ p = (\frac{P_i}{\rho_i^\gamma} \, \rho^\gamma$.
+and $ u = a_i \, M_i \, (\frac{r_i}{r})\,  \sin (\theta)$, 
+$ v = a_i\,  M_i\,  (\frac{r_i}{r})\,  \cos(\theta)$, and
+$ p = \rho^\gamma / \gamma$.
 
 Here, the inner radius is $r_i = 1.0$,  the outer radius
-is $r = 1.384$, and the Mach number $M_i = 2.5$ in our experiments. In this
+is $r = 1.384$, and the Mach number $M_i = 2.25$ in our experiments. In this
 normalization we use $a_i = 1$, $p_i = 1/\gamma$. 
 The second order MOL scheme is used, and we march
 to steady state, until the maximum density update is below $10^{-10}$.  
@@ -161,7 +163,10 @@ We also use this example to compare the accuracy of two different formulations
 for the cut cell gradients, and the effect of state redistribution versus 
 marching to steady state using local time-stepping without SRD.  
 For first order gradients, we use a linear least squares reconstruction for
-both the irregular cell gradient (cut cells and their one-away neighbors) described in , and the SRD gradients, which update the cut cell solution after stabilization. Second order accurate gradients fit a quadratic for both
+both the irregular cell gradient (cut cells and their one-away neighbors) 
+described in section \ref{sec:limit} , and the SRD gradients, which 
+update the cut cell solution after stabilization. Second order accurate 
+gradients fit a quadratic for both
 the cut cells and tiles, but only the first derivative terms are used for 
 the gradients. The second order derivatives are subsequently ignored.  More information about the first and second order gradient reconstructions can be found in Sections \ref{sec:limit} and \ref{sec:srd_postprocessing}.
 
@@ -169,9 +174,10 @@ The $L_1$ norm of the error in the volume is $\sum_{i,j} \,
 V_{ij} \lvert e_{ij } \rvert$ and at the boundary is $ \sum_{{i,j} \in \partial \Omega} \, A_{ij} \lvert e_{ij
 } \rvert$ where $A_{ij}$ is the length of the boundary segment in cut cell $(i,j)$.
 These are given in Table \ref{tab:ex1_L1vol} and \ref{tab:ex1_L1bndry}. 
-For easier comparison with other papers we also give the mesh size but only to a few digits. 
-In a cut cell mesh the number of cells in the domain is larger than the 
-number of cells in the flow field. DOES THIS MAKE SENSE TO YOU.
+For easier comparison with other papers we also give the mesh size 
+to a few digits. In  a cut cell mesh there are both solid and
+flow cells, so the total number of cell is larger than the number of
+flow cells, and not as easy to compare as the mesh spacing.
 
 {
 \small
@@ -232,20 +238,22 @@ number of cells in the flow field. DOES THIS MAKE SENSE TO YOU.
 \end{table}
 }
 
-Note that the error at the cut cells is larger than in the volume cells, and has a
-slower convergence rate. Since they are of lower dimension, the $L_1$
+Note that the error at the cut cells is larger than in the volume, and has a
+slower convergence rate. Since the number of cut cells grows only
+linearly with refinement, the $L_1$
 accuracy in the entire flow field is still second order.  At the boundary,
-Richardson extrapolation shows that the convergence rate is seems to be
+Richardson extrapolation shows that the convergence rate seems to be
 between 1.38 and 1.5.
-This has also been found in other cut cell studies \cite{XX}, and is not due to
+This has also been found in other cut cell studies \cite{MN:MA}, and is not due to
 SRD.
 
 Figure \ref{fig:ssv} shows that using second order cut cell gradients is about
 a factor of 2 more accurate on coarser grids. Ultimately the gradient
-error is reduced, and the  curves approach each other. 
+error is reduced, and the error curves for the first and second order 
+accurate gradients approach each other. 
 Figure \ref{fig:ssv} also shows a comparison of the error in the converged
-solution using local time stepping without SRD, and the error with full timesteps and
-SRD stabilization, for both first and second order gradients.
+solution using local time stepping (LTS)  without SRD, and the error with full timesteps and
+SRD stabilization, using  first and second order gradients.
 The curves lie on top of each other, showing that 
 SRD does not degrade the computed solution with too much diffusion due
 to the merging neighborhoods.
