@@ -169,6 +169,10 @@ update the cut cell solution after stabilization. Second order accurate
 gradients fit a quadratic for both
 the cut cells and tiles, but only the first derivative terms are used for 
 the gradients. The second order derivatives are subsequently ignored.  
+We discuss below the use of both a pointwise quadratic and a cell-averaged
+quadratic.
+
+
 
 The $L_1$ norm of the error in the volume is $\sum_{i,j} \,
 V_{ij} \lvert e_{ij } \rvert$ and at the boundary is $ \sum_{{i,j} \in \partial \Omega} \, A_{ij} \lvert e_{ij
@@ -262,11 +266,13 @@ We experimented with using both pointwise quadratics, and those discussed in
 section \ref{sec:limit} where it is the integral of the polynomial that should match the
 neighborboring cell averages in the least squares equations. In Table \ref{tab:ssv}  and
 Figure \ref{fig:ssv} the pointwise quadratic reconstruction is presented. 
+This is a common practise, since it still helps and is it much easier to implement. 
+Technically it does not a second order accurate gradient.
 The integral average  results are are much more complicated to implement since 
-it needs weighted volumes of SRD neighborhoods; it is less complicated for only computing
-cell gradients. The results however are almost 10\% more accurate on the coarser grids
-for cut-cell gradients using LTS, and approximately 20\% 
-more accurate for SRD reconstruction. 
+it needs weighted volumes of SRD neighborhoods. It is less complicated if 
+only computing cell gradients. The results however are almost 10\% more 
+accurate on the coarser grids for cut-cell gradients using LTS, and approximately 
+20\% more accurate for SRD reconstruction. 
 More information about the first and second order gradient reconstructions can be found in Sections \ref{sec:limit} and \ref{sec:srd_postprocessing}.
 MAYBE GIVE SEPARATE TABLE FOR THIS. 20  IS A LOT
 
