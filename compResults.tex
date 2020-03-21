@@ -244,7 +244,7 @@ linearly with refinement, the $L_1$
 accuracy in the entire flow field is still second order.  At the boundary,
 Richardson extrapolation shows that the convergence rate seems to be
 between 1.38 and 1.5.
-This has also been found in other cut cell studies \cite{MN:MA}, and is not due to
+This has also been found in other cut cell studies \cite{nemec_tm14}, and is not due to
 SRD.
 
 Figure \ref{fig:ssv} shows that using second order cut cell gradients is about
@@ -258,7 +258,7 @@ The curves lie on top of each other, showing that
 SRD does not degrade the computed solution with too much diffusion due
 to the merging neighborhoods.
 
-\begin{figure}
+\begin{figure}[t]
 	\begin{center}
 		\includegraphics[height=3.0in]{figs/ssvconv.pdf}
 		\caption{\sf Convergence in the L1 norm of the error in the entire 
@@ -271,7 +271,6 @@ to the merging neighborhoods.
 \end{figure}
 
 
-\clearpage
 
 \subsection{Shock Reflection from  Cylinder}
 Next we demonstrate the method for the Euler equations using a Mach 2

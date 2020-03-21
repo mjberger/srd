@@ -96,18 +96,19 @@ the curved boundary conditions in Algorithm 2 from \cite{kb:2006}.
 On both full and cut cells, the base finite volume scheme requires a reconstructed polynomial of the form
 \begin{equation}\label{eq:uu}
 \begin{aligned}
-u^n_{i,j} (x,y) = U^n_{i,j} +  \sum_{1 \leq |\alpha| \leq p}  \frac{1}{\alpha!} \sigma^n_{\alpha,i,j} [(x- x_{i,j})^{\alpha_1}(y-y_{i,j})^{\alpha_2}- S_{\alpha,i,j}]
+u^n_{i,j} (x,y) = U^n_{i,j} +  \sum_{1 \leq |\alpha| \leq d}  \frac{1}{\alpha!} \sigma^n_{\alpha,i,j} [(x- x_{i,j})^{\alpha_1}(y-y_{i,j})^{\alpha_2}- S_{\alpha,i,j}]
 \end{aligned}
 \end{equation}
-where $\alpha = (\alpha_1, \alpha_2)$, $|\alpha| = \alpha_1 + \alpha_2$, $\sigma^n_{\alpha,i,j}$ is the $\alpha$th reconstruction coefficient, and $ (x_{i,j}, y_{i,j})$ is the physical centroid of cell $(i,j)$. 
+where $d$ is the degree of polynomial reconstruction,
+$\alpha = (\alpha_1, \alpha_2)$, $|\alpha| = \alpha_1 + \alpha_2$, $\sigma^n_{\alpha,i,j}$ is the $\alpha$th reconstruction coefficient, and $ (x_{i,j}, y_{i,j})$ is the physical centroid of cell $(i,j)$. 
 The $  S_{\alpha, i,j}$ are geometric constants given by
 $$
 S_{\alpha, i,j} = \frac{1}{ V_{i,j}}  \int_{\Omega_{i,j}} 
-(x-x_{i,j})^{\alpha_1} \, (y-y_{i,j})^{\alpha_2} ~ d\mathbf{x} .
+(x-x_{i,j})^{\alpha_1} \, (y-y_{i,j})^{\alpha_2} ~ dx \, dy .
 $$
 They enforce that 
 \begin{equation} \label{eq:uaverage}
-\frac{1}{ V_{i,j}}  \int_{\Omega_{i,j}} u^n_{i,j}(\mathbf{x}) ~d\mathbf{x} = U^n_{i,j},
+\frac{1}{ V_{i,j}}  \int_{\Omega_{i,j}} u^n_{i,j}(x,y) ~dx\,dy = U^n_{i,j},
 \end{equation}
 where  $U^n_{i,j}$ is the cell average on cell $i,j$.  On whole cells, 
 these constants are
@@ -131,7 +132,7 @@ where the reconstruction neighborhoods $R_{i,j}$ depend on the order of approxim
         \ra{1.2}
 	\begin{tabular}{|c|c|}
 		\hline 
-		Order accuracy & $R_{i,j}$ and $\hat R_{i,j}$ \\
+		Order of accuracy & $R_{i,j}$ and $\hat R_{i,j}$ \\
 		\hline
 		2 (1st order gradients) &  $3 \times 3 $ \\
 		\hline
@@ -154,7 +155,7 @@ The issue of obtaining a well-conditioned derivatives can occur as they do for t
         \ra{1.2}
 	\begin{tabular}{|c|c|}
 		\hline 
-		Order accuracy & Minimum distance in $x$, $y$ direction
+		Order of accuracy & Minimum distance in $x$, $y$ direction
                     \\[.08in] \hline 
 		2 (1st order gradients)  & $\frac{1}{2}\Delta x$,
                     $\frac{1}{2}\Delta y$ \\[.08in] \hline 
@@ -224,18 +225,10 @@ on each neighborhood as we describe below.
 
 \subsubsection*{Step 2. Reconstruct a high order polynomial on each neighborhood}
 For high order accuracy in space, we reconstruct a polynomial of degree $p$ on each neighborhood using a least squares procedure.  Similar to the base grid reconstruction is \eqref{eq:uu}, the high order reconstruction on neighborhood $(i,j)$ is of the form
-% \begin{equation}\label{eq:q}
-% \begin{aligned}
-%     \widehat q_(x,y) = \widehat Q_{m} + \widehat \sigma_{m,x}\frac{x-\widehat x_m}{\Delta x} +  \widehat \sigma_{m,y}\frac{y-\widehat y_m}{\Delta y} + \frac{1}{2}\widehat \delta_{m, xx}\left[ \frac{(x - \widehat x_m)^2 }{\Delta x^2} - \widehat S_{m,xx}\right]\\
-% 	    +\widehat \delta_{m, xy}\left[ \frac{(x - \widehat x_m) (y - \widehat y_m) }{\Delta x \Delta y} - \widehat S_{m,xy}\right] + \frac{1}{2}\widehat \delta_{m, yy}\left[ \frac{(y - \widehat y_m)^2 }{\Delta y^2} -  \widehat S_{m,yy}\right]\\
-% 	    + \frac{1}{6}\widehat\gamma_{m, xxx}\left[ \frac{(x -  \widehat x_m)^3 }{\Delta x^3} -  \widehat S_{m,xxx}\right] + \frac{1}{2}\widehat \gamma_{m, xxy}\left[ \frac{(x - \widehat x_m)^2 (y -  \widehat y_m) }{\Delta x^2 \Delta y} -  \widehat S_{m,xxy}\right]\\
-% 	     + \frac{1}{2}\widehat \gamma_{m, xyy}\left[ \frac{(x -  \widehat x_m) (y -  \widehat y_m)^2 }{\Delta x \Delta y ^2} -  \widehat S_{m,xyy}\right]+ \frac{1}{6}\widehat \gamma_{m, yyy}\left[ \frac{(y -  \widehat y_m)^3 }{\Delta y^3} -  \widehat S_{m,yyy}\right],
-% \end{aligned}
-% \end{equation}
 \begin{equation}\label{eq:q}
 \begin{aligned}
     \widehat q_{i,j} (x,y) = \widehat{Q}_{i,j} +  \sum_{1 \leq
-    |\alpha| \leq p}  \frac{1}{\alpha!} \widehat \sigma_{\alpha,i,j}
+    |\alpha| \leq d}  \frac{1}{\alpha!} \widehat \sigma_{\alpha,i,j}
     [(x-\widehat x_{i,j})^{\alpha_1}(y-\widehat
     y_{i,j})^{\alpha_2}-\widehat S_{\alpha,i,j}]
 \end{aligned}
