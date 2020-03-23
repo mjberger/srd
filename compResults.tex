@@ -138,7 +138,7 @@ properties of different gradient choices and base schemes.
 %\subsection{Nonlinear fluxes}
 \subsection{Supersonic vortex study}\label{sec:ssv}
 We compute the solution to a supersonic flow 
-through a quarter circle.  This problem has often been used in accuracy 
+around a quarter circle.  This problem has often been used in accuracy 
 studies \cite{aftosmis:acc} since it has an exact solution to the Euler
 equations that is smooth, given by 
 \begin{equation}
@@ -149,9 +149,10 @@ equations that is smooth, given by
 and $ u = a_i \, M_i \, (\frac{r_i}{r})\,  \sin (\theta)$, 
 $ v = a_i\,  M_i\,  (\frac{r_i}{r})\,  \cos(\theta)$, and
 $ p = \rho^\gamma / \gamma$.
-
 Here, the inner radius is $r_i = 1.0$,  the outer radius
-is $r = 1.384$, and the Mach number $M_i = 2.25$ in our experiments. In this
+is $r = 1.384$, $\rho_i=1$, and the Mach number on the inner circle
+$M_i = 2.25$ in our experiments. 
+In this
 normalization we use $a_i = 1$, $p_i = 1/\gamma$. 
 The second order MOL scheme is used, and we march
 to steady state, until the maximum density update is below $10^{-10}$.  
@@ -167,16 +168,18 @@ both the irregular cell gradient (cut cells and their one-away neighbors)
 described in section \ref{sec:limit} , and the SRD gradients, which 
 update the cut cell solution after stabilization. Second order accurate 
 gradients fit a quadratic for both
-the cut cells and tiles, but only the first derivative terms are used for 
-the gradients. The second order derivatives are subsequently ignored.  
+the cut cells and tiles, but only the first derivative terms are used; 
+the second order derivatives are subsequently ignored.  
 We discuss below the use of both a pointwise quadratic and a cell-averaged
 quadratic.
 
 
 
-The $L_1$ norm of the error in the volume is $\sum_{i,j} \,
-V_{ij} \lvert e_{ij } \rvert$ and at the boundary is $ \sum_{{i,j} \in \partial \Omega} \, A_{ij} \lvert e_{ij
-} \rvert$ where $A_{ij}$ is the length of the boundary segment in cut cell $(i,j)$.
+We measure the $L_1$ norm of the error in the volume,   $\sum_{i,j} \,
+V_{ij} \lvert e_{ij } \rvert$ and at the boundary, $ \sum_{{i,j} \in \partial \Omega} \, A_{ij} \lvert e_{ij
+} \rvert$.  Here
+$e_{i,j}$ is the error at the cell centroid, and $A_{ij}$ is the length of the 
+boundary segment in cut cell $(i,j)$.
 These are given in Table \ref{tab:ex1_L1vol} and \ref{tab:ex1_L1bndry}. 
 For easier comparison with other papers we also give the mesh size 
 to a few digits. In  a cut cell mesh there are both solid and
@@ -238,7 +241,8 @@ flow cells, and not as easy to compare as the mesh spacing.
 	\caption{\sf L1 norm of the error in the domain volume and along the boundary,
         for the supersonic vortex example. The error using first order accurate
         gradients and second order accurate gradients is compared, as are  the result
-        of using local time stepping versus using SRD.\label{tab:ssv}}
+        of using local time stepping (LTS, which does not require SRD)
+        versus using SRD and a full $\Delta t$.\label{tab:ssv}}
 \end{table}
 }
 
@@ -248,8 +252,8 @@ linearly with refinement, the $L_1$
 accuracy in the entire flow field is still second order.  At the boundary,
 Richardson extrapolation shows that the convergence rate seems to be
 between 1.38 and 1.5.
-This has also been found in other cut cell studies \cite{nemec_tm14}, and is not due to
-SRD.
+This has also been found in other cut cell studies \cite{KB:2006,nemec_tm14}, and 
+is not due to SRD.
 
 Figure \ref{fig:ssv} shows that using second order cut cell gradients is about
 a factor of 2 more accurate on coarser grids. Ultimately the gradient
@@ -266,15 +270,19 @@ We experimented with using both pointwise quadratics, and those discussed in
 section \ref{sec:limit} where it is the integral of the polynomial that should match the
 neighborboring cell averages in the least squares equations. In Table \ref{tab:ssv}  and
 Figure \ref{fig:ssv} the pointwise quadratic reconstruction is presented. 
-This is a common practise, since it still helps and is it much easier to implement. 
-Technically it does not a second order accurate gradient.
-The integral average  results are are much more complicated to implement since 
-it needs weighted volumes of SRD neighborhoods. It is less complicated if 
-only computing cell gradients. The results however are almost 10\% more 
-accurate on the coarser grids for cut-cell gradients using LTS, and approximately 
-20\% more accurate for SRD reconstruction. 
-More information about the first and second order gradient reconstructions can be found in Sections \ref{sec:limit} and \ref{sec:srd_postprocessing}.
+This is a common practise, since it provides better results than first order
+gradients and is it much easier to implement (although for computing gradient
+of cut cells it is not really difficult). 
+Technically it does not produce a second order accurate gradient.
+On SRD neighboroods the integral average  is more complicated 
+to implement since one needs to compute the weighted volumes of the
+merging neighborhoods. 
+The results however are almost 10\% more 
+accurate on the coarser grids for cut-cell gradients alone using LTS,
+and range from  5 to 25\% more accurate for SRD reconstruction. 
 MAYBE GIVE SEPARATE TABLE FOR THIS. 20  IS A LOT
+%More information about the first and second order gradient reconstructions can be 
+%found in Sections \ref{sec:limit} and \ref{sec:srd_postprocessing}.
 
 \begin{figure}[t]
 	\begin{center}
@@ -305,9 +313,13 @@ Both grids use 302 cells in each
 directions, and the domain is  $[0.0,0.0,]$ by  $[1.00001, 1.0]$, again to
 prevent mesh degeneracies.
 There are 416 cut cells
-around the cylinder. 160 of the cut cells had volume fractions less than
-0.5 and had SRD applied.  The smallest volume fraction was 1.17E-4.   
+around the cylinder; 160 of the cut cells had volume fractions less than
+0.5 and were stabilized with SRD.  The smallest volume fraction was 1.17E-4.   
 For comparison, this is also the time shown in \cite{mjb-hel-rjl:hbox2}. 
+Here and in \cite{mjb-hel-rjl:hbox2}, the front of the cylinder where the
+maximum density is found is better behaved with the one-step methods than with
+MOL.  The method of lines solution is smoother around the boundary than our
+MUSCLvariant.
 
 \begin{figure}[h]
 \begin{center}
@@ -341,8 +353,8 @@ clearly.
 \hspace*{.3in}
 %\includegraphics[width=0.48\linewidth,trim=20 20 20 30,clip]{figs/pressureCompare_302_normalvs3by3.png}
 %\includegraphics[height=2.7in,trim=120 70 230 50,clip]{figs/pressureWithZoom.pdf}
-\caption{\sf The density profile  around the cylinder for the MUSCL and MOL schemes anat time
-t=0.25.  The MOL scheme has smoother results.}
+\caption{\sf The density profile  around the cylinder for the MUSCL and MOL schemes 
+at time t=0.25.  The MOL scheme has smoother results.}
 \label{fig:cylbndry}
 \end{center}
 % fig in amrclaw-amrcart/example/cylinder_Mach2 directory on juniper

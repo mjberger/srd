@@ -13,7 +13,7 @@ redistribution \cite{chern:colella,vof:colella}. The main idea is illustrated be
 dimensions for ease of notation.
 The update of the solution average 
 $U^n_{i,j}$ on cut cell $(i,j)$ with volume
-$V_{i,j}$ is given by
+$V_{i,j}$ can be written
 \begin{equation*}
 V_{i,j} U_{i,j} ^{n+1}  = V_{i,j} U_{i,j}^n  -  \Delta t \sum_{k \in \text{ faces}}A_k \mathbf{F}_k^* \cdot \mathbf{n}_k,
 \end{equation*}
@@ -44,7 +44,7 @@ property. It  has not been extended to
 three dimensions due to its complexity. 
 
 A newer variation of cell merging is called cell linking \cite{cecereGiacomazzi,
-KirkpatrickEtAl:2003, HuKhooAdamsHuang:2006,Chung:2006} 
+KirkpatrickEtAl:2003, HuKhooAdamsHuang:2006,Chung:2006}.
 This has simpler data structures and maintain the original grid. 
 %Many of these references tackle incompressible flow; some also include three dimensional examples. Several references use a staggered mesh. 
 In \cite{BalajiMenon:2016}, the authors improve the accuracy of cell linking,
@@ -75,7 +75,29 @@ Their version of cell linking uses a cluster of cells, while still maintaining e
 %that preserve conservation we do not explore these alternatives further.
 
 In this paper we propose a framework for a stabilization algorithm in
-the spirit of flux redistribution. Similar to flux redistribution, state redistribution is applied as a postprocessing step and is simple to implement. An unstable update on all cells is performed with a fixed $\Delta t$ using a base finite volume scheme, followed by a postprocessing step based on the conserved state variables, not on the fluxes.  It is for this reason that we call it state redistribution.  Our approach is fully conservative and can be generalized to high order accuracy.
+the spirit of flux redistribution. Similar to flux redistribution, state
+redistribution is applied as a postprocessing step and is simple to implement,
+for the second order accurate case. An unstable update on all cells is
+performed with a fixed $\Delta t$ using a base finite volume scheme, followed
+by a postprocessing step based on the conserved state variables, not on the
+fluxes.  It is for this reason that we call it state redistribution.  Our
+approach is fully conservative and can be generalized to high order accuracy,
+albeit with  more complexity. The key insight over cell merging was to
+recognize that we could maintain both conservation and accuracy using a
+weighted convex combination of values that took into account the number of
+overlapping cells in each stabilization neighborhood.
 
+The next section illustrates state redistribution (SRD) in one space dimension
+on a model problem, to give a more intuitive idea without all the details and 
+notation of second or higher order accuracy. 
+Section \ref{sec:basefv} discusses the evolution schemes
+to which SRD is applied, since the interior schemes need to be modified before
+applying to cut cells. Section \ref{sec:srdAlg} describes the second-order accurate
+algorithm in two space dimension.  Computational experiments with the
+two-dimensional Euler equations  are presented in
+Section \ref{sec:compResults}, and conclusions in Section \ref{sec:conc}. 
 
+Our SRD  algorithm has been extended
+to higher order. This is described in the Appendix, where third and fourth order
+convergence results are presented.
 

@@ -4,7 +4,7 @@ For simplicity, we restrict our description to the second order accurate state r
 algorithm here. The higher order version needs more notation, and will be presented in 
 Appendix \ref{sec:ho}.  
 We also show that SRD preserves linear functions and is conservative, since
-it is not obvious that the unusual weightings present in our algorithm
+it is not obvious that the unusual weightings in our algorithm
 preserve these important properties.
 
 \subsection{State redistribution preprocessing}\label{sec:preprocessing}
@@ -16,7 +16,7 @@ nonuniform grid preprocessing presented in Section \ref{sec:srd1d}, but now done
 The preprocessing determines three quantities: merging neighborhoods, weighted volumes and centroids.
 %These three steps can be part of a preprocessing step since they do not
 %depend on the computed solution. 
-However for moving geometries they would need to be be done at each step.
+For moving geometries they would need to be be done at each step.
 
 \subsubsection*{Merging neighborhoods}
 
@@ -31,6 +31,13 @@ Centered merging associates cut cells with neighbors that are at most one cell a
 located in the $3 \times 3$ tile centered on the small cell.  Figure \ref{fig:neighborhoods}
 illustrates this for cut cell $(i+3,j+1)$, where the centered neighborhood is highlighted in green.
 
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figs/neighborhoods.pdf}
+    \caption{\sf On the left, a small cell is merged with a cell in the direction closest to the 
+    	boundary normal.  On the right, a small cell is merged with neighbors that are at most one cell away, i.e., cells located in the $3\times3$ tile centered on $(i+3,j+1)$.}
+    \label{fig:neighborhoods}
+\end{figure}
 
 The larger the neighborhood the more diffusive the results. Thus we do not want neighborhoods that 
 are too large.  However, they must satisfy a size constraint to dampen unstable growth in the numerical 
@@ -46,13 +53,6 @@ that is at least half the regular cell size  is stable using a full time step $\
 We have not encountered any issues with this choice in two dimensions.
 
 For smooth solutions a centered neighborhood is sufficient, but for shocks this yields unsatisfactory results. Therefore, we use the normal neighborhood everywhere possible.
-\begin{figure}[t]
-    \centering
-    \includegraphics[width=0.5\linewidth]{figs/neighborhoods.pdf}
-    \caption{\sf On the left, a small cell is merged with a cell in the direction closest to the 
-    	boundary normal.  On the right, a small cell is merged with neighbors that are at most one cell away, i.e., cells located in the $3\times3$ tile centered on $(i+3,j+1)$.}
-    \label{fig:neighborhoods}
-\end{figure}
 The normal neighborhood cannot be used when, e.g., a neighboring cell is also cut and the
 merging neighborhood is not sufficiently large (Figure \ref{fig:normalneighborhood}).  In this case, we must use central merging with cells on a $3\times3$ tile (Figure \ref{fig:3x3neighborhood}), or, if that merging neighborhood is not large enough, with cells on the $5 \times 5$ tile.
 
@@ -61,7 +61,7 @@ merging neighborhood is not sufficiently large (Figure \ref{fig:normalneighborho
 After forming merging neighborhoods, each cell counts the number of neighborhoods it belongs to.
 For cell $(i,j)$ this neighborhood count is called $N_{i,j}$.
 
-\begin{figure}
+\begin{figure}[h]
 \hspace*{.5in}
 	\subfloat[\sf Normal neighborhood (in red) for the cut cell $(i,j)$.]{\includegraphics[width=.30\textwidth]{figs/normaldirection1.pdf} \label{fig:normalneighborhood}}
 	\hfill
@@ -79,7 +79,7 @@ the neighborhood of $(i,j)$, $M_{i,j}$, must include both $(i,j)$ and $(i,j+1)$.
 The neighborhood associated to $(i,j+1)$ in highlighted in green in Figure \ref{fig:2nborTile2}.  
 Since the volume of cell $(i,j+1)$ satisfies the volume constraint in \eqref{eqn:vmerge}, $M_{i,j+1}$, only contains cell $(i,j+1)$.
   
-\begin{figure}
+\begin{figure}[h]
 	\centering
 	\subfloat[Merging neighborhood of cell $(i,j)$.]{\includegraphics[width=0.30\textwidth]{figs/modelexample2D_2.pdf} \label{fig:2nborTile1}}
 	\qquad
@@ -146,15 +146,19 @@ The neighborhood's weighted volume is defined as
 {\widehat V}_{i,j} =  \sum_{(r,s) \in M_{i,j} } \,  \frac{V_{r,s}}{N_{r,s}}.
 \end{equation}
 where $M_{i,j}$ is the set of cells in the neighborhoods associated to cell $(i,j)$. 
-In general, the weighted volume is not the physical volume of merging neighborhood, unless there is only one cell in the merging neighborhood and no other neighborhoods overlap that cell.  
 The weighted centroid of the merging neighborhood is defined as
 \begin{equation}
 \label{centroiddef}
 ({\widehat x}_{i,j},{\widehat y}_{i,j}) = \frac{1}{\widehat V_{i,j}} \sum_{(r,s) \in M_{i,j} } \,  \frac{V_{r,s}}{N_{r,s}}(x_{r,s},y_{r,s}),
 \end{equation}
-Note that the weighted centroid and the physical centroid of the merging neighborhood are not generally the same.
-%The difference between the physical and weighted centroids of neighborhoods $(\widehat{x}_{i,j}, \widehat{y}_{i,j})$ is illustrated in Figure \ref{fig:centroids}.
 
+In general, the weighted volume is not the physical volume of merging
+neighborhood, nor is the weighted centroid and the physical centroid
+the same, unless there is only one cell in the merging neighborhood
+($\lvert M_{i,j} \rvert =1$)  and no other neighborhoods overlap that cell 
+ ($N_{i,j}=1$).  
+DID I GET THE INDICES RIGHT OR IS IT $N_{rs}$ PLEASE CHECK
+IS CELL i,j INCLUDED in $M_i,j$?
 
 
 %\begin{figure}[h]
@@ -291,7 +295,9 @@ This is given by
 U^{n+1}_{i,j} =  \frac{1}{V_{i,j}}\sum_{(r,s) \in W_{i,j}}\frac{1}{N_{i,j}} \int_{\Omega_{i,j}}\widehat q_{r,s}(x,y) ~dx~dy,
 \end{equation}
 where $W_{i,j}$ is the list of indices of the neighborhoods that overlap cell $(i,j)$.
-Since $\widehat{q}_{i,j}(x,y)$ is a linear function, the above simplifies to
+Since $\widehat{q}_{i,j}(x,y)$ is a linear function, 
+we can replace $\widehat q_{r,s}(x,y)$ with the value at the centroid to 
+simplify \eqref{eqn:final_update_linear}  to
 \begin{equation} \label{eqn:final_update_linear2}
 	U^{n+1}_{i,j} =   \frac{1}{N_{i,j}}\sum_{(r,s)  \in W_{i,j}}\hat{q}_{r,s}(x_{i,j},y_{i,j}).
 \end{equation}
@@ -314,7 +320,9 @@ Since $\widehat{q}_{i,j}(x,y)$ is a linear function, the above simplifies to
 %\end{equation}
 
 \noindent\textit{Note }: The final update formula \eqref{eqn:final_update_linear} can easily be implemented with a 
-nested for loop as in Algorithm \ref{alg:finalupdate}.  This algorithm has the advantage that it does not require computing the set $W_{i,j}$ used in \eqref{eqn:final_update_linear} or \eqref{eqn:final_update_linear2}.  The outer loop iterates over the merging neighborhoods $(i,j)$ and the inner loop iterates over each cell $(r,s)$ in neighborhood $(i,j)$.  Each merging neighborhood $(i,j)$ gives a contribution $ \hat{q}_{i,j}(x_{r,s}, y_{r,s})/N_{r,s} $ to the cells $(r,s)$ that belong to it. 
+nested for loop as in Algorithm \ref{alg:finalupdate},  
+instead of computing the set $W_{i,j}$ in \eqref{eqn:final_update_linear} or \eqref{eqn:final_update_linear2}.  
+The outer loop iterates over the merging neighborhoods $(i,j)$ and the inner loop iterates over each cell $(r,s)$ in neighborhood $(i,j)$.  Each merging neighborhood $(i,j)$ gives a contribution $ \hat{q}_{i,j}(x_{r,s}, y_{r,s})/N_{r,s} $ to the cells $(r,s)$ that belong to it. 
 \begin{algorithm}[H]
 		\caption{\sf Final solution update} \label{alg:finalupdate}
 	\begin{algorithmic}
@@ -388,8 +396,8 @@ nested for loop as in Algorithm \ref{alg:finalupdate}.  This algorithm has the a
 \subsection{Linear exactness} \label{sec:linex}
 In this section, we show that second order accurate state redistribution preserves linear functions.
 One might wonder about this since the centroids and solution averages are weighted in this unusual way.
-If all cells had the same number of neighborhoods the $N_{ij}$ would all cancel. But since they don't,
-it is harder to have an intuition about this.
+If all cells had the same number of neighborhoods the $N_{ij}$ would all cancel. 
+Since they do not, it is harder to have an intuition about this.
 
 Consider the grid function of the numerical solution after one time step
 or stage, $\widehat{U}$.  Assume that it can be written in terms of a linear function $f(x,y)$ of the $x$ and $y$ coordinates, i.e.,

@@ -19,10 +19,10 @@ We will use two different second order discretizations of \eqref{eq:conslaw2D}: 
 (MOL) approach and the MUSCL scheme.
 These fully discrete finite volume methods, described in Section \ref{sec:mol} and \ref{sec:muscl},
 are referred to as the base schemes.  Both schemes require linear 
-reconstructions on cells 
+reconstruction on grid cells,
 outlined in Section \ref{sec:limit}.  The high-order extension of MOL and SRD  will be described 
-in Appendix \ref{sec:ho}. Finally, both the second order schemes evaluate the flux at
-the boundary in the exmaples of section \ref{sec:compResults} by extrapolating the
+in Appendix \ref{sec:ho}. Finally, both second order schemes evaluate the flux at
+the boundary in the examples of section \ref{sec:compResults} by extrapolating the
 pressure to the boundary midpoint. Something more elaborate is done in the higher
 order case. 
 
@@ -43,7 +43,9 @@ After generating the cut cell mesh, we approximate the solution to \eqref{eq:con
 \end{equation}
 where $\mathbf{U}_{i,j}$ is a vector of the cell averages on $\Omega_{i,j}$, $\partial \Omega_{i,j}$ is the cell boundary, $\mathbf{n}$ is an outward facing normal, and $\mathbfcal{F}^*$ is a numerical flux function.
 
-Second order accuracy in space is achieved by reconstructing a gradient on each cell and using it to evaluate the numerical flux at the face midpoints (Figure \ref{fig:2dfig}).  
+Second order accuracy in space is achieved by reconstructing a gradient on each
+cell and using it to evaluate the numerical flux at the face midpoints,
+illustrated in Figure \ref{fig:2dfig}.  
 In our numerical experiments, we use the local Lax-Friedrichs numerical flux to solve the Riemann problem at cell interfaces.
 
 Second order accuracy in time is obtained by integrating \eqref{eq:fvscheme} in time using Heun's method.  This is a two-stage Runge Kutta method that can be written
@@ -108,7 +110,11 @@ interface $(i+1/2,j)$
 %&
 \begin{equation}\label{eqn:taylor}
 \begin{split}
-\mathbf{U}_{i+1/2,j}^{n+1/2}   = \mathbf{U}_{i,j}^n - \frac{\Delta t}{2} \, 
+\mathbf{U}_{i+1/2,j}^{n+1/2}    
+              &= \mathbf{U}_{i,j}^n +  
+\frac{\Delta t}{2} \frac{\partial \mathbf{U}_{i,j}^n}{\partial t} + 
+\frac{\Delta x}{2} \frac{\partial \mathbf{U}_{i,j}^n}{\partial x} \\[.08in]
+              &= \mathbf{U}_{i,j}^n - \frac{\Delta t}{2} \, 
              \frac{\partial \mathbf{G}_{i,j}^n}{\partial y}  -
             \left( \frac{\Delta t}{2} 
             \frac{\partial \mathbf{F}_{i,j}^n}{\partial \mathbf{U}^n_{i,j}} -
@@ -136,12 +142,13 @@ since  the centroid values are not coordinate aligned near
 the cut cells.
 We make two modifications to the
 computation of $\partial G/\partial y$, known as the
-transverse derivative when computing the flux $F$ in the $i$ direction.
+transverse derivative since it is in the vertical direction
+when computing the flux $F$ in the horizontal direction.
 First,
 the solution is reconstructed in the transverse direction
 to the edge midpoint so it is properly centered in cells that
 are adjacent to a cut cell.  This is the situation
-in figure \ref{fig:2dfig} for cell $(i,j+1)$, for example.
+in Figure \ref{fig:2dfig} for cell $(i,j+1)$, for example.
 
 Secondly, many cut cells will not have both edges in the
 transverese ($y$) direction. Instead, for all cut cells we
@@ -154,7 +161,8 @@ altogether. There was no stability problem with this, but it
 does introduce an unnecessary difference from
 the interior scheme, and would not be linearly exact.
 
-\textit{Note:} it is the transverse derivative that provides the so-called corner coupling:  inclusion
+\textit{Note:} it is the transverse derivative that provides the so-called corner 
+coupling, i.e. inclusion
 of corner cells in the stencil. This is what  gives  the MUSCL scheme a linear stability limit of
 \begin{equation}
 \label{eqn:bigcfllimit}
@@ -196,7 +204,7 @@ steps do not change at the cut cells, so are not discussed here.
 Since MUSCL is a one-step scheme, the SRD stabilization is applied directly
 before the final update
 $\mathbf{U}^{n+1} = SRD(\mathbf{U}^{n} + \Delta t
-L(\mathbf{U}^{n}))$, where $L$ represents the MUSCL operator.
+L(\mathbf{U}^{n}))$, where $L$ is now the MUSCL operator.
 
 
 
@@ -215,14 +223,15 @@ In all our examples we use monotonized central (MC) differencing in both $x$ and
 0 \hspace*{2.8in} \text{otherwise}.
 \end{cases}
 \end{equation}
-Here we use the differencing notation
+Here we use the standard differencing notation
 $D_c = (U^n_{i+1,j}-U^n_{i-1,j})/(2 \, \Delta x)$ for the second order accurate central difference and
 $D_+ = (U^n_{i+1,j}-U^n_{i,j})/\Delta x$,
 $D_- = (U^n_{i,j}-U^n_{i-1,j})/\Delta x$ for the one-sided differences.  The MC limited slope in the $y$ direction is similarly defined.
 
 For cut cells 
 %and their neighboring full cells, 
-we use a least squares gradient reconstruction algorithm, which is standard for unstructured meshes.
+we use a least squares gradient reconstruction algorithm, a standard procedure
+for unstructured meshes.
 %Cells that are two away from a cut cell can use any limiter with a five point stencil. 
 A linear reconstruction of the solution on these cells is of the form
 \begin{equation}

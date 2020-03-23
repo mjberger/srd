@@ -6,7 +6,7 @@ u_t + au_x = 0, \quad a>0
 \end{equation}
 on the nonuniform grid, called the base grid, shown in Figure \ref{fig:ng1}.
 This model problem illustrates the main ideas of SRD without too much notation, 
-although the small cells do not represent the cut cells at the boundary in higher dimensions. 
+although the small cells do not mimic the cut cells at the boundary in higher dimensions. 
 
 Consider seven cells of this nonuniform grid, of which five cells (indexed by $-3$, $-2$, $0$, $2$, $3$) are large with size $h$ and the remaining two cells (indexed by $-1$ and $1$) are small with size $\alpha h$, where $0<\alpha \leq 1$.
 
@@ -20,12 +20,13 @@ sizes are $\alpha h$ ($0<\alpha \le 1$), and $h$, respectively. \label{fig:ng1}}
 \end{center}
 \end{figure}
 
-Eq~\eqref{eq:hpde} is discretized using the  first order upwind finite volume method.  
+Equation \eqref{eq:hpde} is discretized using the  first order upwind finite volume method.  
 After one forward Euler time step, the numerical solution is given by
 \begin{equation}\label{eq:unstable1d}
-\widehat{U}_i = U^n_i - \lambda_i(U^n_i -U^n_{i-1}),
+\widehat{U}_i = U^n_i - \frac{a \Delta t} {h_i} \, (U^n_i -U^n_{i-1}),
 \end{equation}
-where $U^n_i$ is the solution average on cell $i$ at time step $t^n$, and the Courant number is $\lambda_i = a\Delta t / h_i$, with $h_i = h$ when $i \neq -1,1$ and $h_i = \alpha h$ for $i = -1,1$.  
+where $U^n_i$ is the solution average on cell $i$ at time step $t^n$, the time
+step $\Delta t$ is constant for all cells, and  $h_i = h$ when $i \neq -1,1$ and $h_i = \alpha h$ for $i = -1,1$.  
 %The update $\widehat{U}_i$ in \eqref{eq:unstable1d} is stable for $0\leq \lambda_i \leq 1$.
 %On the small cells, we have
 %\begin{equation}\label{eq:unstable1d+B}
@@ -46,10 +47,14 @@ These merged cells are constructed once during a mesh preprocessing step before 
 \begin{figure}[h]
 \begin{center}
 \includegraphics[width=0.75\linewidth]{figs/overlapping1.pdf} 
-\caption{\sf Each blue arrow indicates the merging neighborhoods associated to the large cells $-3$, $-2$, 
-$0$, $2$, and $3$.  The number above each blue arrow is the neighborhood index.
-The red arrow corresponds to the neighborhood of small cells $-1$ and $1$, where the number below
-each red arrow is the neighborhood index. \label{fig:mn1}}
+\caption{\sf 
+The blue arrows indicate the merging neighborhoods associated to the large 
+cells $-3$, $-2$, $0$, $2$, and $3$, which are their own neighborhoods.  
+The red arrows indicate the neighborhoods of small cells $-1$ and $1$, which
+have temporarily merged with their left and right neighbors.  
+The numbers next to the arrows are the neighborhood index, which
+correspond to the cell indices in Fig. \ref{fig:ng1}.  
+\label{fig:mn1}}
 \end{center}
 \end{figure}
 
@@ -64,7 +69,8 @@ This is illustrated by the red arrows in Figure \ref{fig:mn1} where the merging 
 small cell $-1$ consists of cells $-2$, $-1$, and $0$, and the merging neighborhood of 
 small cell 1 consists of cells $0$, $1$, and $2$. 
 A large cell does not need to merge with neighbors (since $h > h/2$), thus its merging neighborhood is only 
-composed of itself.  This is illustrated by the blue arrows in Figure \ref{fig:mn1} For example,  the 
+composed of itself.  This is illustrated by the blue arrows in Figure
+\ref{fig:mn1}. For example,  the 
 merging neighborhood of large cell $-3$ is composed only of itself.
 
 Finally, each cell in the base grid counts the number of neighborhoods that overlap it. 
@@ -143,7 +149,8 @@ For the portion of the grid in question, the total mass after state redistributi
 \begin{equation}\label{eq:tm1}
 	\sum_{i} h_i U^{n+1}_i  = h U^{n+1}_{-3} + h U^{n+1}_{-2} + \alpha h U^{n+1}_{-1} +h U^{n+1}_0+\alpha h U^{n+1}_{1} + h U^{n+1}_{2} + h U^{n+1}_{3},
 \end{equation}
-where $h_i$ is the local cell size, i.e., $h_i = \alpha h$ for $i \neq -1,1$ and $h_i = h$ otherwise.
+where $h_i$ is the local cell size.
+%i.e., $h_i = \alpha h$ for $i \neq -1,1$ and $h_i = h$ otherwise.
 Substituting expressions for the final update \eqref{eq:oneneigh}, \eqref{eq:twoneigh}, \eqref{eq:threeneigh} into \eqref{eq:tm1}, we obtain
 \begin{equation}\label{eq:tm2}
 \begin{aligned}
@@ -176,7 +183,9 @@ Simplifying \eqref{eq:tm4}, the mass after state redistribution becomes
 \end{aligned}
 \end{equation}
 Thus, the mass on the grid before and after state redistribution does not change.
-Since the base scheme \eqref{eq:unstable1d} is conservative, it follows from \eqref{eq:tm5} that our modified scheme \eqref{eq:threeneigh}, \eqref{eq:twoneigh}, \eqref{eq:oneneigh} conserves mass.
+Since the base scheme \eqref{eq:unstable1d} is conservative, it follows from
+\eqref{eq:tm5} that our modified scheme \eqref{eq:threeneigh},
+\eqref{eq:twoneigh}, \eqref{eq:oneneigh} is too.
 %, our modified scheme \eqref{eq:threeneigh}, \eqref{eq:twoneigh}, \eqref{eq:oneneigh} is conservative.  
 %Thus, the base scheme coupled with the state redistribution method is conservative.  
 
