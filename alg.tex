@@ -10,25 +10,28 @@ preserve these important properties.
 \subsection{State redistribution preprocessing}\label{sec:preprocessing}
 
 
-In this section, we describe mesh dependent quantities that will be used in the second order 
-accurate state redistribution method. This is the two-dimensional analogue of the one-dimensional 
-nonuniform grid preprocessing presented in Section \ref{sec:srd1d}, but now done on cut cell grids.
-The preprocessing determines three quantities: merging neighborhoods, weighted volumes and centroids.
+In this section, we describe mesh dependent quantities that will be used when applying 
+SRD. This is the two-dimensional analogue of the one-dimensional 
+nonuniform grid preprocessing presented in Section \ref{sec:srd1d}, now done on cut cell grids.
+The preprocessing determines these quantities: merging neighborhoods and overlap counts, 
+weighted volumes and centroids.
 %These three steps can be part of a preprocessing step since they do not
 %depend on the computed solution. 
-For moving geometries they would need to be be done at each step.
+For moving geometries they would need to be be done when the geometry is modified.
 
 \subsubsection*{Merging neighborhoods}
 
-In one dimension, neighborhoods can be defined by merging a small cell with neighbors on its left, on its right, or both.  Of these three approaches, the last was used on the nonuniform grid presented in Section \ref{sec:srd1d},
+In one dimension, neighborhoods can be defined by merging a small cell with neighbors on its left, on its right, or both.  Of these three approaches, the last was used on the nonuniform grid presented in Section \ref{sec:srd1d}.
 In two dimensions, there is much more freedom in defining a merging neighborhood.  
 We investigated two different ways: (1) normal merging and (2) centered merging.
 
 Normal merging associates cut cells with neighbors in the direction closest to the 
 boundary normal.  This is illustrated in Figure \ref{fig:neighborhoods}, where the normal merging neighborhood associated to cut cell $(i,j)$ is highlighted in green.
 
-Centered merging associates cut cells with neighbors that are at most one cell away. These cells are
-located in the $3 \times 3$ tile centered on the small cell.  Figure \ref{fig:neighborhoods}
+Centered merging associates cut cells with neighbors that are 
+%at most one cell away. 
+symmetrically located in each direction around the cell.
+These cells are located in the $3 \times 3$ tile centered on the small cell.  Figure \ref{fig:neighborhoods}
 illustrates this for cut cell $(i+3,j+1)$, where the centered neighborhood is highlighted in green.
 
 \begin{figure}[h]
@@ -142,23 +145,23 @@ Since the volume of cell $(i,j+1)$ satisfies the volume constraint in \eqref{eqn
 
 The neighborhood's weighted volume is defined as
 \begin{equation}
-\label{voldef}
+\label{eqn:voldef}
 {\widehat V}_{i,j} =  \sum_{(r,s) \in M_{i,j} } \,  \frac{V_{r,s}}{N_{r,s}}.
 \end{equation}
 where $M_{i,j}$ is the set of cells in the neighborhoods associated to cell $(i,j)$. 
 The weighted centroid of the merging neighborhood is defined as
 \begin{equation}
-\label{centroiddef}
+\label{eqn:centroiddef}
 ({\widehat x}_{i,j},{\widehat y}_{i,j}) = \frac{1}{\widehat V_{i,j}} \sum_{(r,s) \in M_{i,j} } \,  \frac{V_{r,s}}{N_{r,s}}(x_{r,s},y_{r,s}),
 \end{equation}
 
-In general, the weighted volume is not the physical volume of merging
-neighborhood, nor is the weighted centroid and the physical centroid
-the same, unless there is only one cell in the merging neighborhood
-($\lvert M_{i,j} \rvert =1$)  and no other neighborhoods overlap that cell 
- ($N_{i,j}=1$).  
-DID I GET THE INDICES RIGHT OR IS IT $N_{rs}$ PLEASE CHECK
-IS CELL i,j INCLUDED in $M_i,j$?
+In general, the weighted volume is not the physical volume of merging neighborhood 
+unless the cell is full and it is not overlapped by any other neighborhoods 
+(for example, cells $-3$ and $3$ in Figure 2).  Similarly, the weighted and physical 
+centroids are different unless the overlap count on each cell in the neighborhood is the 
+same, $N_{r,s} = N_{p,q} ~ \forall (r,s), (p,q) \in M_{i,j} $.  
+This is because the overlap counts in \eqref{eqn:centroiddef} would cancel, leading to identical  weighted and physical 
+centroids of the neighborhood.
 
 
 %\begin{figure}[h]
@@ -210,8 +213,8 @@ The solution average on each neighborhood is given by
 \widehat{Q}_{i,j} =  \frac{1}{{\widehat V}_{i,j}} \, \sum_{(r,s) \in M_{i,j}} \,  
 \frac{V_{r,s}}{N_{r,s}}  \widehat{U}_{r,s}
 \end{equation}
-where the volume ${\widehat V}_{i,j}$ is the weighted neighborhood volume defined in \eqref{voldef}
-and $N_{i,j}$ is the number of neighborhoods  associated to cell $i,j$ defined in 
+where the volume ${\widehat V}_{i,j}$ is the weighted neighborhood volume defined in \eqref{eqn:voldef}
+and $N_{r,s}$ is the number of neighborhoods  associated to cell $i,j$ defined in 
 Section \ref{sec:preprocessing}.  
 Analogous to the one dimensional case in Section \ref{sec:srd1d}, the weighted solution 
 averages are a convex combination of provisional solution averages on the neighborhood associated to cell $(i,j)$.  
@@ -234,6 +237,9 @@ The neighborhood gradient $(\widehat{\sigma}_{x,i,j},\widehat{\sigma}_{y,i,j})$ 
 \widehat{Q}_{r,s} - \widehat{Q}_{i, j} \quad \forall (r,s) \in \widehat{R}_{i,j}.
 \end{equation}
 Note that \eqref{eqn:linrecon} uses the neighborhood's weighted centroids $(\widehat{x}_{r,s},\widehat{y}_{r,s})$ instead of the cell centroids.  In Section \ref{sec:linex}, we prove that this procedure is linearity preserving.
+Alternatively, second order gradients on the neighborhoods can be obtained by fitting a quadratic
+as in Section \ref{sec:linrecon_base2}, and discarding the second derivative terms.
+We will compare these procedures in the computational results in Section \ref{sec:ssv}.
 
 
 
@@ -396,7 +402,7 @@ The outer loop iterates over the merging neighborhoods $(i,j)$ and the inner loo
 \subsection{Linear exactness} \label{sec:linex}
 In this section, we show that second order accurate state redistribution preserves linear functions.
 One might wonder about this since the centroids and solution averages are weighted in this unusual way.
-If all cells had the same number of neighborhoods the $N_{ij}$ would all cancel. 
+If all cells had the same number of neighborhoods in \eqref{34} the $N_{ij}$ would all cancel. 
 Since they do not, it is harder to have an intuition about this.
 
 Consider the grid function of the numerical solution after one time step
@@ -421,7 +427,7 @@ Distributing the summation in \eqref{eqn:linear1}, we have
 \frac{V_{r,s}}{N_{r,s}}\right) .
 \end{equation}
 From the definition of the weighted centroid and volume of the merging neighborhood
-$(i,j)$ in \eqref{voldef} and \eqref{centroiddef}, respectively, \eqref{eqn:linear2} becomes
+$(i,j)$ in \eqref{eqn:voldef} and \eqref{eqn:centroiddef}, respectively, \eqref{eqn:linear2} becomes
 \begin{equation}\label{eqn:linear3}
 \widehat{Q}_{i,j} =  a \widehat{x}_{i,j} + b\widehat{y}_{i,j} + c = f(\widehat{x}_{i,j},\widehat{y}_{i,j}).
 \end{equation}

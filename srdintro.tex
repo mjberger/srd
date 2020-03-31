@@ -5,10 +5,11 @@ We solve the linear advection equation
 u_t + au_x = 0, \quad a>0
 \end{equation}
 on the nonuniform grid, called the base grid, shown in Figure \ref{fig:ng1}.
-This model problem illustrates the main ideas of SRD without too much notation, 
-although the small cells do not mimic the cut cells at the boundary in higher dimensions. 
+This model problem illustrates the main ideas of SRD without too much notation. 
 
 Consider seven cells of this nonuniform grid, of which five cells (indexed by $-3$, $-2$, $0$, $2$, $3$) are large with size $h$ and the remaining two cells (indexed by $-1$ and $1$) are small with size $\alpha h$, where $0<\alpha \leq 1$.
+Although the small cells do not mimic the cut cells at the boundary in higher dimensions, this is
+still a useful model problem. 
 
 \begin{figure}[h]
 \begin{center}
@@ -33,7 +34,7 @@ step $\Delta t$ is constant for all cells, and  $h_i = h$ when $i \neq -1,1$ and
 %\widehat{U}_i = U^n_i - \frac{\lambda}{\alpha}(U^n_i -U^n_{i-1}) \text{ for } i = -1,1,
 %\end{equation}
 %where $0 < \alpha \ll 1$ and $\widehat{U}_i$ is a stable solution update for $0 \leq \lambda \leq \alpha$.  
-We call the finite volume method \eqref{eq:unstable1d} the base scheme.  
+The finite volume method \eqref{eq:unstable1d} is called the base scheme.  
 The maximum stable time step of the base finite volume scheme on this grid would 
 be $\Delta t \leq \alpha h/a$, which could be arbitrarily small.  
 
@@ -52,15 +53,15 @@ The blue arrows indicate the merging neighborhoods associated to the large
 cells $-3$, $-2$, $0$, $2$, and $3$, which are their own neighborhoods.  
 The red arrows indicate the neighborhoods of small cells $-1$ and $1$, which
 have temporarily merged with their left and right neighbors.  
-The numbers next to the arrows are the neighborhood index, which
-correspond to the cell indices in Fig. \ref{fig:ng1}.  
+%The numbers next to the arrows are the neighborhood index, which
+%correspond to the cell indices in Fig. \ref{fig:ng1}.  
 \label{fig:mn1}}
 \end{center}
 \end{figure}
 
 \subsubsection*{State redistribution preprocessing}
-Each cell in the base grid (both large and small) has a merging neighborhood associated to it, 
-where eace cell finds a set of neighbors with which to temporarily merge.
+Each cell in the base grid (both large and small) has a merging neighborhood associated to it.
+This is  a set of neighbors with which to temporarily merge.
 Neighborhoods share the same index as the cell that generated it.
 %The merging neighborhood associated to cell $i$ is called $M_i$. 
 Small cells merge with their neighbors until the volume of the merging neighborhood is greater than
@@ -83,12 +84,12 @@ method on the grid in Figure \ref{fig:ng1}.
 On each merging neighborhood, we compute a weighted solution average $\widehat Q_i$, where $i$ is the 
 index of the merging neighborhood. 
 $\widehat Q_i$ is computed by a convex combination of the averages $\widehat{U}_i$ of cells contained in the 
-merging neighborhood, weighted by number of neighborhoods. 
+merging neighborhood, weighted by the inverse of the number of its overlap count. 
 For example, on merging neighborhood $-1$, the weighted solution average is
 \begin{equation}\label{eq:neigh2}
 \widehat{Q}_{-1} = \frac{1}{\underbrace{h/2 + \alpha h + h/3}_{\text{weighted volume}}}\biggr( \underbrace{\frac{h}{2} \widehat{U}_{-2} + \alpha h \widehat{U}_{-1} + \frac{h}{3}\widehat{U}_{0}}_{\text{weighted mass}} \biggr).
 \end{equation}
-In formula \eqref{eq:neigh2}  for the weighted solution average,
+In formula \eqref{eq:neigh2}  for the weighted mass,
 the cell volume is divided by the number of neighborhoods that overlap the associated cell 
 in the base grid. 
 For example, the multiplier in front of $\widehat{U}_{-2}$ is $\frac{h}{2}$ since there are 
@@ -96,7 +97,7 @@ two neighborhoods (from cells $-1$ and $-2$) that overlap cell $-2$.
 Similarly, the multiplier in front of $\widehat{U}_{-1}$ is $\alpha h$ since there is only 
 one neighborhood (its own) that overlaps cell $-1$.
 Finally, the multiplier in front of $\widehat{U}_{0}$ is $\frac{h}{3}$ since there are three neighborhoods that overlap cell $0$, i.e., cell $0$ is overlapped by neighborhoods $-1$, $1$, and $0$.
-These multipliers are then divided by the weight volume,  $(h/2 + \alpha h + h/3)$.
+These multipliers are then divided by the weighted volume,  $(h/2 + \alpha h + h/3)$.
 i%since $\widehat{Q}_{-1} $ must be a convex combination of $\widehat{U}_{-2}$, $\widehat{U}_{-1}$, and $\widehat{U}_{0}$.
 The weighted solution average on merging neighborhood $1$ is similarly defined as
 \begin{equation}\label{eq:neigh3}
@@ -138,9 +139,12 @@ The state redistribution algorithm allows us to take full time steps as if there
 small cells in the grid.  However, it can be seen that the multipliers of $U^n_{i-1}$ and $U^n_{i+1}$ 
 in \eqref{eq:finalupdate} are negative when $\alpha$ is small enough.  This means that our scheme is not 
 monotone and thus not total variation diminishing.  We note that this is also the case for 
-with flux redistribution, so we are not concerned about the application of SRD in
-higher dimensions and more complicated problems. The computational examples in section
-\ref{sec:compResults} bear this out.  
+with flux redistribution, which has been successfully used in higher dimensions and more
+compicated problems, 
+so we are not concerned.
+%about the application of SRD in
+%higher dimensions and more complicated problems. 
+The computational examples in Section \ref{sec:compResults} bear this out.  
 
 \subsubsection*{Conservation}
 We now show that our modified scheme \eqref{eq:threeneigh}, \eqref{eq:twoneigh}, \eqref{eq:oneneigh} conserves mass.
@@ -151,7 +155,7 @@ For the portion of the grid in question, the total mass after state redistributi
 \end{equation}
 where $h_i$ is the local cell size.
 %i.e., $h_i = \alpha h$ for $i \neq -1,1$ and $h_i = h$ otherwise.
-Substituting expressions for the final update \eqref{eq:oneneigh}, \eqref{eq:twoneigh}, \eqref{eq:threeneigh} into \eqref{eq:tm1}, we obtain
+Substituting expressions for the final update \eqref{eq:threeneigh}, \eqref{eq:twoneigh}, \eqref{eq:oneneigh} into \eqref{eq:tm1}, we obtain
 \begin{equation}\label{eq:tm2}
 \begin{aligned}
 \sum_{i} h_i U^{n+1}_i  &= h \widehat{Q}_{-3} + \frac{h}{2}(\widehat{Q}_{-1}+\widehat{Q}_{-2}) \\
@@ -167,7 +171,7 @@ Grouping terms in \eqref{eq:tm2}, we have
 &+ \frac{h}{2}\widehat{Q}_{2} + h \widehat{Q}_3.
 \end{aligned}
 \end{equation}
-Substituting the expressions for the neighborhood averages \eqref{eq:neigh1}, \eqref{eq:neigh2}, \eqref{eq:neigh3} into \eqref{eq:tm3}, we obtain
+Substituting the expressions for the neighborhood averages \eqref{eq:neigh3}, \eqref{eq:neigh2}, \eqref{eq:neigh1} into \eqref{eq:tm3}, we obtain
 \begin{equation}\label{eq:tm4}
 \begin{aligned}
 \sum_{i} h_i U^{n+1}_i  &= h \widehat{U}_{-3} + \frac{h}{2}\widehat{U}_{-2} \\
@@ -192,12 +196,9 @@ Since the base scheme \eqref{eq:unstable1d} is conservative, it follows from
 
 
 
-The stabilized finite volume method \eqref{eq:threeneigh}, \eqref{eq:twoneigh}, \eqref{eq:oneneigh} is first order accurate in space and time.  In this work, we provide a framework to generalize the state redistribution method to two dimensional cut cell grids and to arbitrarily high-order accuracy in space and time.
-We will demonstrate that the maximum stable time step is not restricted by the small cells,
-and that the state redistribution method is conservative,
-$$
- \sum_{i}h_i U^{n+1} = \sum_{i}h_i \widehat{U}_i =  \sum_{i}h_i U^{n} .
-$$
+The stabilized finite volume method \eqref{eq:threeneigh}, \eqref{eq:twoneigh}, \eqref{eq:oneneigh} is first order accurate in space and time.  In this work, we provide a framework to generalize the state redistribution method to two dimensional cut cell grids and to high-order accuracy in space and time.
+We will demonstrate with numerical examples that the maximum stable time step is not restricted by the 
+small cells, and that the state redistribution method is conservative.
 
 
 

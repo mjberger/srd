@@ -22,7 +22,7 @@ are referred to as the base schemes.  Both schemes require linear
 reconstruction on grid cells,
 outlined in Section \ref{sec:limit}.  The high-order extension of MOL and SRD  will be described 
 in Appendix \ref{sec:ho}. Finally, both second order schemes evaluate the flux at
-the boundary in the examples of section \ref{sec:compResults} by extrapolating the
+the boundary in the examples of Section \ref{sec:compResults} by extrapolating the
 pressure to the boundary midpoint. Something more elaborate is done in the higher
 order case. 
 
@@ -46,9 +46,10 @@ where $\mathbf{U}_{i,j}$ is a vector of the cell averages on $\Omega_{i,j}$, $\p
 Second order accuracy in space is achieved by reconstructing a gradient on each
 cell and using it to evaluate the numerical flux at the face midpoints,
 illustrated in Figure \ref{fig:2dfig}.  
-In our numerical experiments, we use the local Lax-Friedrichs numerical flux to solve the Riemann problem at cell interfaces.
+In our numerical experiments, we use the local Lax-Friedrichs numerical flux to solve the Riemann 
+problem at cell interfaces. The integral in \eqref{eq:fvscheme} is  approximated using the midpoint rule.
 
-Second order accuracy in time is obtained by integrating \eqref{eq:fvscheme} in time using Heun's method.  This is a two-stage Runge Kutta method that can be written
+Second order accuracy in time is obtained by integrating \eqref{eq:fvscheme} using Heun's method.  This is a two-stage Runge Kutta method that can be written
 \begin{equation}\label{eq:molscheme}
 \begin{aligned}
 	\mathbf{U}^{(1)} &= \mathbf{U}^{n} + \Delta t L(\mathbf{U}^n), \\
@@ -124,16 +125,18 @@ interface $(i+1/2,j)$
 The values at the other interfaces of full cells are similarly defined.
 
 
-In the original method, the second term on the right-hand side
-of \eqref{eqn:taylor}  was approximated for example at edge
-$j-1/2$ by solving a Riemann
-problem between the centroid values of  $i,j$ and $i,j-1$,
-evaluating the flux $G$ using the solution to produce $G_{i,j-1/2}$, 
-and then differencing
-$(\mathbf{G}_{i,j+1/2} - \mathbf{G}_{i,j-1/2})/\Delta y$ to
-compute $\partial G_{i,j}/\partial y$. On a uniform mesh 
-the first order accurate errors in computing $G$
-in this procedure cancel, and the term itself is 
+In the original method,
+Riemann problems are solved in the transverse direction, e.g. between
+centroids $(i,j)$ and $(i,j-1)$, at the edge $j-1/2$, to produce
+$G_{i,j-1/2}$. 
+The terms were then differenced to compute 
+\begin{equation}
+\partial G_{i,j}/\partial y =  (\mathbf{G}_{i,j+1/2} - \mathbf{G}_{i,j-1/2})/\Delta y .
+\label{eqn:transdiff}
+\end{equation}
+On a uniform mesh 
+the first order accurate errors in computing \eqref{eqn:transdiff} 
+cancel, and the term itself is 
 multiplied by $\Delta t$ in \eqref{eqn:taylor}.
 For more details the reader is referred to \cite{Colella:Unsplit}.
 
@@ -151,7 +154,7 @@ are adjacent to a cut cell.  This is the situation
 in Figure \ref{fig:2dfig} for cell $(i,j+1)$, for example.
 
 Secondly, many cut cells will not have both edges in the
-transverese ($y$) direction. Instead, for all cut cells we
+transverse ($y$) direction. Instead, for all cut cells we
 instead compute
 $ \partial \mathbf{G}_{i,j}^n / \partial y = ( \partial \mathbf{G}_{i,j}^n / \partial \mathbf{U}_{i,j}^n)( \partial \mathbf{U}_{i,j}^n / \partial y)$,
 like the horizontal fluxes in \eqref{eqn:taylor}. This is linearly exact in the cut cells, 
@@ -161,7 +164,7 @@ altogether. There was no stability problem with this, but it
 does introduce an unnecessary difference from
 the interior scheme, and would not be linearly exact.
 
-\textit{Note:} it is the transverse derivative that provides the so-called corner 
+\textit{Note:} it is the transverse derivative term that provides the so-called corner 
 coupling, i.e. inclusion
 of corner cells in the stencil. This is what  gives  the MUSCL scheme a linear stability limit of
 \begin{equation}
@@ -173,10 +176,10 @@ where $(a,b)$ is the advection velocity.
 The trickiest term to adapt to cut cells was an artificial viscosity in the original method that was 
 added to each flux, with a
 coefficient proportional to the negative divergence of the flow.  The original
-code used a very large stencil to compute this divergence. We instead use a local 5
-point centered stencil to compute $u_x$ and $v_y$, and take the
-max over a $3 \times  3$
-neighborhood, so that cut cells get this dissipation too. 
+code used a large stencil to compute this divergence. We instead use a centered
+difference to compute $u_x$ and $v_y$, and where possible, and  
+take the max of this over a $3 \times  3$
+neighborhood centered around each cell, so that cut cells get this dissipation too. 
 
 \commentout{
 As remarked above, it is the transverse derivatives that allows for the larger time
@@ -239,7 +242,8 @@ u^n_{i,j}(x,y) = U_{i,j}^n + \sigma^n_{x,i,j} \,(x-x_{i,j}) +
                      \sigma^n_{y,i,j}\,(y-y_{i,j}),
 \label{eqn:lls}
 \end{equation}
-where $(i,j)$ is the index of either a cut cell or cell with an irregular stencil, $(\sigma^n_{x},\sigma^n_{y})_{i,j}$ and $(x,y)_{i,j}$ are its gradient and cell centroid, respectively. The least squares procedure finds the gradient that minimizes the $L_2$ residual when evaluating  $u_{i,j}(x,y)$ at a neighboring cell centroid. 
+where $(i,j)$ is the index of either a cut cell or cell with an irregular stencil, $(\sigma^n_{x},\sigma^n_{y})_{i,j}$ and $(x,y)_{i,j}$ are its gradient and cell centroid, respectively. The least squares procedure finds the gradient that minimizes the $L_2$ residual when evaluating  $u_{i,j}(x,y)$ at  
+neighboring cell centroids. 
 
 In this work, we consider both first and second order accurate 
 gradients.  The reconstructed first order gradient satisfies in the 
@@ -249,15 +253,15 @@ least squares sense
 \sigma^n_{y,i,j}(y_{r,s} - y_{i,j})=
 U^n_{r,s} - U^n_{i, j} \quad \forall (r,s) \in R_{i,j},
 \end{equation}
-where the set of cell indices used for slope reconstruction on cell $(i,j)$ in the base scheme is
-called $R_{i,j}$.  In this case, $R_{i,j}$ is the $3\times 3$ neighborhoood  centered on $(i,j)$.
+where $R_{i,j}$ is the set of cell indices used for slope reconstruction on cell $(i,j)$ in the 
+base scheme.  Here, $R_{i,j}$ is the $3\times 3$ neighborhoood  centered on $(i,j)$.
 The reconstructed second order gradient satisfies in the least squares sense
 \begin{equation}
 \begin{aligned}\label{eqn:linrecon_base2}
 &\sigma^n_{x,i,j}(x_{r,s} - x_{i,j}) +
 \sigma^n_{y,i,j}(y_{r,s} - y_{i,j})  + \\
 &\quad \frac{1}{2}\sigma^n_{xx,i,j}[(x_{r,s} - x_{i,j})^2 - S_{xx,i,j}]  + \\
-& \quad \; \sigma^n_{xy,i,j}[(x_{r,s} - x_{i,j})(y_{r,s} - y_{i,j})-S_{i,x,y}] +\\
+& \quad \; \sigma^n_{xy,i,j}[(x_{r,s} - x_{i,j})(y_{r,s} - y_{i,j})-S_{xy,i}] +\\
 &\quad  \frac{1}{2}\sigma^n_{yy,i,j}[(y_{r,s} - y_{i,j})^2 - S_{yy,i,j}]
  \; = \;  U^n_{r,s} - U^n_{i, j} \quad \forall (r,s) \in R_{i,j},
 \end{aligned}
@@ -270,7 +274,7 @@ Regular cells that are adjacent to a cut cell will also need special treatment t
 compute a second order accurate gradient. We have experimented with three  approaches
 and found almost indistinguishable results. Simplest is to use the 
 procedure mentioned above for cut cells
-- fit a least squares polynomial in the $5 \times 5$ neighborhood centered on that cell.
+- fit a least squares polynomial in the $3 \times 3$ neighborhood centered on that cell.
 We also tried $5 \times 5$ neighborhoods, in hope of smoother transitions between cut cells
 and the interior cells.  Finally, we tried using a centered
 gradient in only one dimension, if there was one, and using a recentering approach to 

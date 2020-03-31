@@ -12,12 +12,13 @@ The most commonly used stabilization algorithm is called flux
 redistribution \cite{chern:colella,vof:colella}. The main idea is illustrated below in two space
 dimensions for ease of notation.
 The update of the solution average 
-$U^n_{i,j}$ on cut cell $(i,j)$ with volume
-$V_{i,j}$ can be written
+$U^n_{i,j}$ on cut cell $(i,j)$ 
 \begin{equation*}
 V_{i,j} U_{i,j} ^{n+1}  = V_{i,j} U_{i,j}^n  -  \Delta t \sum_{k \in \text{ faces}}A_k \mathbf{F}_k^* \cdot \mathbf{n}_k,
 \end{equation*}
-Here, $\Delta t$ is the time step, $A_k$, $\mathbf{F}_k^*$, and $\mathbf{n}_k$ are the area, the numerical flux, and the outward facing normal on the $k$th face, respectively.
+Here, $\Delta t$ is the time step,
+volume $V_{i,j}$ is the cell volume,
+$A_k$, $\mathbf{F}_k^*$, and $\mathbf{n}_k$ are the area, the numerical flux, and the outward facing normal on the $k$th face, respectively.
 The above can also be written
 \begin{equation*}
 V_{i,j} U_{i,j} ^{n+1} = V_{i,j} U_{i,j}^n  +  \delta  M_{i,j} ,
@@ -74,7 +75,7 @@ Their version of cell linking uses a cluster of cells, while still maintaining e
 %However, since we are interested in methods
 %that preserve conservation we do not explore these alternatives further.
 
-In this paper we propose a framework for a stabilization algorithm in
+In this paper we propose a stabilization algorithm in
 the spirit of flux redistribution. Similar to flux redistribution, state
 redistribution is applied as a postprocessing step and is simple to implement,
 for the second order accurate case. An unstable update on all cells is
@@ -84,19 +85,18 @@ fluxes.  It is for this reason that we call it state redistribution.  Our
 approach is fully conservative and can be generalized to high order accuracy,
 albeit with  more complexity. The key insight over cell merging was to
 recognize that we could maintain both conservation and accuracy using a
-weighted convex combination of values that took into account the number of
+weighted convex combination of values that takes into account the number of
 overlapping cells in each stabilization neighborhood.
 
 The next section illustrates state redistribution (SRD) in one space dimension
 on a model problem, to give a more intuitive idea without all the details and 
 notation of second or higher order accuracy. 
-Section \ref{sec:basefv} discusses the evolution schemes
-to which SRD is applied, since the interior schemes need to be modified before
-applying to cut cells. Section \ref{sec:srdAlg} describes the second-order accurate
+Section \ref{sec:basefv} discusses the evolution schemes on cut cell meshes
+to which SRD is applied.
+Section \ref{sec:srdAlg} describes the second-order accurate
 algorithm in two space dimension.  Computational experiments with the
 two-dimensional Euler equations  are presented in
 Section \ref{sec:compResults}, and conclusions in Section \ref{sec:conc}. 
-
 Our SRD  algorithm has been extended
 to higher order. This is described in the Appendix, where third and fourth order
 convergence results are presented.
