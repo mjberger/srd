@@ -156,24 +156,85 @@ In this
 normalization we use $a_i = 1$, $p_i = 1/\gamma$. 
 The second order MOL scheme is used, and we march
 to steady state, until the maximum density update is below $10^{-10}$.  
+The solution is smooth, so no limiters are needed.
 The exact solution is used to set the ghost cells at the inflow and
 outflow boundaries. The domain size is 1.43 by 1.4301 (slightly different
 to prevent mesh  degeneracies).  
 
-We also use this example to compare the accuracy of two different formulations
-for the cut cell gradients, and the effect of state redistribution versus 
-marching to steady state using local time-stepping without SRD.  
-For first order gradients, we use a linear least squares reconstruction for
+In Table \ref{tab:ssv} we compare the accuracy of three different formulations
+for the cut cell gradients. 
+For first order accurate gradients, we use a linear least squares reconstruction for
 both the irregular cell gradient (cut cells and their one-away neighbors) 
-described in section \ref{sec:limit} , and the SRD gradients, which 
+described in Section \ref{sec:limit}, and the SRD gradients, which 
 update the cut cell solution after stabilization. Second order accurate 
 gradients fit a quadratic for both
-the cut cells and tiles, but only the first derivative terms are used; 
-the second order derivatives are subsequently ignored.  
-We discuss below the use of both a pointwise quadratic and a cell-averaged
-quadratic.
+the cut cells and tiles as described in Section \ref{sec:limit}, 
+but only the first derivative terms are used. 
+As an intermediate experiment, we  fit a quadratic using least squares but treating the
+cell averages as pointwise values at the cell centers. Here again
+the second derivative terms are ignored.  Note that this is not
+second order accurate, since the centroid value differs by $O(h^2)$
+from the pointwise value at the centroid. Nevertheless, this is frequently
+done since it is easier to implement, in particular for the SRD neighborhoods
+with irregular shapes. 
 
 
+
+{
+\small
+\begin{table}[h]
+\centering
+	\hspace*{-.3in}
+	\subfloat[$L_1$ volume errors. \label{tab:ex1_L1vol}]{
+		\begin{tabular}{|l|c|l|l|l|}
+			\hline
+			$h$ & $N_x, N_y$ & 1st order grad. & ptwise grad. & 2nd order grad.   \\
+			\hline
+			.5297 & 27 & 6.75e-3 & 2.76e-3 & 2.45e-3 \\
+			\hline
+			.2648 & 54  & 1.78e-4 (3.8)  & 6.38e-4 (4.3) & 4.71e-4 (5.2) \\
+			\hline
+			.1324 &108 & 3.63e-4 (4.9)  & 1.53e-4 (4.2) & 1.21e-4 (3.9) \\
+			\hline
+			.662E-2 & 216 & 6.52e-5 (5.6)  & 3.65 e-5  (4.2) & 2.98e-5 (4.1) \\
+			\hline
+			.331E-2 & 432 & 1.40e-5 (4.7)  & 8.85 e-6  (4.1) & 7.86e-6 (3.8) \\
+			\hline
+			.166E-2 & 864 & 2.68e-6 (5.2)  & 2.15 e-6  (4.1) & 2.04e-6 (3.9) \\
+			\hline \hline
+		\end{tabular}
+	}
+	\quad
+	\vspace*{.2in}
+	
+	\hspace*{-.3in}
+	\subfloat[$L_1$ boundary errors. \label{tab:ex1_L1bndry}]{
+		\begin{tabular}{|l|c|l|l|l|l|}
+			\hline
+	    $h$ &  $N_x, N_y$   & 1st order grad.  & ptwise grad. &  2nd order grad.    \\
+	\hline
+     .5297 & 	27  &   6.84e-02 &  3.31e-02  & 2.37e-2\\
+	\hline
+     .2648 &	54  &   2.83e-02 (2.4) &  1.21e-02 (2.7)  & 8.18E-3  (2.9) \\
+	\hline
+      .1324 &	108 &   1.03e-02  (2.8)&  4.69e-03 (2.6) & 3.45E-3 (2.4) \\
+	\hline
+     .662E-2 &	216 &   3.65e-03  (2.8) &  1.82e-03 (2.6) & 1.38e-3 (2.5) \\
+			\hline
+    .331E-2 &	432 &   1.24e-03  (3.0)  &  7.18e-04 (2.6) & 6.15e-4 (2.2) \\
+			\hline
+    .166E-2 &	864 &   3.96e-04  (3.1)  &  2.85e-04 (2.6) & 2.58e-4 (2.4) \\
+			\hline \hline
+		\end{tabular}
+	}
+	
+	\caption{\sf L1 norm of the error in the domain volume and along the boundary,
+        for the supersonic vortex example. The error using first order accurate
+        gradients, pointwise quadratic, and fully second order accurate gradients is shown. 
+        Pointwise quadratic gradients have half of the error than first order gradients. 
+        Truly second order accurate gradients are even better, especially on coarser grids. \label{tab:ssv}}
+\end{table}
+}
 
 We measure the $L_1$ norm of the error in the volume,   $\sum_{i,j} \,
 V_{ij} \lvert e_{ij } \rvert$ and at the boundary, $ \sum_{{i,j} \in \partial \Omega} \, A_{ij} \lvert e_{ij
@@ -185,66 +246,21 @@ For easier comparison with other papers we also give the mesh size
 to a few digits. In  a cut cell mesh there are both solid and
 flow cells, so the total number of cell is larger than the number of
 flow cells, and not as easy to compare as the mesh spacing.
+All interior cells use the evolution scheme and gradients, so
+the difference in the errors are solely due to the cut cell gradients.
 
-{
-\small
-\begin{table}[h]
-\centering
-	\hspace*{-.3in}
-	\subfloat[$L_1$ volume errors. \label{tab:ex1_L1vol}]{
-		\begin{tabular}{|l|c|l|l||l|l|}
-			\hline
-			$h$ & $N_x ,N_y$ & \multicolumn{2}{|c||}{Local Time Stepping (no SRD)} & \multicolumn{2}{|c|}{State Redistribution}  \\
-			\hline
-			& & 1st order grad. & 2nd order grad. & 1st order grad. & 2nd order grad. \\
-			\hline
-			.5297 & 27 & 6.09e-3  & 2.58e-3 & 6.75e-3 & 2.76e-3 \\
-			\hline
-			.2648 & 54  & 1.67e-3  (3.6)  & 6.39e-4 (4.0) & 1.78e-4 (3.8)  & 6.38e-4 (4.3) \\
-			\hline
-			.1324 &108 & 3.41e-3  (4.9)  & 1.50e-4 (4.3) & 3.63e-4 (4.9)  & 1.53e-4 (4.2) \\
-			\hline
-			.662E-2 & 216 & 6.62e-5  (5.2)  & 3.61e-5 (4.2) & 6.52e-5 (5.6)  & 3.65 e-5  (4.2)\\
-			\hline
-			.331E-2 & 432 & 1.34e-5  (4.9)  & 8.70e-6 (4.1) & 1.40e-5 (4.7)  & 8.85 e-6  (4.1)\\
-			\hline
-			.166E-2 & 864 & 2.59e-6  (5.2)  & 2.11e-6 (4.1) & 2.68e-6 (5.2)  & 2.15 e-6  (4.1)\\
-			\hline \hline
-		\end{tabular}
-	}
-	\quad
-	\vspace*{.2in}
-	
-	\hspace*{-.3in}
-	\subfloat[$L_1$ boundary errors. \label{tab:ex1_L1bndry}]{
-		\begin{tabular}{|l|r|l|l||l|l|}
-			\hline
-	          $h$  & $N_x , N_y$ & \multicolumn{2}{c||}{Local Time Stepping (no SRD)} & \multicolumn{2}{c|}{State Redistribution}  \\
-	\hline
-	    &    & 1st order grad.  & 2nd order grad.  & 1st order grad.  & 2nd order grad.  \\
-	\hline
-     .5297 & 	27  &  6.75e-02       &   3.41e-02 &  6.84e-02 &  3.31e-02 \\
-	\hline
-     .2648 &	54  &  2.79e-02  (2.4) &   1.27e-02 (2.7)  &  2.83e-02 (2.4) &  1.21e-02 (2.7) \\
-	\hline
-      .1324 &	108 &  1.00e-02  (2.8) &   4.81e-03  (2.7) &  1.03e-02  (2.8)&  4.69e-03 (2.6)\\
-	\hline
-     .662E-2 &	216 &  3.51e-03  (2.9) &   1.88e-03  (2.6) &  3.65e-03  (2.8)&  1.82e-03 (2.6) \\
-			\hline
-    .331E-2 &			432 &  1.21e-03  (2.9) &   7.23e-04 (2.6)  &  1.24e-03  (3.0)  &  7.18e-04 (2.6) \\
-			\hline
-    .166E-2 &		864 &  3.78e-04  (3.2) &   2.82e-04 (2.6)  &  3.96e-04  (3.1)  &  2.85e-04 (2.6) \\
-			\hline \hline
-		\end{tabular}
-	}
-	
-	\caption{\sf L1 norm of the error in the domain volume and along the boundary,
-        for the supersonic vortex example. The error using first order accurate
-        gradients and second order accurate gradients is compared, as are  the result
-        of using local time stepping (LTS, which does not require SRD)
-        versus using SRD and a full $\Delta t$.\label{tab:ssv}}
-\end{table}
-}
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[height=3.0in]{figs/gradientConv.pdf}
+		\caption{\sf Convergence in the L1 norm of the error in the entire 
+			domain  (solid line), and along the boundary (dashed line).
+			The reference line has slope 2 next to the domain error. The convergence
+			rate at the boundary is between 1.38 and 1.5
+			along the boundary.
+			\label{fig:ssv}}
+	\end{center}
+\end{figure}
+
 
 Note that the error at the cut cells is larger than in the volume, and has a
 slower convergence rate. Since the number of cut cells grows only
@@ -255,46 +271,52 @@ between 1.38 and 1.5.
 This has also been found in other cut cell studies \cite{KB:2006,nemec_tm14}, and 
 is not due to SRD.
 
-Figure \ref{fig:ssv} shows that using second order cut cell gradients is about
-a factor of 2 more accurate on coarser grids. Ultimately the gradient
+Figure \ref{fig:ssv} and Table \ref{tab:ssv}  show that using pointwise 
+quadratic cut cell gradients is roughly
+a factor of 2 more accurate on coarser grids.  The more complicated second order
+acccurate gradient is even more accurate, especially on coarser grids.  Ultimately the gradient
 error is reduced, and the error curves for the first and second order 
 accurate gradients approach each other. 
-Figure \ref{fig:ssv} also shows a comparison of the error in the converged
+
+
+We also use this example to compare the effect of state redistribution versus 
+marching to steady state using local time-stepping without SRD.  
+Table  \ref{tab:ssv2} shows a comparison of the error in the converged
 solution using local time stepping (LTS)  without SRD, and the error with full timesteps and
-SRD stabilization, using  first and second order gradients.
-The curves lie on top of each other, showing that 
+SRD stabilization, both using  first order accurate gradients. 
+The errors are essentially identical, showing that 
 SRD does not degrade the computed solution with too much diffusion due
-to the merging neighborhoods.
+to the merging neighborhoods. This holds across all the other
+gradient formulations too.
 
-We experimented with using both pointwise quadratics, and those discussed in
-section \ref{sec:limit} where it is the integral of the polynomial that should match the
-neighborboring cell averages in the least squares equations. In Table \ref{tab:ssv}  and
-Figure \ref{fig:ssv} the pointwise quadratic reconstruction is presented. 
-This is a common practise, since it provides better results than first order
-gradients and is it much easier to implement (although for computing gradient
-of cut cells it is not really difficult). 
-Technically it does not produce a second order accurate gradient.
-On SRD neighboroods the integral average  is more complicated 
-to implement since one needs to compute the weighted volumes of the
-merging neighborhoods. 
-The results however are almost 10\% more 
-accurate on the coarser grids for cut-cell gradients alone using LTS,
-and range from  5 to 25\% more accurate for SRD reconstruction. 
-MAYBE GIVE SEPARATE TABLE FOR THIS. 20  IS A LOT
-%More information about the first and second order gradient reconstructions can be 
-%found in Sections \ref{sec:limit} and \ref{sec:srd_postprocessing}.
 
-\begin{figure}[t]
-	\begin{center}
-		\includegraphics[height=3.0in]{figs/ssvconv.pdf}
-		\caption{\sf Convergence in the L1 norm of the error in the entire 
-			domain  (solid line), and along the boundary (dashed line).
-			The reference line has slope 2 next to the domain error. The convergence
-			rate at the boundary is between 1.38 and 1.5
-			along the boundary.
-			\label{fig:ssv}}
-	\end{center}
-\end{figure}
+{
+\small
+\begin{table}[h]
+\centering
+ 	\begin{tabular}{|l|c|l|l||l|l|} \hline
+ 		$h$ & $N_x ,N_y$ & \multicolumn{2}{|c|} {Volume Error} & \multicolumn{2}{|c|}{Boundary Error} \\ 
+                \hline
+ 		    &            & {LTS (no SRD)} & SRD  & LTS (no SRD)  & SRD  \\ \hline
+ 			.5297 & 27 & 6.09e-3  &  6.75e-3   &  6.75e-02       &  6.84e-02 \\
+ 			\hline
+ 			.2648 & 54  & 1.67e-3  (3.6)  & 1.78e-4 (3.8)  &  2.79e-02  (2.4) &  2.83e-02 (2.4) \\
+ 			\hline
+ 			.1324 &108 & 3.41e-3  (4.9)  & 3.63e-4 (4.9)   &  1.00e-02  (2.8) &  1.03e-02  (2.8)\\
+ 			\hline
+ 			.662E-2 & 216 & 6.62e-5  (5.2)  & 6.52e-5 (5.6)  &  3.51e-03  (2.9) &  3.65e-03  (2.8)\\
+ 			\hline
+ 			.331E-2 & 432 & 1.34e-5  (4.9)  & 1.40e-5 (4.7)  &  1.21e-03  (2.9) &  1.24e-03  (3.0)  \\
+ 			\hline
+ 			.166E-2 & 864 & 2.59e-6  (5.2)  & 2.68e-6 (5.2)  &  3.78e-04  (3.2) &  3.96e-04  (3.1)  \\
+ 			\hline \hline
+ 	\end{tabular}
+ 	\caption{\sf Comparison of errors using local time stepping, which does not use SRD, 
+        and regular time stepping with SRD. (The SRD errors are repeated here for easier
+        comparison.) The errors are commensurate, showing that SRD does not 
+        degrade the solution with too much diffusion. \label{tab:ssv2}}
+\end{table}
+}
 
 
 
@@ -319,7 +341,7 @@ For comparison, this is also the time shown in \cite{mjb-hel-rjl:hbox2}.
 Here and in \cite{mjb-hel-rjl:hbox2}, the front of the cylinder where the
 maximum density is found is better behaved with the one-step methods than with
 MOL.  The method of lines solution is smoother around the boundary than our
-MUSCLvariant.
+MUSCL variant (see Figure \ref{fig:cylbndry}).
 
 \begin{figure}[h]
 \begin{center}

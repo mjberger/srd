@@ -285,23 +285,12 @@ and involves more testing.
 For problems with discontinuities, the gradient will need to be limited
 to prevent overshoots and retain positivity for quantities like density and
 pressure.
-We use two approaches to limiting on cut cell grids: the Barth Jespersen limiter \cite{barth-jespersen}, and the LP limiter \cite{May_Berger_LP}.
-%We use two possible methods, and take this opportunity to
-%compare them in the some of the 
-%computational examples.
-%The simplest procedure is to use the Barth Jespersen (BJ) limiter
-%\cite{barth-jespersen}. 
-The Barth Jespersen (BJ) limiter is a scalar limiter, where both $\sigma_{x,i,j}$ and $\sigma_{y,i,j}$ are reduced by the same scalar that prevents new extrema.  
-% TOOK OUT SINCE USING MC NOT BJ IN INTERIOR RIGHT NOW
-% The BJ limiter  can also be
-%used in the interior of the mesh, and so is closer to the base scheme. 
-To limit using BJ, we compute the minimum and maximum values over the reconstruction stencil $R_{i,j}$, 
-%\begin{equation} 
-%     m_{i,j} = \max_{(r,s) \in R_{i,j}} u^n_{r,s}(x_{r,s}, y_{r,s}) \text{ and } 
-%     M_{i,j} = \max_{(r,s) \in R_{i,j}} u^n_{r,s}(x_{r,s}, y_{r,s}).
-%\label{eqn:bj}
-%\end{equation}
-%or equivalently
+We use the Barth Jespersen (BJ)  limiter \cite{barth-jespersen} to limit on 
+cut cell grids. 
+This is a scalar limiter, where both $\sigma_{x,i,j}$ and $\sigma_{y,i,j}$ 
+are reduced by the same scalar to prevent new extrema.  
+We compute the minimum and maximum values over the reconstruction 
+stencil $R_{i,j}$, 
 \begin{equation} 
 m_{i,j} = \max_{(r,s) \in R_{i,j}} U^n_{r,s} \text{ and } 
 M_{i,j} = \max_{(r,s) \in R_{i,j}} U^n_{r,s}.
@@ -336,17 +325,10 @@ Then choose
 \end{equation}
 
 By reconstructing to the neighboring cell centroids, this procedure is linearity preserving.  
-%The points to which the solutions are reconstructed in
-%\eqref{eq:bj_alpha}, i.e. $(x_{r,s}, y_{r,s})$, are contained in the convex hull of the points at
-%which the minima and maximums in \eqref{eqn:bj1} are computed, see \cite{giuliani2018analysis} for a detailed analysis of Barth Jespersen limiters on unstructured meshes.
+
 The approach described above differs slightly from the original Barth-Jespersen limiter in
 \cite{barth-jespersen}, where the numerical solution is reconstructed to 
 points on cell interfaces.
 This is often the procedure used on unstructured meshes. However cut cell meshes are much more
 irregular and without this fix BJ can lead to much less accurate solutions.
-%It is for this reason that we reconstruct to the neighboring centroids in \eqref{eq:bj_alpha}.
-
-Our numerical experiments will also use the LP limiter. This is a vector limiter where both components 
-of the gradient are reduced by the smallest amount that still satisfies some overshoot and positivity constraints. A small LP problem is solved to  obtain these quantities.
-The LP limiter retains more of the original gradient and is less diffusive than the BJ limiter at cut cells, but is roughly twice the computational cost. We will always specify which limiter is used in the numerical experiments.  
 
