@@ -386,25 +386,46 @@ at time t=0.25.  The MOL scheme has smoother results.}
 
 \clearpage
 
-\subsection{Double Mach Reflection problem}
-In this section, we reflect a Mach 10 shock obliquely over a wedge, where the shock and wall form a $60^{\circ}$ angle.  
-This problem is solved on $[0,3]\times[0,2]$, with an angled wall embedded in the domain (Figure \ref{fig:dmnca}).  
-We use the finite volume TVD-RK2 scheme with second order slopes on the base grid and neighborhoods, limited using Barth Jeserpsen.
-%The goal of this test is to demonstrate that qualitatively comparable solutions are obtained, regardless of the orientation of the embedded boundary with respect to the underlying Cartesian grid.  
-The solution to this problem is a complex, self-similar reflection pattern composed of incident and reflected shocks, Mach stem, and a contact discontinuity \cite{WOODWARD1984115}.  
-The contact discontinuity is an unstable feature of the solution that can be difficult to resolve correctly, especially in the neighborhood of the reflecting boundary, e.g., carbuncle phenomenon \cite{KEMM2018596}.
+\subsection{Double Mach Reflection problem}\label{sec:dm}
+In this section, we reflect a Mach 10 shock obliquely over a wedge, 
+where the shock and wall form a $60^{\circ}$ angle.  
+The problem domain is $[0,3.0]\times[0,1.75]$, with an angled wall 
+passing through the point $(1/6,0)$ . The ramp is outlined in red in Figure
+\ref{fig:dm}.
+We use the finite volume MUSCL scheme with second order slopes on the base 
+grid and SRD neighborhoods, and limit using Barth Jespersen.
+The solution to this problem is a complex, self-similar reflection pattern 
+composed of incident and reflected shocks, Mach stem, and a contact 
+discontinuity \cite{WOODWARD1984115,rkdg5}.  
+The contact discontinuity is an unstable feature of the solution that can be 
+difficult to resolve correctly, especially in the neighborhood of the 
+reflecting boundary where the carbuncle phenomenon can occur \cite{KEMM2018596}.
 
-The solution at the final time $T = 0.2$ is plotted in Figure \ref{fig:dm}, where the grid resolution is $\Delta x = \Delta y = 1/120$.
+The solution at the final time $T = 0.2$ is plotted in Figure \ref{fig:dm}, 
+where the grid resolution is $\Delta x = \Delta y = 1/240$.
+We obtain qualitatively comparable results to those in \cite{rkdg5} on 
+the same grid resolution. We also show for comparison the results using 
+$\Delta x = \Delta y = 1/480$, also done in \cite{rkdg5}. Again, the
+improvement is very similar. Finally, in Figure \ref{fig:wedgeBndry} we
+show the density along the boundary for the two resolutions. Despite the
+irregularity of the cut cells, the solution is very smooth. The smallest
+cut cell in the coarser grid has volume fraction 1.65e-6. On the finest
+grid the smallest volume fraction is 2.95e-7. 
 
-%We solve this shock reflection problem on a domain with a coordinate-aligned reflecting wall and on another domain with a non-coordinate-aligned reflecting wall.
-%The former is the rectangular domain $[0,4] \times [0,1]$, where shock intersects the horizontal wall at $(0.5,0)$ (Figure \ref{fig:dmca}).
-
-\begin{figure}
-	\centering
-	\includegraphics[width = 0.5\linewidth]{figs/dmnca}
-	\caption{Non-coordinate aligned reflecting boundary.}\label{fig:dmnca}
-\end{figure} 
-
-%We plot the solution at the final time $T = 0.2$ in Figure \ref{fig:dm}.
-
+\begin{figure}[h]
+\centering
+\begin{center}
+%\includegraphics[width=0.48\linewidth]{figs/doublemach.png}
+%\includegraphics[width=0.48\linewidth]{figs/doublemach_zoom.png}
+%\includegraphics[width=1.1\linewidth]{figs/doubleMach.pdf}
+\hspace*{-.25in}
+\includegraphics[width=1.1\linewidth]{figs/doubleMach240.pdf}
+\includegraphics[width=1.1\linewidth]{figs/doubleMach480.pdf}
+\caption{\sf Density plot and isolines of a Mach 10 shock impinging 
+obliquely on a wedge at time $t = 0.2$ where $\Delta x = \Delta y =
+1/240$ (top) and 1/480 (bottom).
+The solution on the full domain is shown adjacent to a zoom of the Mach 
+stem region.  Sixty isolines between 1.39 and 21.0 are drawn.}\label{fig:dm}
+\end{center}
+\end{figure}
 
