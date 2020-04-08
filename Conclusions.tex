@@ -1,1 +1,8 @@
 \section{Conclusions}\label{sec:conc}
+We have presented a  state redistribution algorithm to solve the small cell problem on cut cell meshes.  It is conservative, allows for overlapping temporary merging neighborhoods so is easy to implement, and is linearity preserving.   
+Numerical experiments show that on smooth problems, second order accuracy is maintained, and the solution is not degraded by the postprocessing. For problems with shocks, the scheme maintains robustness at the cut cells.
+We have shown experiment using SRD on two different base schemes, but it should be 
+applicable to any underlying numerical method that uses control volumes. 
+
+It seems clear that the scheme can be extended to higher order accuracy, when used in conjunction with a 
+higher order base scheme. We have already started this work. But since it brings in many new features, we leave that for another day.  We also hope to apply this scheme to different sets of equations, and to three-dimensional applications.

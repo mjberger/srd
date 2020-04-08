@@ -135,7 +135,6 @@ properties of different gradient choices and base schemes.
 %In Figure \ref{fig:waveyisolines}, we show the isolines of the exact solution at the initial and final times.  Additionally, Figure \ref{fig:waveynumhoods} shows the number of overlapping neighborhoods on each cell.  In this example, we have at most three overlapping neighborhoods.  They are concentrated where the boundary has high curvature.   We do not observe growth in the numerical solution as indicated by $L_1$, $L_\infty$ errors of the solution at the final time listed in Table \ref{tab:overlappingerrors}.  Although this experiment does not prove stability of our numerical scheme, not observing unbounded growth in the numerical solution is a necessary condition.
 
 
-%\subsection{Nonlinear fluxes}
 \subsection{Supersonic vortex study}\label{sec:ssv}
 We compute the solution to a supersonic flow 
 around a quarter circle.  This problem has often been used in accuracy 
@@ -401,6 +400,22 @@ The contact discontinuity is an unstable feature of the solution that can be
 difficult to resolve correctly, especially in the neighborhood of the 
 reflecting boundary where the carbuncle phenomenon can occur \cite{KEMM2018596}.
 
+\begin{figure}[h]
+\centering
+%\includegraphics[width=0.48\linewidth]{figs/doublemach.png}
+%\includegraphics[width=0.48\linewidth]{figs/doublemach_zoom.png}
+%\includegraphics[width=1.1\linewidth]{figs/doubleMach.pdf}
+\hspace*{-.25in}
+\includegraphics[width=1.1\linewidth]{figs/doubleMach240.pdf}
+\hspace*{-.25in}
+\includegraphics[width=1.1\linewidth]{figs/doubleMach480.pdf}
+\caption{\sf Density plot and isolines of a Mach 10 shock impinging 
+obliquely on a wedge at time $t = 0.2$ where $\Delta x = \Delta y =
+1/240$ (top) and 1/480 (bottom).
+The solution on the full domain is shown adjacent to a zoom of the Mach 
+stem region.  Sixty isolines between 1.39 and 21.0 are drawn.}\label{fig:dm}
+\end{figure}
+
 The solution at the final time $T = 0.2$ is plotted in Figure \ref{fig:dm}, 
 where the grid resolution is $\Delta x = \Delta y = 1/240$.
 We obtain qualitatively comparable results to those in \cite{rkdg5} on 
@@ -414,18 +429,11 @@ grid the smallest volume fraction is 2.95e-7.
 
 \begin{figure}[h]
 \centering
-\begin{center}
-%\includegraphics[width=0.48\linewidth]{figs/doublemach.png}
-%\includegraphics[width=0.48\linewidth]{figs/doublemach_zoom.png}
-%\includegraphics[width=1.1\linewidth]{figs/doubleMach.pdf}
-\hspace*{-.25in}
-\includegraphics[width=1.1\linewidth]{figs/doubleMach240.pdf}
-\includegraphics[width=1.1\linewidth]{figs/doubleMach480.pdf}
-\caption{\sf Density plot and isolines of a Mach 10 shock impinging 
-obliquely on a wedge at time $t = 0.2$ where $\Delta x = \Delta y =
-1/240$ (top) and 1/480 (bottom).
-The solution on the full domain is shown adjacent to a zoom of the Mach 
-stem region.  Sixty isolines between 1.39 and 21.0 are drawn.}\label{fig:dm}
-\end{center}
+\includegraphics[width=.7\linewidth]{figs/rampWall.png}
+\caption{\sf Density plotted along the wall, as a function of distance from
+the lower left corner of the domain. The coarser grid has a bit of
+oscillation after the ramp starts, but it is gone on the finer grid
+solution.} \label{fig:wedgeBndry}
 \end{figure}
+
 

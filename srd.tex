@@ -35,14 +35,33 @@
 \DeclareMathAlphabet\mathbfcal{OMS}{cmsy}{b}{n}
 
 \begin{document}
+\date{}
 
-\title{A state redistribution algorithm for cut cells}
+\title{A state redistribution algorithm for finite volume schemes
+on cut cell meshes}
 \author{Marsha Berger\footnote{Courant Institute, New York University, 251 Mercer St.,
 NY, NY 10012}  \hspace{1in} Andrew Giuliani $^*$}
 
 \maketitle
 
 \begin{abstract}
+In this paper we develop a new technique, called \textit{state redistribution}, 
+that allows the use of explicit time stepping when approximating
+solutions to hyperbolic conservation laws on embedded boundary grids.  
+State redistribution is a postprocessing technique applied after each time 
+step of the base finite volume scheme, using a time step $\Delta t$ 
+that is proportional to the volume of the full cells.  The idea is to 
+stabilize the cut cells by temporarily merging them into larger, 
+possibly overlapping, neighborhoods, 
+then replacing the cut cell values with a stabilized value
+that maintains conservative and is accurate.
+We present examples of state redistribution using two base schemes:
+MUSCL and a second order Method of Lines finite volume scheme. 
+State redistribution is used to compute solutions to several 
+standard test problems in gas dynamics on cut cell meshes, with both
+smooth and discontinuous solutions. We show that our method does not 
+reduce the accuracy of the base scheme in smooth regions of the solution and 
+that it successfully captures shocks in a non-oscillatory manner.
 \end{abstract}
 
 \input{intro.tex}
@@ -51,7 +70,7 @@ NY, NY 10012}  \hspace{1in} Andrew Giuliani $^*$}
 \input{alg.tex}
 \input{compResults.tex}
 \input{Conclusions}
-\input{hoalg.tex}
+%\input{hoalg.tex}
 
 
 %\subsection*{Acknowledgments} 

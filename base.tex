@@ -20,11 +20,12 @@ We will use two different second order discretizations of \eqref{eq:conslaw2D}: 
 These fully discrete finite volume methods, described in Section \ref{sec:mol} and \ref{sec:muscl},
 are referred to as the base schemes.  Both schemes require linear 
 reconstruction on grid cells,
-outlined in Section \ref{sec:limit}.  The high-order extension of MOL and SRD  will be described 
-in Appendix \ref{sec:ho}. Finally, both second order schemes evaluate the flux at
+outlined in Section \ref{sec:limit}.  
+%The high-order extension of MOL and SRD  will be described in Appendix \ref{sec:ho}. 
+Finally, both second order schemes evaluate the flux at
 the boundary in the examples of Section \ref{sec:compResults} by extrapolating the
-pressure to the boundary midpoint. Something more elaborate is done in the higher
-order case. 
+pressure to the boundary midpoint. 
+%Something more elaborate is done in the higher order case. 
 
 \begin{figure}
 \begin{center}
@@ -46,8 +47,8 @@ where $\mathbf{U}_{i,j}$ is a vector of the cell averages on $\Omega_{i,j}$, $\p
 Second order accuracy in space is achieved by reconstructing a gradient on each
 cell and using it to evaluate the numerical flux at the face midpoints,
 illustrated in Figure \ref{fig:2dfig}.  
-In our numerical experiments, we use the local Lax-Friedrichs numerical flux to solve the Riemann 
-problem at cell interfaces. The integral in \eqref{eq:fvscheme} is  approximated using the midpoint rule.
+In our numerical experiments, we use the local Lax-Friedrichs numerical 
+flux to solve the Riemann problem at cell interfaces. The integral in \eqref{eq:fvscheme} is  approximated using the midpoint rule.
 
 Second order accuracy in time is obtained by integrating \eqref{eq:fvscheme} using Heun's method.  This is a two-stage Runge Kutta method that can be written
 \begin{equation}\label{eq:molscheme}
@@ -88,7 +89,7 @@ $U^{(1)}$ and $U^{(2)}$ in \eqref{eq:molscheme}, before they are added to form $
 The MUSCL scheme is a one step method that is second order accurate in
 space and time. A series of MUSCL schemes  was originated by van Leer 
 \cite{vanleer:muscl}. The version we use\footnote{Thanks to Phil 
-Colella for the original Cartesian mesh code and for helpful discussions on the shear
+Colella for the original Cartesian mesh code and Riemann solver,  and for helpful discussions on the shear
 layer instability and artificial viscosity.}
 is due to Colella \cite{Colella:Unsplit}.
 The method is briefly sketched here so that we can describe how it was
@@ -261,7 +262,7 @@ The reconstructed second order gradient satisfies in the least squares sense
 &\sigma^n_{x,i,j}(x_{r,s} - x_{i,j}) +
 \sigma^n_{y,i,j}(y_{r,s} - y_{i,j})  + \\
 &\quad \frac{1}{2}\sigma^n_{xx,i,j}[(x_{r,s} - x_{i,j})^2 - S_{xx,i,j}]  + \\
-& \quad \; \sigma^n_{xy,i,j}[(x_{r,s} - x_{i,j})(y_{r,s} - y_{i,j})-S_{xy,i}] +\\
+& \quad \; \sigma^n_{xy,i,j}[(x_{r,s} - x_{i,j})(y_{r,s} - y_{i,j})-S_{xy,i,j}] +\\
 &\quad  \frac{1}{2}\sigma^n_{yy,i,j}[(y_{r,s} - y_{i,j})^2 - S_{yy,i,j}]
  \; = \;  U^n_{r,s} - U^n_{i, j} \quad \forall (r,s) \in R_{i,j},
 \end{aligned}

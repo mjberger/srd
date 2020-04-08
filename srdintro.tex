@@ -36,29 +36,31 @@ in Figure \ref{fig:ng1}(b) with two small cells at $i = -1$ and $1$.
 \caption{\sf Model problem in one space dimension on nonuniform base grid.
 On the left there is one small cell at $i=0$. The right grid has two small 
 cells  at $i = -1$ and $1$.  The small and large cell 
-sizes are $\alpha h$ ($0<\alpha \le 1$), and $h$, respectively. \label{fig:ng1}}
+sizes are $\alpha h$ ($0<\alpha < 1$), and $h$, respectively. \label{fig:ng1}}
 \end{center}
 \end{figure}
 
 On the grid in Figure \ref{fig:ng1}(a), cell merging might look like this.
 First, after the unstable update in \eqref{eq:unstable1d}, form the 
-volume-weighted merged cell $Q_0$:
+volume-weighted merged cell $\widehat{Q}_0$:
 \begin{equation}
-Q_0 = \frac{\widehat{U}_{-1} + \alpha \,  \widehat{U_0} + 
-\widehat{U_1}}{2+\alpha} .
+\widehat{Q}_0 = \frac{\widehat{U}_{-1} + \alpha \,  \widehat{U}_0 + 
+\widehat{U}_1}{2+\alpha} .
 \end{equation}
 The cells comprising the merged cell
-are then replaced by $Q_0$:
+are then replaced by $\widehat{Q}_0$:
 \begin{equation}
-U_{-1}^{n+1} = U_0^{n+1} = U_1^{n+1} = Q_0
+\widehat{U}_{-1}^{n+1} = \widehat{U}_0^{n+1} = \widehat{U}_1^{n+1} =
+\widehat{Q}_0
 \end{equation}
 This is easily seen to be conservative by checking that
 \begin{equation}
-U_{-1}^{n+1} + \alpha \, U_0^{n+1} + U_1^{n+1} = (2+\alpha) \, Q_0 =
-\widehat{U}_{-1} + \alpha \, \widehat{U}_{0} +  \widehat{U}_{1}
+h \, (U_{-1}^{n+1} + \alpha \, U_0^{n+1} + U_1^{n+1})
+= (2+\alpha) h \,  \, \widehat{Q}_0 =
+ \, (\widehat{U}_{-1} + \alpha \, \widehat{U}_{0} +  \widehat{U}_{1})
 \end{equation}
-which equals the values at time $n$  except for the flux in and out of this
-region.
+which equals the values at time $t^n$  except for the mass entering and
+leaving this region.
 
 
 Next, consider the more complicated case of Figure \ref{fig:ng1}(b).
@@ -66,11 +68,13 @@ Five cells (indexed by $-3$, $-2$, $0$, $2$, $3$) are large
 with size $h$ and the remaining two cells (indexed by $-1$ and $1$) 
 are small with size $\alpha h$.
 A first approach to cell merging on this grid
-might be to make two merging neighborhoods, $Q_{-1}$
-comprising $u_{-2},u_{-1},u_0$, and $Q_1$ comprising $u_0, u_1$ and $u_2$.
+might be to make two merging neighborhoods, $\widehat{Q}_{-1}$
+comprising $u_{-2},u_{-1},u_0$, and $\widehat{Q}_1$ comprising $u_0, u_1$ 
+and $u_2$.
 The first order version here would assign cells as before, except that
 since cell 0 belongs to two neighborhoods, it seems  reasonable
-to assign $u_0 = \frac{1}{2} (Q_{-1} + Q_1).$  It can quickly be  seen however
+to assign $u_0 = \frac{1}{2} (\widehat{Q}_{-1} + \widehat{Q}_1).$  
+It can quickly be  seen however
 that this is not conservative. 
 
 This motivates the state redistribution

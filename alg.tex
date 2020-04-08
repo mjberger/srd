@@ -1,9 +1,8 @@
 \section{State redistribution in two dimensions}\label{sec:srdAlg}
 
-For simplicity, we restrict our description to the second order accurate state redistribution
-algorithm here. The higher order version needs more notation, and will be presented in 
-Appendix \ref{sec:ho}.  
-We also show that SRD preserves linear functions and is conservative, since
+This section describes the second order accurate
+state redistribution algorithm. 
+We will show that SRD preserves linear functions and is conservative, since
 it is not obvious that the unusual weightings in our algorithm
 preserve these important properties.
 
@@ -402,8 +401,13 @@ The outer loop iterates over the merging neighborhoods $(i,j)$ and the inner loo
 \subsection{Linear exactness} \label{sec:linex}
 In this section, we show that second order accurate state redistribution preserves linear functions.
 One might wonder about this since the centroids and solution averages are weighted in this unusual way.
-If all cells had the same number of neighborhoods in \eqref{34} the $N_{ij}$ would all cancel. 
-Since they do not, it is harder to have an intuition about this.
+In addition, the local truncation error does not imply an order of
+accuracy the way it does on regular meshes \cite{Kreiss:white2}. 
+Here we simply show that a
+linear function remains exact after SRD, if the base scheme is linearly
+exact.
+%If all cells had the same number of neighborhoods in \eqref{34} the $N_{ij}$ would all cancel. 
+%Since they do not, it is harder to have an intuition about this.
 
 Consider the grid function of the numerical solution after one time step
 or stage, $\widehat{U}$.  Assume that it can be written in terms of a linear function $f(x,y)$ of the $x$ and $y$ coordinates, i.e.,
