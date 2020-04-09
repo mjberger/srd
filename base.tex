@@ -110,8 +110,9 @@ interface $(i+1/2,j)$
 %\frac{\partial \mathbf{G}_{i,j}^n}{\partial y} \right)  +
 %\frac{\Delta x}{2} \, \frac{\partial \mathbf{U}_{i,j}^n}{\partial x} \\[.08in]
 %&
-\begin{equation}\label{eqn:taylor}
-\begin{split}
+\begin{subequations}
+\begin{align}
+\label{eqn:taylor}
 \mathbf{U}_{i+1/2,j}^{n+1/2}    
               &= \mathbf{U}_{i,j}^n +  
 \frac{\Delta t}{2} \frac{\partial \mathbf{U}_{i,j}^n}{\partial t} + 
@@ -120,9 +121,9 @@ interface $(i+1/2,j)$
              \frac{\partial \mathbf{G}_{i,j}^n}{\partial y}  -
             \left( \frac{\Delta t}{2} 
             \frac{\partial \mathbf{F}_{i,j}^n}{\partial \mathbf{U}^n_{i,j}} -
-             \frac{\Delta x}{2} \right) \,\frac{\partial \mathbf{U}_{i,j}^n}{\partial x}, \\[.08in]
-\end{split}
-\end{equation}
+             \frac{\Delta x}{2} \right) \,\frac{\partial \mathbf{U}_{i,j}^n}{\partial x}, [.08in]
+\end{align}
+\end{subequations}
 The values at the other interfaces of full cells are similarly defined.
 
 
