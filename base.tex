@@ -67,20 +67,11 @@ Numerical evaluation of the amplification factor that results from a linear stab
 \Delta t   \left( \frac{|a|}{\Delta x} + \frac{|b|}{\Delta y} \right)\leq 1.
 \end{equation}
 %We have verified \eqref{eq:vn1} by numerical evaluation of the amplification factor that results from a linear stability analysis.
-Note that this is less restrictive than the time step required for a discrete maximum principle to be 
-satisfied (see \cite{giuliani2018analysis}), which is 
+For a discrete maximum principle to be satisfied, a tight time step restriction 
 \begin{equation}
 \Delta t  \left( \frac{2\Delta x + 2 \Delta y}{\Delta x \Delta y} \right) \sqrt{a^2 + b^2}\leq 1 .
 \end{equation}
-%\begin{equation}
-%\Delta t \,  \max\left(\frac{u}{\Delta x},\frac{v}{\Delta y}\right) \leq \frac{1}{2} ,
-%\end{equation}
-%For high order RK schemes, SRD is applied multiple times, before the final solution is assembled at the new time
-%step. 
-%With the Method of Lines scheme using SSP Runge Kutta time steppers, SRD is applied after each Forward Euler step. 
-%If the Runge Kutta scheme is not SSP, SRD can be applied to each intermediate solution of the time stepper.
-%If applied at the final stage, it does not need to be applied to the 
-%resulting $U^{n+1}$.
+is required, in addition to a limiter to prevent next extrema.
 
 For this method, we apply SRD stabilization to the stage updates
 $U^{(1)}$ and $U^{(2)}$ in \eqref{eq:molscheme}, before they are added to form $U^{n+1}$.

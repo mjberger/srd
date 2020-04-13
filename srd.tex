@@ -49,12 +49,12 @@ In this paper we develop a new technique, called \textit{state redistribution},
 that allows the use of explicit time stepping when approximating
 solutions to hyperbolic conservation laws on embedded boundary grids.  
 State redistribution is a postprocessing technique applied after each time 
-step of the base finite volume scheme, using a time step $\Delta t$ 
+step or stage of the base finite volume scheme, using a time step
 that is proportional to the volume of the full cells.  The idea is to 
 stabilize the cut cells by temporarily merging them into larger, 
 possibly overlapping, neighborhoods, 
 then replacing the cut cell values with a stabilized value
-that maintains conservative and is accurate.
+that maintains conservation and accuracy.
 We present examples of state redistribution using two base schemes:
 MUSCL and a second order Method of Lines finite volume scheme. 
 State redistribution is used to compute solutions to several 

@@ -1,10 +1,10 @@
 \section{State redistribution in one dimension} \label{sec:srd1d}
 We begin this section  by reminding the reader that cell merging can
 be written as a postprocessing step. We then show that the extension of
-cell merging for overlapping cells does not maintain conservation. This
-provides the motivation for state redistribution, which is illustrated on
-a simple example in one dimension to gain intuition without too much
-notation.  Although the small cells do not mimic the cut cells at the 
+cell merging for overlapping cells does not maintain conservation. 
+This motivates our state redistribution approach, which we contrast with
+cell merging on a simple one dimensional example. 
+Although the small cells do not mimic the cut cells at the 
 boundary in higher dimensions, this is still a useful model problem. 
 
 For the examples in this section we will solve the linear advection equation
@@ -17,7 +17,7 @@ accurate upwind scheme
 \begin{equation}\label{eq:unstable1d}
 \widehat{U}_i = U^n_i - \frac{a \Delta t} {h_i} \, (U^n_i -U^n_{i-1}),
 \end{equation}
-where $U^n_i$ is the solution average on cell $i$ at time step $t^n$, the time
+where $U^n_i$ is the solution average on cell $i$ at time $t^n$, the time
 step $\Delta t$ is constant for all cells. On full cells, $h_i = h$ and on
 the small cells,  and $h_i = \alpha h$ for $ 0 < \alpha < 1$.
 We first use
@@ -39,9 +39,10 @@ cells  at $i = -1$ and $1$.  The small and large cell
 sizes are $\alpha h$ ($0<\alpha < 1$), and $h$, respectively. \label{fig:ng1}}
 \end{figure}
 
-On the grid in Figure \ref{fig:ng1}(a), cell merging might look like this.
-First, after the unstable update in \eqref{eq:unstable1d}, form the 
-volume-weighted merged cell $\widehat{Q}_0$:
+On the grid in Figure \ref{fig:ng1}(a), cell merging might 
+group cells -1,0, and 1 together into a larger, merged cell.
+After the unstable update in \eqref{eq:unstable1d}, the  volume-weighted
+merged cell average $\widehat{Q}_0$ is computed:
 \begin{equation}
 \widehat{Q}_0 = \frac{\widehat{U}_{-1} + \alpha \,  \widehat{U}_0 + 
 \widehat{U}_1}{2+\alpha} .
@@ -67,14 +68,29 @@ Five cells (indexed by $-3$, $-2$, $0$, $2$, $3$) are large
 with size $h$ and the remaining two cells (indexed by $-1$ and $1$) 
 are small with size $\alpha h$.
 A first approach to cell merging on this grid
-might be to make two merging neighborhoods, $\widehat{Q}_{-1}$
-comprising $u_{-2},u_{-1},u_0$, and $\widehat{Q}_1$ comprising $u_0, u_1$ 
-and $u_2$.
+might be to make two merged cell averages, $\widehat{Q}_{-1}$
+comprising cells ${-2},{-1},0$, and $\widehat{Q}_1$ comprising cells
+$0, 1$ and $2$, associated respectively with the small cells -1 and 1.
 The first order version here would assign cells as before, except that
 since cell 0 belongs to two neighborhoods, it seems  reasonable
-to assign $u_0 = \frac{1}{2} (\widehat{Q}_{-1} + \widehat{Q}_1).$  
-It can quickly be  seen however
-that this is not conservative. 
+to assign $u_0^{n+1} = \frac{1}{2} (\widehat{Q}_{-1} + \widehat{Q}_1).$  
+To check for conservation, we again compute the sum
+\begin{equation}
+\begin{split}
+h \, (U_{-2}^{n+1} + \alpha\,U_{-1}^{n+1} + U_0^{n+1} + \alpha \, U_1^{n+1}
++ U_2^{n+1}) = \\[.08in]
+h [(1+\alpha +1/2) \, \widehat{Q}_{-1} +
+ (1/2+\alpha +1) \, \widehat{Q}_{1}]  = \\[.08in]
+h \,  (3/2+\alpha) \, [ \frac{(\widehat{U}_{-2} + \alpha \widehat{U}_{-1} +
+\widehat{U}_0)}{2+\alpha} +
+        \frac{(\widehat{U}_{0} + \alpha \widehat{U}_{1} 
+        + \widehat{U}_2)}{2+\alpha} ]  \neq \\[.08in]
+h \,  [ \widehat{U}_{-2} + \alpha \widehat{U}_{-1} +
+\widehat{U}_0 +  \alpha \widehat{U}_{1} + \widehat{U}_2 ].  
+\end{split}
+\end{equation}
+So at least this extension of cell merging to overlapping cells is not
+conservative.
 
 This motivates the state redistribution
 procedure, which allows for overlapping cells and stabilizes 
@@ -90,7 +106,7 @@ constructed once during a mesh preprocessing step before timestepping.
 \vspace*{.1in}
 \includegraphics[width=0.75\linewidth]{figs/overlapping1.pdf} 
 \caption{\sf 
-The blue arrows indicate the merging neighborhoods associated to the large 
+The blue arrows indicate the merging neighborhoods associated with the large 
 cells $-3$, $-2$, $0$, $2$, and $3$, which are their own neighborhoods.  
 The red arrows indicate the neighborhoods of small cells $-1$ and $1$, which
 have temporarily merged with their left and right neighbors.  
@@ -101,10 +117,11 @@ have temporarily merged with their left and right neighbors.
 \end{figure}
 
 \subsubsection*{State redistribution preprocessing}
-Each cell in the base grid (both large and small) has a merging neighborhood associated to it.
-This is  a set of neighbors with which to temporarily merge.
+Each cell in the base grid (both large and small) has a merging neighborhood
+associated with it.
+This is  a set of neighboring cells with which to temporarily merge.
 Neighborhoods share the same index as the cell that generated it.
-%The merging neighborhood associated to cell $i$ is called $M_i$. 
+%The merging neighborhood associated with cell $i$ is called $M_i$. 
 Small cells merge with their neighbors until the volume of the merging neighborhood is greater than
 a threshold, taken here to be half the large cell size of $h/2$.
 This is illustrated by the red arrows in Figure \ref{fig:mn1} where the merging neighborhood of 
@@ -179,13 +196,12 @@ in \eqref{eq:finalupdate}.  This hints at the stability of our modified scheme.
 The state redistribution algorithm allows us to take full time steps as if there were no 
 small cells in the grid.  However, it can be seen that the multipliers of $U^n_{i-1}$ and $U^n_{i+1}$ 
 in \eqref{eq:finalupdate} are negative when $\alpha$ is small enough.  This means that our scheme is not 
-monotone and thus not total variation diminishing.  We note that this is also the case for 
+monotone and thus not total variation diminishing.  We note that this is also the case 
 with flux redistribution, which has been successfully used in higher dimensions and more
-complicated problems, 
-so we are not concerned.
-%about the application of SRD in
-%higher dimensions and more complicated problems. 
-The computational examples in Section \ref{sec:compResults} bear this out.  
+complicated problems.  
+The computational examples in Section \ref{sec:compResults} will bear this out.  
+The advantage of state redistribution  is that it is linearity
+preserving, and flux redistribution is not. 
 
 \subsubsection*{Conservation}
 We now show that our modified scheme \eqref{eq:threeneigh}, \eqref{eq:twoneigh}, \eqref{eq:oneneigh} conserves mass.
@@ -237,9 +253,14 @@ Since the base scheme \eqref{eq:unstable1d} is conservative, it follows from
 
 
 
-The stabilized finite volume method \eqref{eq:threeneigh}, \eqref{eq:twoneigh}, \eqref{eq:oneneigh} is first order accurate in space and time.  In this work, we provide a framework to generalize the state redistribution method to two dimensional cut cell grids and to high-order accuracy in space and time.
-We will demonstrate with numerical examples that the maximum stable time step is not restricted by the 
-small cells, and that the state redistribution method is conservative.
+The stabilized finite volume method \eqref{eq:threeneigh},
+\eqref{eq:twoneigh}, \eqref{eq:oneneigh} is first order accurate in space
+and time.  In this work, we provide a framework to generalize the state
+redistribution method to two dimensional cut cell grids and to 
+second order accuracy in space and time.
+We will demonstrate with numerical examples that the maximum stable time step is 
+not restricted by the small cells, and that the state redistribution method 
+is conservative.
 
 
 

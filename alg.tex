@@ -25,7 +25,8 @@ In two dimensions, there is much more freedom in defining a merging neighborhood
 We investigated two different ways: (1) normal merging and (2) centered merging.
 
 Normal merging associates cut cells with neighbors in the direction closest to the 
-boundary normal.  This is illustrated in Figure \ref{fig:neighborhoods}, where the normal merging neighborhood associated to cut cell $(i,j)$ is highlighted in green.
+boundary normal.  This is illustrated in Figure \ref{fig:neighborhoods},
+where the normal merging neighborhood associated with cut cell $(i,j)$ is highlighted in green.
 
 Centered merging associates cut cells with neighbors that are 
 %at most one cell away. 
@@ -78,7 +79,7 @@ mesh in Figure \ref{fig:2nborTile}.   The neighborhoods $(i,j)$ and $(i,j+1)$ ov
 the base grid.  The normal merging neighborhood of cut cell $(i,j)$ is highlighted in green in Figure \ref{fig:2nborTile1}.  
 Since cell $(i,j)$ does not satisfy the volume constraint in \eqref{eqn:vmerge},
 the neighborhood of $(i,j)$, $M_{i,j}$, must include both $(i,j)$ and $(i,j+1)$.  
-The neighborhood associated to $(i,j+1)$ in highlighted in green in Figure \ref{fig:2nborTile2}.  
+The neighborhood associated with $(i,j+1)$ in highlighted in green in Figure \ref{fig:2nborTile2}.  
 Since the volume of cell $(i,j+1)$ satisfies the volume constraint in \eqref{eqn:vmerge}, $M_{i,j+1}$, only contains cell $(i,j+1)$.
   
 \begin{figure}[h]
@@ -147,7 +148,7 @@ The neighborhood's weighted volume is defined as
 \label{eqn:voldef}
 {\widehat V}_{i,j} =  \sum_{(r,s) \in M_{i,j} } \,  \frac{V_{r,s}}{N_{r,s}}.
 \end{equation}
-where $M_{i,j}$ is the set of cells in the neighborhoods associated to cell $(i,j)$. 
+where $M_{i,j}$ is the set of cells in the neighborhoods associated with cell $(i,j)$. 
 The weighted centroid of the merging neighborhood is defined as
 \begin{equation}
 \label{eqn:centroiddef}
@@ -213,15 +214,17 @@ The solution average on each neighborhood is given by
 \frac{V_{r,s}}{N_{r,s}}  \widehat{U}_{r,s}
 \end{equation}
 where the volume ${\widehat V}_{i,j}$ is the weighted neighborhood volume defined in \eqref{eqn:voldef}
-and $N_{r,s}$ is the number of neighborhoods  associated to cell $i,j$ defined in 
+and $N_{r,s}$ is the number of neighborhoods  associated with cell $i,j$ defined in 
 Section \ref{sec:preprocessing}.  
 Analogous to the one dimensional case in Section \ref{sec:srd1d}, the weighted solution 
-averages are a convex combination of provisional solution averages on the neighborhood associated to cell $(i,j)$.  
+averages are a convex combination of provisional solution averages on the
+neighborhood associated with cell $(i,j)$.  
 
 \subsubsection*{Step 2. Reconstruct and limit a gradient on each neighborhood}
 
 For second order accuracy in space, we compute a gradient on each neighborhood using a least squares procedure.
-The set of merging neighborhood indices using for reconstruction on the neighborhood associated to cell $(i,j)$ is called $\widehat R_{i,j}$.
+The set of merging neighborhood indices using for reconstruction on the
+neighborhood associated with cell $(i,j)$ is called $\widehat R_{i,j}$.
 We note that this set need not be the same as $R_{i,j}$ used in the cut cell gradient reconstruction on the base grid (Section \ref{sec:limit}). 
 Similar to the base grid reconstruction in \eqref{eqn:lls}, the reconstruction on neighborhood $(i,j)$ is of the form
 \begin{equation}\label{eq:qrecon}
@@ -237,7 +240,7 @@ The neighborhood gradient $(\widehat{\sigma}_{x,i,j},\widehat{\sigma}_{y,i,j})$ 
 \end{equation}
 Note that \eqref{eqn:linrecon} uses the neighborhood's weighted centroids $(\widehat{x}_{r,s},\widehat{y}_{r,s})$ instead of the cell centroids.  In Section \ref{sec:linex}, we prove that this procedure is linearity preserving.
 Alternatively, second order gradients on the neighborhoods can be obtained by fitting a quadratic
-as in Section \ref{sec:linrecon_base2}, and discarding the second derivative terms.
+as in Section \ref{sec:limit}, and discarding the second derivative terms.
 We will compare these procedures in the computational results in Section \ref{sec:ssv}.
 
 
@@ -264,15 +267,17 @@ the appropriate reconstruction neighborhood is the $3\times 5$ reconstruction ti
 
 \begin{figure}
     \centering
-    \subfloat[The blue merging neighborhood is associated to cut cell $(i,j)$.  The green merging neighborhoods are associated to cut cells $(i-1,j)$ and $(i+1,j)$.]{\includegraphics[width=0.30\linewidth]{figs/tooclose2.pdf} \label{fig:a}} \hfill
-    \subfloat[The green merging neighborhoods are associated to the whole cells $(i-1,j+1)$, $(i,j+1)$, and $(i+1,j+1)$.]{\includegraphics[width=0.30\linewidth]{figs/tooclose1.pdf} \label{fig:b}} \hfill
+    \subfloat[The blue merging neighborhood is associated with cut cell
+    $(i,j)$.  The green merging neighborhoods are associated with cut cells $(i-1,j)$ and $(i+1,j)$.]{\includegraphics[width=0.30\linewidth]{figs/tooclose2.pdf} \label{fig:a}} \hfill
+    \subfloat[The green merging neighborhoods are associated with the whole cells $(i-1,j+1)$, $(i,j+1)$, and $(i+1,j+1)$.]{\includegraphics[width=0.30\linewidth]{figs/tooclose1.pdf} \label{fig:b}} \hfill
     \subfloat[The weighted centroids of the reconstruction neighborhoods in Figures \ref{fig:a}, \ref{fig:b}.]{\includegraphics[width=0.30\linewidth]{figs/tooclose3.pdf} \label{fig:c}} 
     \caption{\sf 
 %    	In (a) and (b), the blue merging neighborhood's $3\times3$ gradient reconstruction 
 %    stencil is highlighted in green.
 %    On the right, cell $(i,j+1)$ has a stencil highlighted in green, for computing the gradient in $x$. 
     The weighted centroids of the neighborhoods in $\widehat{R}_{i,j}$ are indicated with a cross ($\times$).  
-    Here $\widehat{R}_{i,j}$ is the set of merging neighborhoods associated to cells on the $3\times3$ tile centered on cell $(i,j)$.
+    Here $\widehat{R}_{i,j}$ is the set of merging neighborhoods associated
+    withcells on the $3\times3$ tile centered on cell $(i,j)$.
     Clearly, the weighted centroids are too close to one another in the $y$ direction (Figure \ref{fig:c}).  It follows that least squares system to reconstruct the $x$ and $y$ derivatives of the numerical solution on the blue merging neighborhood is very ill-conditioned.
 }
     \label{fig:tooclose}
