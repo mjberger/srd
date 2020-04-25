@@ -46,7 +46,7 @@ illustrates this for cut cell $(i+3,j+1)$, where the centered neighborhood is hi
 The larger the neighborhood the more diffusive the results. Thus we do not want neighborhoods that 
 are too large.  However, they must satisfy a size constraint to dampen unstable growth in the numerical 
 solution. To this end, we determine neighborhoods, either normal or centered, such that the
-volume of the neighborhood is at least half the area of an uncut cell, i.e., 
+volume of the neighborhood is at least half the volume  of an uncut cell, i.e., 
 \begin{equation} \label{eqn:vmerge}
 \sum_{(r,s) \in M_{i,j}} V_{r,s} \geq \frac{1}{2}\Delta x \Delta y,
 \end{equation}
@@ -59,6 +59,8 @@ We have not encountered any issues with this choice in two dimensions.
 For smooth solutions a centered neighborhood is sufficient, but for shocks this yields unsatisfactory results. Therefore, we use the normal neighborhood everywhere possible.
 The normal neighborhood cannot be used when, e.g., a neighboring cell is also cut and the
 merging neighborhood is not sufficiently large (Figure \ref{fig:normalneighborhood}).  In this case, we must use central merging with cells on a $3\times3$ tile (Figure \ref{fig:3x3neighborhood}), or, if that merging neighborhood is not large enough, with cells on the $5 \times 5$ tile.
+In this Figure, the gray cells are exterior to the fluid domain, and
+are drawn for context.
 
 
 
@@ -224,7 +226,8 @@ neighborhood associated with cell $(i,j)$.
 
 \subsubsection*{Step 2. Reconstruct and limit a gradient on each neighborhood}
 
-For second order accuracy in space, we compute a gradient on each neighborhood using a least squares procedure.
+For second order accuracy in space we need to compute a gradient on each 
+neighborhood, again  using a least squares procedure.
 The set of merging neighborhood indices for reconstruction on the
 neighborhood associated with cell $(i,j)$ is called $\widehat R_{i,j}$.
 We note that this set need not be the same as $R_{i,j}$ used in the cut cell gradient reconstruction on the base grid (Section \ref{sec:limit}). 
@@ -463,7 +466,8 @@ By \eqref{eqn:final_update_linear2}, the final solution update is
 \begin{equation} 
 U^{n+1}_{i,j} = \frac{1}{N_{i,j}}\sum_{(r,s) \in W_{i,j}}f(x_{i,j},y_{i,j}).
 \end{equation}
-This becomes
+The function values are exact, and there are $N_{i,j}$ of them, so
+after dividing by $N_{i,j}$ we get
 \begin{equation} 
 U^{n+1}_{i,j} = f(x_{i,j},y_{i,j}),
 \end{equation}

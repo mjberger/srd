@@ -18,8 +18,8 @@ accurate upwind scheme
 \widehat{U}_i = U^n_i - \frac{a \Delta t} {h_i} \, (U^n_i -U^n_{i-1}),
 \end{equation}
 where $U^n_i$ is the solution average on cell $i$ at time $t^n$, the time
-step $\Delta t$ is constant for all cells. On full cells, $h_i = h$ and on
-the small cells,  and $h_i = \alpha h$ for $ 0 < \alpha < 1$.
+step $\Delta t$ is constant for all cells. On full cells $h_i = h$, and on
+the small cells  $h_i = \alpha h$ for $ 0 < \alpha < 1$.
 We first use
 the grid in Figure \ref{fig:ng1}(a) with one small cell at $i=0$, then the grid
 in Figure \ref{fig:ng1}(b) with two small cells at $i = -1$ and $1$.
@@ -127,6 +127,8 @@ a threshold, taken here to be half the large cell size of $h/2$.
 This is illustrated by the red arrows in Figure \ref{fig:mn1} where the merging neighborhood of 
 small cell $-1$ consists of cells $-2$, $-1$, and $0$, and the merging neighborhood of 
 small cell 1 consists of cells $0$, $1$, and $2$. 
+Note that  cell 0 is included in both neighborhoods for both small
+cells, which makes this temporary merging process simpler.
 A large cell does not need to merge with neighbors (since $h > h/2$), thus its merging neighborhood is only 
 composed of itself.  This is illustrated by the blue arrows in Figure
 \ref{fig:mn1}. For example,  the 
@@ -199,7 +201,8 @@ in \eqref{eq:finalupdate} are negative when $\alpha$ is small enough.  This mean
 monotone and thus not total variation diminishing.  We note that this is also the case 
 with flux redistribution, which has been successfully used in higher dimensions and more
 complicated problems.  
-The computational examples in Section \ref{sec:compResults} will bear this out.  
+The computational examples in Section \ref{sec:compResults} show that
+this is not a significant issue for SRD as well.
 The advantage of state redistribution  is that it is linearity
 preserving, and flux redistribution is not. 
 
@@ -265,11 +268,6 @@ is conservative.
 
 
 %In the next section  we discuss the base finite volume schemes that will be stabilized by state redistribution.
-
-\textit{Note}: An important difference between state redistribution and cell merging is that SRD
-supports overlapping neighborhoods and cell merging does not. 
-As a result, cell merging can be difficult to implement in a robust manner in three dimensions since there are many different, possibly incompatible ways to create non-overlapping merging neighborhoods.
-State redistribution does not suffer from this difficulty, and its extension to three dimensions is straightforward.
 
 
 %\subsubsection*{Weighted volume of merging neighborhood}

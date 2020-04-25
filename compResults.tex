@@ -1,4 +1,4 @@
-\section{Computational Results}\label{sec:compResults}
+
 In this section we show several computational experiments using state
 redistribution to solve the Euler
 equations. We will also use these
@@ -159,6 +159,16 @@ not prove stability of our numerical scheme, not observing unbounded growth in t
 }
 
 \subsection{Supersonic vortex study}\label{sec:ssv}
+
+\begin{wrapfigure}{R}{0.45\textwidth}
+\centering
+\vspace*{-.2in}
+\includegraphics[height=0.45\textwidth]{figs/ssvIllustration.png}
+\caption{\sf The domain is discretized by 27 cells in each dimension, and
+the exact density profile is shown. Ghost cells not shown.
+\label{fig:ssvFig}}
+\end{wrapfigure}
+
 We compute the solution to a supersonic flow 
 around a quarter circle.  This problem has often been used in accuracy 
 studies \cite{aftosmis:acc} since it has an exact solution to the Euler
@@ -176,30 +186,41 @@ is $r = 1.384$, $\rho_i=1$, and the Mach number on the inner circle
 $M_i = 2.25$ in our experiments. 
 In this
 normalization we use $a_i = 1$, $p_i = 1/\gamma$. 
-The second order MOL scheme is used, and we march
-to steady state, until the maximum density update is below $10^{-10}$.  
+The second order MOL scheme is used, 
+and the time step is chosen using a cfl of 1.0 in \eqref{eq:vn1}
+based on the regular cell volume.
+
+We march to steady state, until the maximum density update is 
+below $10^{-10}$.  
 The solution is smooth, so no limiters are needed.
 The exact solution is used to set the ghost cells at the inflow and
 outflow boundaries. The domain size is $[0,1.43]$ by $[0.0,1.4301]$ 
 (slightly different to prevent mesh  degeneracies).  
+The density profile and computational domain is illustrated in Figure
+\ref{fig:ssvFig}.
 
-In Table \ref{tab:ssv} we compare the accuracy of three different formulations
-for the cut cell gradients. 
-For first order accurate gradients, we use a linear least squares reconstruction for
-both the irregular cell gradient (cut cells and their one-away neighbors) 
+
+This example will demonstrate the accuracy or SRD.
+We also use this example to compare the accuracy of different
+formulations for the cut cell and SRD neighborhood  gradients, since
+as noted previously, gradients are an important part of this algorithm.
+Table \ref{tab:ssv} we compares the accuracy of three such formulations.
+For first order accurate gradients, we use a linear least squares 
+reconstruction for both the irregular cell gradient (cut cells and their one-away neighbors) 
 described in Section \ref{sec:limit}, and the SRD gradients, which 
 update the cut cell solution after stabilization. Second order accurate 
 gradients fit a quadratic for both
 the cut cells and tiles as described in Section \ref{sec:limit}, 
 but only the first derivative terms are used. 
-As an intermediate experiment, we  fit a quadratic using least squares but treating the
+As an intermediate experiment, we  fit a quadratic using least squares but 
+treat the
 cell averages as pointwise values at the cell centers. Here again
 the second derivative terms are ignored.  We refer to this as "pointwise
-quadraticc reconstruction". Note that this is not a
+quadratic reconstruction". Note that this is not a
 second order accurate gradient, since the centroid value differs by $O(h^2)$
 from the pointwise value at the centroid. Nevertheless, this is frequently
-done since it is easier to implement, in particular for the SRD neighborhoods
-with irregular shapes. 
+done since it is easier to implement. This is particularly true  for SRD
+neighborhoods with irregular shapes. 
 
 
 
@@ -215,7 +236,7 @@ with irregular shapes.
 			\hline
 			.5297 & 27 & 6.75e-3 & 2.76e-3 & 2.45e-3 \\
 			\hline
-			.2648 & 54  & 1.78e-4 (3.8)  & 6.38e-4 (4.3) & 4.71e-4 (5.2) \\
+			.2648 & 54  & 1.78e-3 (3.8)  & 6.38e-4 (4.3) & 4.71e-4 (5.2) \\
 			\hline
 			.1324 &108 & 3.63e-4 (4.9)  & 1.53e-4 (4.2) & 1.21e-4 (3.9) \\
 			\hline
@@ -255,7 +276,9 @@ with irregular shapes.
         for the supersonic vortex example. The error using first order accurate
         gradients, pointwise quadratic, and fully second order accurate gradients is shown. 
         Pointwise quadratic gradients have half of the error than first order gradients. 
-        Truly second order accurate gradients are even better, especially on coarser grids. \label{tab:ssv}}
+        Truly second order accurate gradients are even better,
+        especially on coarser grids. The convergence rate is given in
+        parentheses. \label{tab:ssv}}
 \end{table}
 }
 
@@ -292,8 +315,13 @@ linearly with refinement, the $L_1$
 accuracy in the entire flow field is still second order.  At the boundary,
 Richardson extrapolation shows that the convergence rate seems to be
 between 1.38 and 1.5.
-This has also been found in other cut cell studies \cite{KB:2006,nemec_tm14}, and 
-is not due to SRD.
+This has also been found in other cut cell studies
+\cite{KB:2006,nemec_tm14}, and is due to the irregularity of the
+difference scheme at the cut cells, and the curved boundary. 
+The next example will show the same behavior using local time stpeping,
+which does not need SRD stabilization. It has the same convergence rate,
+showing that this decrease is
+not due to SRD.
 
 Figure \ref{fig:ssv} and Table \ref{tab:ssv}  show that using pointwise 
 quadratic cut cell gradients is roughly
@@ -308,7 +336,7 @@ marching to steady state using local time-stepping without SRD.
 Table  \ref{tab:ssv2} shows a comparison of the error in the converged
 solution using local time stepping (LTS)  without SRD, and the error with full timesteps and
 SRD stabilization, both using  first order accurate gradients. 
-The errors are essentially identical, showing that 
+The convergence rates and errors are essentially identical, showing that 
 SRD does not degrade the computed solution with too much diffusion due
 to the merging neighborhoods. This holds across all the other
 gradient formulations too.
@@ -335,10 +363,10 @@ gradient formulations too.
  			.166e-2 & 864 & 2.59e-6  (5.2)  & 2.68e-6 (5.2)  &  3.78e-04  (3.2) &  3.96e-04  (3.1)  \\
  			\hline \hline
  	\end{tabular}
- 	\caption{\sf Comparison of errors using local time stepping, which does not use SRD, 
-        and regular time stepping with SRD. (The SRD errors are repeated here for easier
-        comparison.) The errors are almost identical, except on the coarsest
-        grid, showing that SRD does not 
+ 	\caption{\sf Comparison of errors for supersonic vortex problem 
+        using local time stepping, which does not use SRD, 
+        and regular time stepping with SRD. 
+        The errors are very similar, showing that SRD does not 
         degrade the solution with too much diffusion. \label{tab:ssv2}}
 \end{table}
 }
@@ -347,12 +375,21 @@ gradient formulations too.
 
 \subsection{Shock Reflection from  Cylinder}
 Next we demonstrate the method using a Mach 2
-shock diffracting around a circular cylinder. A cylinder with radius $0.15$ is centered at
+shock diffracting around a circular cylinder. 
+The shock will come in to cut cells are all angles in the mesh, so this
+example will demonstrate the robustness of SRD, and demonstrate the
+smoothness of the density profile around the cylinder, despite the
+completely irregular mesh.
+
+A cylinder with radius $0.15$ is centered at
 (0.5,0.5), and the shock is initially located at $x = 0.2$.
 For this example we compare results using the MUSCL scheme and
 the Method of Lines as the base schemes, both using local Lax Friedrichs for the Riemann
-solver. The BJ limiter is used to limit
+solver. Both methods use second order accurate gradients. The BJ 
+limiter is used to limit
 both the base scheme irregular cells  and tile reconstruction gradients. 
+The CFL for the MUSCL scheme was 0.85, and for the MOL
+scheme was 1.0 using \eqref{eq:vn1}, based on the full cell volumes.
 
 Figure \ref{fig:cyl1} left shows the solution density from MUSCL, and
 right from MOL, at time $t=0.25$. 
@@ -372,7 +409,7 @@ MUSCL variant.
 
 \begin{figure}[h]
 \centering
-\vspace*{-.15in}
+\vspace*{-.25in}
 \hspace*{-.2in}
 \mbox{
 \includegraphics[width=0.50\linewidth,trim=10 10 200 10,clip]{figs/muscl_302cells.png}
@@ -382,10 +419,12 @@ MUSCL variant.
 \caption{\sf Density profile of Mach 2 shock reflection around a cylinder,
 at time T = 0.25.  Left computation used MUSCL, right used MOL. 
 There are 52 contours between 1.3 and 6.5.
-The front of the cylinder is better behaved with MUSCL, but the solution
-at the cut cells is better  with the method of lines.
+Both schemes robustly compute the solution. They do a reasonably good job
+producing a smooth solution around the cylinder, 
+but interestingly, the profiles are rather different from each other.
+The subsonic region in front of the cylinder is better behaved with MUSCL.
 \label{fig:cyl1}}
-\vspace*{-.1in}
+\vspace*{-.2in}
 \end{figure}
 
 Figure \ref{fig:cylbndry}
@@ -414,22 +453,19 @@ at time t=0.25.  The MOL scheme has smoother results.}
 \clearpage
 
 \subsection{Double Mach Reflection problem}\label{sec:dm}
-In this section, we reflect a Mach 10 shock obliquely over a wedge, 
+We present one final standard test case for embedded
+boundary meshes. We reflect a Mach 10 shock obliquely over a wedge, 
 where the shock and wall form a $60^{\circ}$ angle.  
 The problem domain is $[0,3.0]\times[0,1.75]$, with an angled wall 
-passing through the point $(1/6,0)$ . The ramp is outlined in red in Figure
-\ref{fig:dm}.
-We use the finite volume MUSCL scheme with second order accurate 
-slopes on the base 
-grid and SRD neighborhoods, and limit using BJ.
-The solution to this problem is a complex, self-similar reflection pattern 
-composed of incident and reflected shocks and contact 
-discontinuities \cite{WOODWARD1984115,rkdg5}.  
-The contact discontinuities are an unstable feature of the solution that can be 
-difficult to resolve correctly, especially in the neighborhood of the 
-reflecting boundary where the carbuncle phenomenon can occur \cite{KEMM2018596}.
+passing through the point $(1/6,0)$. 
+We use the MUSCL scheme, with the interior slopes 
+computed using monotonized central differences. The irregular cells and
+SRD neighborhoods use second order accurate 
+gradients, and limit using BJ.
+The CFL is 0.85.
 
-\begin{figure}[h]
+
+\begin{figure}[H]
 \centering
 %\includegraphics[width=0.48\linewidth]{figs/doublemach.png}
 %\includegraphics[width=0.48\linewidth]{figs/doublemach_zoom.png}
@@ -445,6 +481,13 @@ obliquely on a wedge at time $T = 0.2$ where $\Delta x = \Delta y =
 The solution on the full domain is shown adjacent to a zoom of the Mach 
 stem region.  Sixty isolines between 1.39 and 21.0 are drawn.}\label{fig:dm}
 \end{figure}
+
+The solution to this problem is a complex, self-similar reflection pattern 
+composed of incident and reflected shocks and contact 
+discontinuities \cite{WOODWARD1984115,rkdg5}.  
+The contact discontinuities are an unstable feature of the solution that can be 
+difficult to resolve correctly, especially in the neighborhood of the 
+reflecting boundary where the carbuncle phenomenon can occur \cite{KEMM2018596}.
 
 The solution at the final time $T = 0.2$ is plotted in Figure \ref{fig:dm}, 
 where the grid resolution is $\Delta x = \Delta y = 1/240$.

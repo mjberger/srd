@@ -2,7 +2,8 @@
 Cut cell meshes to solve hyperbolic problems 
 are increasingly prevalent due to the ease 
 of grid generation for complicated geometries. 
-However the {\em small cell} problem is still an active area of research, and
+However, these meshes lead to the {\em small cell} problem, which
+is still an active area of research, and  
 a completely satisfactory solution has not yet been found.
 The small cell problem can be explained as follows: explicit
 finite volume schemes for hyperbolic problems are subject to a CFL constraint, i.e.,  they typically need to take a time step that is proportional to the mesh width for
@@ -12,7 +13,7 @@ The most commonly used stabilization algorithm is called flux
 redistribution \cite{chern:colella,vof:colella}. The main idea is illustrated below in two space
 dimensions for ease of notation.
 The update of the solution average 
-$U^n_{i,j}$ on cut cell $(i,j)$ 
+$U^n_{i,j}$ on cut cell $(i,j)$  is
 \begin{equation*}
 V_{i,j} U_{i,j} ^{n+1}  = V_{i,j} U_{i,j}^n  -  \Delta t \sum_{k \in \text{ faces}}A_k \mathbf{F}_k^* \cdot \mathbf{n}_k,
 \end{equation*}
@@ -23,10 +24,12 @@ The above can also be written
 \begin{equation*}
 V_{i,j} U_{i,j} ^{n+1} = V_{i,j} U_{i,j}^n  +  \delta  M_{i,j} ,
 \end{equation*}
-where $\delta M_{i,j}$ is the change of mass on cell $(i,j)$ after one time step.
+where $\delta M_{i,j}$ is the change in the conserved quantity 
+on cell $(i,j)$ after one time step.
 Instead of using the entire amount of the update in cell $(i,j)$, 
 the cut cell only receives a fraction $\eta_{i,j}$ of it.  If the fraction $\eta_{i,j}$
-is proportional to the cell's volume fraction $V_{i,j}/V_{\text{full}}$, where $V_{\text{full}}$ is the volume of a whole Cartesian cell, the update should be stable. 
+is proportional to the cell's volume fraction $V_{i,j}/V_{\text{full}}$,
+where $V_{\text{full}}$ is the volume of an uncut Cartesian cell, the update should be stable. 
 To maintain conservation, the rest of the update ($1-\eta_{i,j})\delta M_{i,j}$
 is given to the cell's neighbors.  
 %There are more recent additional steps that make the distribution 
@@ -34,7 +37,11 @@ is given to the cell's neighbors.
 Flux redistribution has already been implemented for three dimensional
 calculations due to its simplicity. However it is only first order accurate at the cut cells.
 
-Cell merging is most frequently the first solution that comes to mind for cut cell stabilization. It is conceptually simple, but 
+Cell merging \cite{icm-2003,Chung:2006}  is most frequently the first solution 
+that comes to mind for cut cell stabilization. A cut cell is merged with
+neighbors until a cell with sufficiently large volume for a stable time
+step is obtained. 
+It is conceptually simple, but 
 we are not aware of any production codes that implement this in a fully
 general, robust manner for complicated engineering geometries. 
 The $h$-box method \cite{mjb-hel-rjl:hbox2,mjb-hel:hboxsimple}
@@ -46,12 +53,16 @@ three dimensions due to its complexity.
 
 A newer variation of cell merging is called cell linking \cite{cecereGiacomazzi,
 KirkpatrickEtAl:2003, HuKhooAdamsHuang:2006,Chung:2006}.
-This has simpler data structures and maintain the original grid. 
+This has simpler data structures and maintains the original grid. 
 %Many of these references tackle incompressible flow; some also include three dimensional examples. Several references use a staggered mesh. 
 In \cite{BalajiMenon:2016}, the authors improve the accuracy of cell linking,
 with a third order accurate approach for viscous flow,  and fourth order for 
 inviscid flow. 
-Their version of cell linking uses a cluster of cells, while still maintaining each cell in the mesh.  A high order polynomial is fit to the cluster, and replaces the solution values in the individual cells.  Our algorithm has a similar spirit to this, though the details are very different. 
+Their version of cell linking uses a cluster of cells, while still
+maintaining each cell in the mesh.  A high order polynomial is fit to
+the cluster, and replaces the solution values in the individual cells.
+Our state redistribution algorithm has a similar spirit to this, though the 
+details are very different. 
 %In \cite{shws:2011}, the authors make
 %some improvements to flux redistribution for viscous flow in moving
 %geometries. They introduce a
@@ -78,17 +89,26 @@ Their version of cell linking uses a cluster of cells, while still maintaining e
 In this paper we propose a stabilization algorithm in
 the spirit of flux redistribution. Similar to flux redistribution, state
 redistribution is applied as a postprocessing step and is simple to implement,
-for the second order accurate case. An unstable update on all cells is
-performed with a fixed $\Delta t$ using a base finite volume scheme, followed
+for the second order accurate case. We perform an unstable update on all 
+cells with a fixed $\Delta t$ using a base finite volume scheme, followed
 by a postprocessing step based on the conserved state variables, not on the
-fluxes.  It is for this reason that we call it state redistribution.  Our
+fluxes.  It is for this reason that we call it state redistribution
+(SRD).  Our
 approach is fully conservative and can be generalized to high order accuracy,
 albeit with  more complexity. The key insight over cell merging was to
 recognize that we could maintain both conservation and accuracy using a
-weighted convex combination of solution values that takes into account the number of
-overlapping cells in each stabilization neighborhood.
+weighted convex combination of solution values that takes into account the 
+number of overlapping cells in each stabilization neighborhood.
 
-The next section illustrates state redistribution (SRD) in one space dimension
+The important difference between state redistribution and cell mering is
+that SRD supports overlapping neighborhoods, and cell merging does not.
+As a result, cell merging can be difficult to implement in a robust
+manner in three dimensions, since there are many different, possibly
+incompatible ways to create non-overlapping merged cells.  State
+redistributin does not suffer from this difficulty, and its extension to
+three dimensions is straightforward.
+
+The next section illustrates state redistribution  in one space dimension
 on a model problem, to give a more intuitive idea without all the details and 
 notation of the second order accurate  case.
 Section \ref{sec:basefv} discusses the evolution schemes on cut cell meshes

@@ -7,16 +7,17 @@ We are interested in solving hyperbolic conservation laws
 \end{aligned}
 \end{equation}
 on the domain $\Omega \subset \mathbb{R}^2$ where $\mathbf{u}(x,y,t) \in \Omega \times [0,T]$ is a vector of conserved quantities, $T$ is the final time, and $\mathbfcal{F} = [\mathbf{F}, \mathbf{G}]$ is the flux function.  We discretize $\Omega$ into a cut cell mesh of cells $\Omega_{i,j}$.  A typical cut cell mesh, called the base grid, is given in Figure \ref{fig:2dfig}.  On the domain interior, $\Omega_{i,j}$ are Cartesian cells (quadrilaterals) of size $\Delta x$ in the $x$ direction and $\Delta y$ in the $y$ direction.  On the domain boundary there is a border of irregular polygonal cells, called cut cells.  
+We use cell-centered discretizations in this work.
 
 
 
 There are two issues when applying an explicit finite volume scheme to a cut cell
-mesh.  For accuracy, the scheme needs to be adapted in the cut cells. Second, 
+mesh.  For accuracy, the scheme needs to be modified in the cut cells. Second, 
 the scheme needs to be stabilized in the cut cells if using a fixed timestep $\Delta t$ 
 based on the full cells. In the $h$-box method these two concerns were addressed
 simultaneously, but in general they aren't.
 
-We will use two different second order discretizations of \eqref{eq:conslaw2D}: the method of lines
+We will use two very different second order discretizations of \eqref{eq:conslaw2D}: the method of lines
 (MOL) approach and the MUSCL scheme.
 These fully discrete finite volume methods, described in Section \ref{sec:mol} and \ref{sec:muscl},
 are referred to as the base schemes.  Both schemes require linear 
@@ -26,7 +27,8 @@ outlined in Section \ref{sec:limit}.
 Finally, both second order schemes evaluate the flux at
 the boundary in the examples of Section \ref{sec:compResults} by extrapolating the
 pressure to the boundary midpoint. 
-%Something more elaborate is done in the higher order case. 
+We do not discuss domain boundary conditions in this paper,  since 
+these procedures are  standard, and do not change due to cut cells.
 
 \begin{figure}
 \begin{center}
@@ -43,7 +45,7 @@ a square $(\blacksquare)$.}
 
 \subsection{Method of lines} \label{sec:mol}
 
-After generating the cut cell mesh, we approximate the solution to \eqref{eq:conslaw2D} on this base grid using a finite volume method of the form
+After generating the cut cell mesh, we approximate the solution to \eqref{eq:conslaw2D} on the base grid using a finite volume method of the form
 \begin{equation}\label{eq:fvscheme}
 \frac{d}{dt}\mathbf{U}_{i,j} =- \frac{1}{V_{i,j}} \int_{\partial \Omega_{i,j}} \mathbfcal{F} ^* \cdot \mathbf{n} ~dl,
 \end{equation}
@@ -81,7 +83,13 @@ For the Euler equations, the advective speeds $q$ and $b$ are replaced
 by the largest magnitude $x$ and $y$ velocities  plus sound speed.
 
 For this method, we apply SRD stabilization to the stage updates
-$U^{(1)}$ and $U^{(2)}$ in \eqref{eq:molscheme}, before they are added to form $U^{n+1}$.
+$U^{(1)}$ and $U^{(2)}$ in \eqref{eq:molscheme}, before they are added to 
+form $U^{n+1}$.  This is needed since the tiniest cut cells may have
+non-physical quantities that need to be stabilized before  the
+next stage.  For example, the first step in approximating the Euler
+equations is to convert the conserved variables to primitives variables.
+This would break down for negative densities. SRD however does not break
+down and conservatively and accurately adjusts these values.
 
 \subsection{MUSCL scheme} \label{sec:muscl}
 The MUSCL scheme is a one step method that is second order accurate in
@@ -153,7 +161,7 @@ to the edge midpoint so it is properly centered in cells that
 are adjacent to a cut cell.  This is the situation
 in Figure \ref{fig:2dfig} for cell $(i,j+1)$, for example.
 
-Secondly, many cut cells will not have both edges in the
+Second, many cut cells will not have both edges in the
 transverse ($y$) direction. Instead, for all cut cells we
 instead compute
 $ \partial \mathbf{G}_{i,j}^n / \partial y = ( \partial \mathbf{G}_{i,j}^n / \partial \mathbf{U}_{i,j}^n)( \partial \mathbf{U}_{i,j}^n / \partial y)$,
@@ -276,7 +284,7 @@ approximately half of its cells are not in the flow domain.
 
 Regular cells that are adjacent to a cut cell will also need special treatment to
 compute a second order accurate gradient. We have experimented with three  approaches
-and found almost indistinguishable results. Simplest is to use the 
+and found almost indistinguishable results. The simplest is to use the 
 procedure mentioned above for cut cells
 - fit a least squares polynomial in the $3 \times 3$ neighborhood centered on that cell.
 We also tried $5 \times 5$ neighborhoods, in hope of smoother transitions between cut cells
