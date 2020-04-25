@@ -2,10 +2,11 @@
 We are interested in solving hyperbolic conservation laws 
 \begin{equation}
 \begin{aligned} \label{eq:conslaw2D}
-\frac{\partial}{\partial t}	\mathbf{u} + \nabla \cdot \mathbfcal{F}(u)  = \mathbf{0}
+\frac{\partial}{\partial t}	\mathbf{u} + \nabla \cdot
+\mathbfcal{F}(\mathbf{u})  = \mathbf{0}
 \end{aligned}
 \end{equation}
-on the domain $\Omega \subset \mathbb{R}^2$ where $\mathbf{u}(x,y,t) \in \Omega \times (0,T]$ is a vector of conserved quantities, $T$ is the final time, and $\mathbfcal{F} = [\mathbf{F}, \mathbf{G}]$ is the flux function.  We discretize $\Omega$ into a cut cell mesh of cells $\Omega_{i,j}$.  A typical cut cell mesh, called the base grid, is given in Figure \ref{fig:2dfig}.  On the domain interior, the elements $\Omega_{i,j}$ are Cartesian cells (quadrilaterals) of size $\Delta x$ in the $x$ direction and $\Delta y$ in the $y$ direction.  On the domain boundary there is a border of irregular polygonal cells, called cut cells.  
+on the domain $\Omega \subset \mathbb{R}^2$ where $\mathbf{u}(x,y,t) \in \Omega \times [0,T]$ is a vector of conserved quantities, $T$ is the final time, and $\mathbfcal{F} = [\mathbf{F}, \mathbf{G}]$ is the flux function.  We discretize $\Omega$ into a cut cell mesh of cells $\Omega_{i,j}$.  A typical cut cell mesh, called the base grid, is given in Figure \ref{fig:2dfig}.  On the domain interior, $\Omega_{i,j}$ are Cartesian cells (quadrilaterals) of size $\Delta x$ in the $x$ direction and $\Delta y$ in the $y$ direction.  On the domain boundary there is a border of irregular polygonal cells, called cut cells.  
 
 
 
@@ -30,7 +31,11 @@ pressure to the boundary midpoint.
 \begin{figure}
 \begin{center}
 \includegraphics[width=3.0in]{figs/example_ccmesh.pdf}
-\caption{\sf Example base grid in two space dimensions. The cells shaded in yellow are the cut cells.  Both the method of lines (Section \ref{sec:mol}) and MUSCL (Section \ref{sec:muscl}) schemes require gradient information to reconstruct to the edge midpoint, indicated with a cross ($\times$).} 
+\caption{\sf Example base grid in two space dimensions. The cells shaded
+in yellow are the cut cells.  Both the method of lines (Section
+\ref{sec:mol}) and MUSCL (Section \ref{sec:muscl}) schemes require
+gradient information to reconstruct to the edge midpoint, indicated with
+a square $(\blacksquare)$.} 
 \label{fig:2dfig}
 \end{center}
 \end{figure}
@@ -71,7 +76,9 @@ For a discrete maximum principle to be satisfied, a tight time step restriction
 \begin{equation}
 \Delta t  \left( \frac{2\Delta x + 2 \Delta y}{\Delta x \Delta y} \right) \sqrt{a^2 + b^2}\leq 1 .
 \end{equation}
-is required, in addition to a limiter to prevent next extrema.
+is required, in addition to a limiter to prevent new extrema.
+For the Euler equations, the advective speeds $q$ and $b$ are replaced
+by the largest magnitude $x$ and $y$ velocities  plus sound speed.
 
 For this method, we apply SRD stabilization to the stage updates
 $U^{(1)}$ and $U^{(2)}$ in \eqref{eq:molscheme}, before they are added to form $U^{n+1}$.
@@ -112,7 +119,7 @@ interface $(i+1/2,j)$
              \frac{\partial \mathbf{G}_{i,j}^n}{\partial y}  -
             \left( \frac{\Delta t}{2} 
             \frac{\partial \mathbf{F}_{i,j}^n}{\partial \mathbf{U}^n_{i,j}} -
-             \frac{\Delta x}{2} \right) \,\frac{\partial \mathbf{U}_{i,j}^n}{\partial x}, [.08in]
+             \frac{\Delta x}{2} \right) \,\frac{\partial \mathbf{U}_{i,j}^n}{\partial x}, 
 \end{align}
 \end{subequations}
 The values at the other interfaces of full cells are similarly defined.
@@ -121,10 +128,10 @@ The values at the other interfaces of full cells are similarly defined.
 In the original method,
 Riemann problems are solved in the transverse direction, e.g. between
 centroids $(i,j)$ and $(i,j-1)$, at the edge $j-1/2$, to produce
-$G_{i,j-1/2}$. 
+$\mathbf{G}_{i,j-1/2}$. 
 The terms were then differenced to compute 
 \begin{equation}
-\partial G_{i,j}/\partial y =  (\mathbf{G}_{i,j+1/2} - \mathbf{G}_{i,j-1/2})/\Delta y .
+\partial \mathbf{G}_{i,j}/\partial y =  (\mathbf{G}_{i,j+1/2} - \mathbf{G}_{i,j-1/2})/\Delta y .
 \label{eqn:transdiff}
 \end{equation}
 On a uniform mesh 
@@ -137,9 +144,9 @@ At the cut cells the above procedure is no longer accurate,
 since  the centroid values are not coordinate aligned near
 the cut cells.
 We make two modifications to the
-computation of $\partial G/\partial y$, known as the
+computation of $\partial \mathbf{G}/\partial y$, known as the
 transverse derivative since it is in the vertical direction
-when computing the flux $F$ in the horizontal direction.
+when computing the flux $\mathbf{F}$ in the horizontal direction.
 First,
 the solution is reconstructed in the transverse direction
 to the edge midpoint so it is properly centered in cells that
@@ -235,8 +242,11 @@ u^n_{i,j}(x,y) = U_{i,j}^n + \sigma^n_{x,i,j} \,(x-x_{i,j}) +
                      \sigma^n_{y,i,j}\,(y-y_{i,j}),
 \label{eqn:lls}
 \end{equation}
-where $(i,j)$ is the index of either a cut cell or cell with an irregular stencil, $(\sigma^n_{x},\sigma^n_{y})_{i,j}$ and $(x,y)_{i,j}$ are its gradient and cell centroid, respectively. The least squares procedure finds the gradient that minimizes the $L_2$ residual when evaluating  $u_{i,j}(x,y)$ at  
-neighboring cell centroids. 
+where $(i,j)$ is the index of either a cut cell or cell with an
+irregular stencil, $(\sigma^n_{x},\sigma^n_{y})_{i,j}$ and $(x,y)_{i,j}$
+are its gradient and cell centroid, respectively. The least squares
+procedure finds the gradient that minimizes the $L_2$ residual when
+evaluating  $u^n_{i,j}(x,y)$ at  neighboring cell centroids. 
 
 In this work, we consider both first and second order accurate 
 gradients.  The reconstructed first order gradient satisfies in the 
@@ -259,7 +269,8 @@ The reconstructed second order gradient satisfies in the least squares sense
  \; = \;  U^n_{r,s} - U^n_{i, j} \quad \forall (r,s) \in R_{i,j},
 \end{aligned}
 \end{equation}
-where $\sigma_{xx,i,j}$, $\sigma_{xy,i,j}$, $\sigma_{yy,i,j}$ are quadratic degrees of freedom and are discarded.  In this case, $R_{i,j}$ is either the $3\times 3$ tile centered on $(i,j)$ when $(i,j)$ is a whole cell neighboring a cut cell, or the $5\times 5$ tile centered on $(i,j)$ when $(i,j)$ is a a cut cell.
+where $\sigma^n_{xx,i,j}$, $\sigma^n_{xy,i,j}$, $\sigma^n_{yy,i,j}$ 
+are quadratic degrees of freedom and are discarded.  In this case, $R_{i,j}$ is either the $3\times 3$ tile centered on $(i,j)$ when $(i,j)$ is a whole cell neighboring a cut cell, or the $5\times 5$ tile centered on $(i,j)$ when $(i,j)$ is a cut cell.
 Note that a cut cell needs a larger neighborhood because 
 approximately half of its cells are not in the flow domain.  
 
@@ -272,7 +283,8 @@ We also tried $5 \times 5$ neighborhoods, in hope of smoother transitions betwee
 and the interior cells.  Finally, we tried using a centered
 gradient in only one dimension, if there was one, and using a recentering approach to 
 compute the second order accurate difference in the other direction.  This has an overall
-smaller stencil, but still uses the $3 \times 3$ if there is no regular direction,
+smaller stencil, but still uses the $3 \times 3$ neighborhood
+if there is no regular direction,
 and involves more testing.  
 
 For problems with discontinuities, the gradient will need to be limited
@@ -280,7 +292,7 @@ to prevent overshoots and retain positivity for quantities like density and
 pressure.
 We use the Barth Jespersen (BJ)  limiter \cite{barth-jespersen} to limit on 
 cut cell grids. 
-This is a scalar limiter, where both $\sigma_{x,i,j}$ and $\sigma_{y,i,j}$ 
+This is a scalar limiter, where both $\sigma^n_{x,i,j}$ and $\sigma^n_{y,i,j}$ 
 are reduced by the same scalar to prevent new extrema.  
 We compute the minimum and maximum values over the reconstruction 
 stencil $R_{i,j}$, 

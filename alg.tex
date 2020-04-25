@@ -16,7 +16,8 @@ The preprocessing determines these quantities: merging neighborhoods and overlap
 weighted volumes and centroids.
 %These three steps can be part of a preprocessing step since they do not
 %depend on the computed solution. 
-For moving geometries they would need to be be done when the geometry is modified.
+For moving geometries, they would need to be be recomputed
+when the geometry is modified.
 
 \subsubsection*{Merging neighborhoods}
 
@@ -61,8 +62,8 @@ merging neighborhood is not sufficiently large (Figure \ref{fig:normalneighborho
 
 
 
-After forming merging neighborhoods, each cell counts the number of neighborhoods it belongs to.
-For cell $(i,j)$ this neighborhood count is called $N_{i,j}$.
+After forming the merging neighborhoods, each cell counts the number of neighborhoods it belongs to.
+For cell $(i,j)$, this neighborhood count is called $N_{i,j}$.
 
 \begin{figure}[h]
 \hspace*{.5in}
@@ -155,8 +156,9 @@ The weighted centroid of the merging neighborhood is defined as
 ({\widehat x}_{i,j},{\widehat y}_{i,j}) = \frac{1}{\widehat V_{i,j}} \sum_{(r,s) \in M_{i,j} } \,  \frac{V_{r,s}}{N_{r,s}}(x_{r,s},y_{r,s}),
 \end{equation}
 
-In general, the weighted volume is not the physical volume of merging neighborhood 
-unless the cell is full and it is not overlapped by any other neighborhoods 
+In general, the weighted volume is not the physical volume of 
+the merging neighborhood 
+and it is not overlapped by any other neighborhoods 
 (for example, cells $-3$ and $3$ in Figure 2).  Similarly, the weighted and physical 
 centroids are different unless the overlap count on each cell in the neighborhood is the 
 same, $N_{r,s} = N_{p,q} ~ \forall (r,s), (p,q) \in M_{i,j} $.  
@@ -223,7 +225,7 @@ neighborhood associated with cell $(i,j)$.
 \subsubsection*{Step 2. Reconstruct and limit a gradient on each neighborhood}
 
 For second order accuracy in space, we compute a gradient on each neighborhood using a least squares procedure.
-The set of merging neighborhood indices using for reconstruction on the
+The set of merging neighborhood indices for reconstruction on the
 neighborhood associated with cell $(i,j)$ is called $\widehat R_{i,j}$.
 We note that this set need not be the same as $R_{i,j}$ used in the cut cell gradient reconstruction on the base grid (Section \ref{sec:limit}). 
 Similar to the base grid reconstruction in \eqref{eqn:lls}, the reconstruction on neighborhood $(i,j)$ is of the form
@@ -257,7 +259,10 @@ The set of neighborhoods used for gradient reconstruction on neighborhood $(i,j)
 It could happen that this set does not contain enough neighborhoods, or that the weighted centroids of these neighborhoods are too close to compute a well-conditioned gradient.
 This is the case in Figure \ref{fig:tooclose}, where the weighted centroids are too close in the $y$ direction.
 
-We remedy this by increasing the stencil size for the gradient computation if the weighted centroids are not at least $\frac{1}{2}\Delta x$  and $\frac{1}{2}\Delta y$ apart in the $x$ or $y$ direction.
+We remedy this by increasing the stencil size for the gradient computation 
+if the neighborhood does not contain another weighted centroid at least  
+$\frac{1}{2}\Delta x$  and $\frac{1}{2}\Delta y$ away  in the $x$ or $y$ 
+direction respectively.
 For example, if the weighted centroids are too close in the $x$ 
 direction, but not the $y$ direction, then the $5\times 3$ tile is used as the 
 reconstruction neighborhood.  Similarly, if the weighted centroids are too 
@@ -277,7 +282,7 @@ the appropriate reconstruction neighborhood is the $3\times 5$ reconstruction ti
 %    On the right, cell $(i,j+1)$ has a stencil highlighted in green, for computing the gradient in $x$. 
     The weighted centroids of the neighborhoods in $\widehat{R}_{i,j}$ are indicated with a cross ($\times$).  
     Here $\widehat{R}_{i,j}$ is the set of merging neighborhoods associated
-    withcells on the $3\times3$ tile centered on cell $(i,j)$.
+    with cells on the $3\times3$ tile centered on cell $(i,j)$.
     Clearly, the weighted centroids are too close to one another in the $y$ direction (Figure \ref{fig:c}).  It follows that least squares system to reconstruct the $x$ and $y$ derivatives of the numerical solution on the blue merging neighborhood is very ill-conditioned.
 }
     \label{fig:tooclose}
@@ -302,15 +307,9 @@ The final update on cell $(i,j)$ is the average of all its neighborhood reconstr
 evaluated at $(i,j)$'s physical centroid $(x_{i,j},y_{i,j})$. 
 This is given by 
 \begin{equation} \label{eqn:final_update_linear}
-U^{n+1}_{i,j} =  \frac{1}{V_{i,j}}\sum_{(r,s) \in W_{i,j}}\frac{1}{N_{i,j}} \int_{\Omega_{i,j}}\widehat q_{r,s}(x,y) ~dx~dy,
+U^{n+1}_{i,j} =   \frac{1}{N_{i,j}}\sum_{(r,s)  \in W_{i,j}}\hat{q}_{r,s}(x_{i,j},y_{i,j}).
 \end{equation}
 where $W_{i,j}$ is the list of indices of the neighborhoods that overlap cell $(i,j)$.
-Since $\widehat{q}_{i,j}(x,y)$ is a linear function, 
-we can replace $\widehat q_{r,s}(x,y)$ with the value at the centroid to 
-simplify \eqref{eqn:final_update_linear}  to
-\begin{equation} \label{eqn:final_update_linear2}
-	U^{n+1}_{i,j} =   \frac{1}{N_{i,j}}\sum_{(r,s)  \in W_{i,j}}\hat{q}_{r,s}(x_{i,j},y_{i,j}).
-\end{equation}
 
 \vspace*{.5in}
 
@@ -406,8 +405,8 @@ The outer loop iterates over the merging neighborhoods $(i,j)$ and the inner loo
 \subsection{Linear exactness} \label{sec:linex}
 In this section, we show that second order accurate state redistribution preserves linear functions.
 One might wonder about this since the centroids and solution averages are weighted in this unusual way.
-In addition, the local truncation error does not imply an order of
-accuracy the way it does on regular meshes \cite{Kreiss:white2}. 
+In addition, the local truncation error does not imply the order of
+accuracy of the scheme  as it does on regular meshes \cite{Kreiss:white2}. 
 Here we simply show that a
 linear function remains exact after SRD, if the base scheme is linearly
 exact.
@@ -450,7 +449,7 @@ $\widehat{\sigma}_{y,i,j}$, the gradient on the merging neighborhood.  Using
 is solved exactly by $\widehat{\sigma}_{x,i,j}=a$ and
 $\widehat{\sigma}_{y,i,j}=b$.  In other words, the exact gradient 
 of $f$ is reconstructed on merging neighborhood $(i,j)$.  
-he reconstructed solution is then
+The reconstructed solution is then
 \begin{equation}
     \label{eqn:qrecon1}
     \hat{q}_{i,j}(x,y) = f(\widehat{x}_{i,j},\widehat{y}_{i,j}) + a(x-\widehat{x}_{i,j})+b(y-\widehat{y}_{i,j}) .
@@ -476,12 +475,15 @@ which shows that second order accurate state redistribution preserves linear fun
 \subsection{Conservation}\label{sec:cons}
 In this section, we show that the total mass of the numerical solution before and after state redistribution does not change.  It follows from the final update in \eqref{eqn:final_update_linear} that the total mass after state redistribution is
 \begin{equation}\label{eq:mi}
-\sum_{i,j} V_{i,j} U^{n+1}_{i,j} = \sum_{i,j} \sum_{(r,s) \in M_{i,j}}\frac{1}{N_{r,s}} \int_{\Omega_{r,s}}\widehat q_{i,j}(x,y) ~dx~dy,
+\sum_{i,j} V_{i,j} U^{n+1}_{i,j} = \sum_{i,j} \sum_{(r,s) \in
+M_{i,j}}\frac{1}{N_{r,s}} V_{r,s} \widehat q_{i,j}(x_{r,s},y_{r,s}) ,
 \end{equation}
 where $\widehat q_{i,j}(x)$ is that neighborhood's polynomial reconstruction defined in \eqref{eq:qrecon}.
-Evaluating the integral in \eqref{eq:mi}, we have
+Evaluating the integral in \eqref{eq:mi} and using the definition
+of $\widehat{q}_{i,j}(x,y)$, we have
 \begin{equation}\label{eq:mi1}
-\sum_{i,j} V_{i,j} U^{n+1}_{i,j} = \sum_{i,j} \sum_{(r,s) \in M_{i,j}}\widehat Q_{i,j} \widehat V_{i,j}.
+\sum_{i,j} V_{i,j} U^{n+1}_{i,j} = \sum_{i,j} \in M_{i,j} \widehat {Q}_{i,j} 
+\widehat {V}_{i,j}.
 \end{equation}
 Using the definition of the weighted average \eqref{tiledef}, we have
 \begin{equation}\label{eq:mi2}
