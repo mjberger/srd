@@ -7,7 +7,7 @@ is still an active area of research, and
 a completely satisfactory solution has not yet been found.
 The small cell problem can be explained as follows: explicit
 finite volume schemes for hyperbolic problems are subject to a CFL constraint, i.e.,  they typically need to take a time step that is proportional to the mesh width for
-stability. However cut cells can have volumes that are arbitrarily smaller than the regular cells.  This would force the scheme to take overly restrictive time steps, even though the domain is predominantly composed of regular cells that would otherwise determine the stable time step. Special algorithms are needed to prevent this restriction.
+stability. However, cut cells can have volumes that are arbitrarily smaller than the regular cells.  This would force the scheme to take overly restrictive time steps, even though the domain is predominantly composed of regular cells that would otherwise determine the stable time step. Special algorithms are needed to prevent this restriction.
 
 The most commonly used stabilization algorithm is called flux
 redistribution \cite{chern:colella,vof:colella}. The main idea is illustrated below in two space
@@ -98,14 +98,15 @@ approach is fully conservative and can be generalized to high order accuracy,
 albeit with  more complexity. The key insight over cell merging was to
 recognize that we could maintain both conservation and accuracy using a
 weighted convex combination of solution values that takes into account the 
-number of overlapping cells in each stabilization neighborhood.
+number of overlapping neighborhoods on each cell in the base cut cell
+grid.
 
 The important difference between state redistribution and cell mering is
 that SRD supports overlapping neighborhoods, and cell merging does not.
-As a result, cell merging can be difficult to implement in a robust
-manner in three dimensions, since there are many different, possibly
+As a result, cell merging can be difficult to implement robustly
+in three dimensions, since there are many different, possibly
 incompatible ways to create non-overlapping merged cells.  State
-redistributin does not suffer from this difficulty, and its extension to
+redistribution does not suffer from this difficulty, and its extension to
 three dimensions is straightforward.
 
 The next section illustrates state redistribution  in one space dimension

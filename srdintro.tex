@@ -55,9 +55,11 @@ are then replaced by $\widehat{Q}_0$:
 \end{equation}
 This is easily seen to be conservative by checking that
 \begin{equation}
-h \, (U_{-1}^{n+1} + \alpha \, U_0^{n+1} + U_1^{n+1})
+\underbrace{h \, (U_{-1}^{n+1} + \alpha \, U_0^{n+1} +
+U_1^{n+1})}_{\text{mass after redistribution}}
 = (2+\alpha) h \,  \, \widehat{Q}_0 =
- h \, (\widehat{U}_{-1} + \alpha \, \widehat{U}_{0} +  \widehat{U}_{1})
+\underbrace{ h \, (\widehat{U}_{-1} + \alpha \, \widehat{U}_{0} +
+\widehat{U}_{1})}_{\text{mass before redistribution}}
 \end{equation}
 which equals the values at time $t^n$  except for the mass entering and
 leaving this region.
@@ -70,23 +72,24 @@ are small with size $\alpha h$.
 A first approach to cell merging on this grid
 might be to make two merged cell averages, $\widehat{Q}_{-1}$
 comprising cells ${-2},{-1},0$, and $\widehat{Q}_1$ comprising cells
-$0, 1$ and $2$, associated respectively with the small cells -1 and 1.
+$0, 1$ and $2$, associated respectively with the small cells $-1$ and $1$.
 The first order version here would assign cells as before, except that
 since cell 0 belongs to two neighborhoods, it seems  reasonable
-to assign $u_0^{n+1} = \frac{1}{2} (\widehat{Q}_{-1} + \widehat{Q}_1).$  
+to assign $U_0^{n+1} = \frac{1}{2} (\widehat{Q}_{-1} + \widehat{Q}_1).$  
 To check for conservation, we again compute the sum
 \begin{equation}
 \begin{split}
-h \, (U_{-2}^{n+1} + \alpha\,U_{-1}^{n+1} + U_0^{n+1} + \alpha \, U_1^{n+1}
-+ U_2^{n+1}) = \\[.08in]
-h [(1+\alpha +1/2) \, \widehat{Q}_{-1} +
- (1/2+\alpha +1) \, \widehat{Q}_{1}]  = \\[.08in]
-h \,  (3/2+\alpha) \, [ \frac{(\widehat{U}_{-2} + \alpha \widehat{U}_{-1} +
+\underbrace{h \, (U_{-2}^{n+1} + \alpha\,U_{-1}^{n+1} + U_0^{n+1} + \alpha \, U_1^{n+1}
++ U_2^{n+1})}_{\text{mass after redistribution}} = \\[.1in]
+h \left [(1+\alpha +1/2) \, \widehat{Q}_{-1} +
+ (1/2+\alpha +1) \, \widehat{Q}_{1}\right ]  = \\[.1in]
+h \,  (3/2+\alpha) \, \left [ \frac{(\widehat{U}_{-2} + \alpha \widehat{U}_{-1} +
 \widehat{U}_0)}{2+\alpha} +
         \frac{(\widehat{U}_{0} + \alpha \widehat{U}_{1} 
-        + \widehat{U}_2)}{2+\alpha} ]  \neq \\[.08in]
-h \,  [ \widehat{U}_{-2} + \alpha \widehat{U}_{-1} +
-\widehat{U}_0 +  \alpha \widehat{U}_{1} + \widehat{U}_2 ].  
+        + \widehat{U}_2)}{2+\alpha} \right ]  \neq \\[.08in]
+\underbrace{h \,  ( \widehat{U}_{-2} + \alpha \widehat{U}_{-1} +
+\widehat{U}_0 +  \alpha \widehat{U}_{1} + 
+\widehat{U}_2 )}_{\text{mass before redistribution}}.  
 \end{split}
 \end{equation}
 So at least this extension of cell merging to overlapping cells is not
@@ -99,7 +102,7 @@ This is done by temporarily merging cells of the grid into
 larger, possibly overlapping, neighborhoods using a specially weighted 
 convex combination, and recombining these averages back onto the
 grid in a particular fashion.  These merged cells are 
-constructed once during a mesh preprocessing step before timestepping.
+constructed once during a mesh preprocessing step before time stepping.
 
 \begin{figure}[h]
 \begin{center}
@@ -127,8 +130,8 @@ a threshold, taken here to be half the large cell size of $h/2$.
 This is illustrated by the red arrows in Figure \ref{fig:mn1} where the merging neighborhood of 
 small cell $-1$ consists of cells $-2$, $-1$, and $0$, and the merging neighborhood of 
 small cell 1 consists of cells $0$, $1$, and $2$. 
-Note that  cell 0 is included in both neighborhoods for both small
-cells, which makes this temporary merging process simpler.
+Note that   both neighborhoods overlap on cell 0. Allowing
+for overlaps makes this temporary merging process simpler.
 A large cell does not need to merge with neighbors (since $h > h/2$), thus its merging neighborhood is only 
 composed of itself.  This is illustrated by the blue arrows in Figure
 \ref{fig:mn1}. For example,  the 
@@ -140,11 +143,11 @@ Cell 0 has 3 such neighborhoods, its own, and one from each small cell adjacent 
 
 \subsubsection*{State redistribution postprocessing}
 Using the above information we can now stabilize \eqref{eq:unstable1d} using the state redistribution 
-method on the grid in Figure \ref{fig:ng1}.  
+method on the grid in Figure \ref{fig:ng1}b.  
 On each merging neighborhood, we compute a weighted solution average $\widehat Q_i$, where $i$ is the 
 index of the merging neighborhood. 
 $\widehat Q_i$ is computed by a convex combination of the averages $\widehat{U}_i$ of cells contained in the 
-merging neighborhood, weighted by the inverse of the number of its overlap count. 
+merging neighborhood, weighted by the inverse of its overlap count. 
 For example, on merging neighborhood $-1$, the weighted solution average is
 \begin{equation}\label{eq:neigh2}
 \widehat{Q}_{-1} = \frac{1}{\underbrace{h/2 + \alpha h + h/3}_{\text{weighted volume}}}\biggr( \underbrace{\frac{h}{2} \widehat{U}_{-2} + \alpha h \widehat{U}_{-1} + \frac{h}{3}\widehat{U}_{0}}_{\text{weighted mass}} \biggr).

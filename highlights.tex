@@ -1,0 +1,25 @@
+\documentclass{article}
+% \usepackage[utf8]{inputenc}
+
+\title{Highlights}
+\date{}
+\begin{document}
+\maketitle
+
+\begin{enumerate}
+\item
+A postprocessing technique called state redistribution is developed to solve the small cell problem on cut cell meshes.
+
+\item
+The algorithm is applied after each step or stage of an explicit finite volume scheme, where the time step is chosen based on the full cell volume.
+
+\item 
+The algorithm is easier to implement than cell merging since it allows
+for (temporarily) overlapping merging neighborhoods, and only requires
+the centroids and volumes of cells in a small neighborhood of each cut cell.
+
+\item 
+The approach is linearity preserving, conservative, and does not reduce the accuracy of the base scheme.
+\end{enumerate}
+
+\end{document}

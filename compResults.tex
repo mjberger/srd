@@ -165,8 +165,8 @@ not prove stability of our numerical scheme, not observing unbounded growth in t
 \centering
 \vspace*{-.2in}
 \includegraphics[height=0.45\textwidth]{figs/ssvIllustration.png}
-\caption{\sf The domain is discretized by 27 cells in each dimension, and
-the exact density profile is shown. Ghost cells not shown.
+\caption{\sf The domain is discretized by 27 cells in each direction, and
+the exact density profile is shown. Ghost cells and solid cells are not shown.
 \label{fig:ssvFig}}
 \end{wrapfigure}
 
@@ -188,7 +188,7 @@ $M_i = 2.25$ in our experiments.
 In this
 normalization we use $a_i = 1$, $p_i = 1/\gamma$. 
 The second order MOL scheme is used, 
-and the time step is chosen using a cfl of 1.0 in \eqref{eq:vn1}
+and the time step is chosen using a CFL of 1.0 in \eqref{eq:vn1}
 based on the regular cell volume.
 
 We march to steady state, until the maximum density update is 
@@ -201,7 +201,7 @@ The density profile and computational domain is illustrated in Figure
 \ref{fig:ssvFig}.
 
 
-This example will demonstrate the accuracy or SRD.
+This example will demonstrate the accuracy of SRD.
 We also use this example to compare the accuracy of different
 formulations for the cut cell and SRD neighborhood  gradients, since
 as noted previously, gradients are an important part of this algorithm.
@@ -216,7 +216,7 @@ but only the first derivative terms are used.
 As an intermediate experiment, we  fit a quadratic using least squares but 
 treat the
 cell averages as pointwise values at the cell centers. Here again
-the second derivative terms are ignored.  We refer to this as "pointwise
+the second derivative terms are ignored.  We refer to this as ``pointwise
 quadratic reconstruction". Note that this is not a
 second order accurate gradient, since the centroid value differs by $O(h^2)$
 from the pointwise value at the centroid. Nevertheless, this is frequently
@@ -291,7 +291,7 @@ boundary segment in cut cell $(i,j)$.
 These are given in Table \ref{tab:ex1_L1vol} and \ref{tab:ex1_L1bndry}. 
 For easier comparison with other papers we also give the mesh size 
 to a few digits. In  a cut cell mesh there are both solid and
-flow cells, so the total number of cell is larger than the number of
+flow cells, so the total number of cells is larger than the number of
 flow cells, and not as easy to compare as the mesh spacing.
 All interior cells use the same evolution scheme and gradients, so
 the difference in the errors is solely due to the irregular cell
@@ -319,7 +319,7 @@ between 1.38 and 1.5.
 This has also been found in other cut cell studies
 \cite{KB:2006,nemec_tm14}, and is due to the irregularity of the
 difference scheme at the cut cells, and the curved boundary. 
-The next example will show the same behavior using local time stpeping,
+The next example will show the same behavior using local time stepping,
 which does not need SRD stabilization. It has the same convergence rate,
 showing that this decrease is
 not due to SRD.
@@ -335,7 +335,8 @@ accurate gradients approach each other.
 We also use this example to compare the effect of state redistribution versus 
 marching to steady state using local time-stepping without SRD.  
 Table  \ref{tab:ssv2} shows a comparison of the error in the converged
-solution using local time stepping (LTS)  without SRD, and the error with full timesteps and
+solution using local time stepping (LTS)  without SRD, and the error with full 
+time steps and
 SRD stabilization, both using  first order accurate gradients. 
 The convergence rates and errors are essentially identical, showing that 
 SRD does not degrade the computed solution with too much diffusion due
@@ -377,7 +378,9 @@ gradient formulations too.
 \subsection{Shock Reflection from  Cylinder}
 Next we demonstrate the method using a Mach 2
 shock diffracting around a circular cylinder. 
-The shock will come in to cut cells are all angles in the mesh, so this
+
+The shock will meet the cylinder and reflect at the cut cells, which are
+at all angles in the mesh. This
 example will demonstrate the robustness of SRD, and demonstrate the
 smoothness of the density profile around the cylinder, despite the
 completely irregular mesh.
@@ -388,14 +391,14 @@ For this example we compare results using the MUSCL scheme and
 the Method of Lines as the base schemes, both using local Lax Friedrichs for the Riemann
 solver. Both methods use second order accurate gradients. The BJ 
 limiter is used to limit
-both the base scheme irregular cells  and tile reconstruction gradients. 
+both the base scheme irregular cells  and neighborhood reconstruction gradients. 
 The CFL for the MUSCL scheme was 0.85, and for the MOL
 scheme was 1.0 using \eqref{eq:vn1}, based on the full cell volumes.
 
 Figure \ref{fig:cyl1} left shows the solution density from MUSCL, and
-right from MOL, at time $t=0.25$. 
+right from MOL, at time $T=0.25$. 
 Both grids use 302 cells in each
-directions, and the domain is  $[0.0,1.00001,]$ by  $[0.0, 1.0]$, again to
+direction, and the domain is  $[0.0,1.00001,]$ by  $[0.0, 1.0]$, again to
 prevent mesh degeneracies.
 There are 416 cut cells
 around the cylinder; 160 of the cut cells had volume fractions less than
@@ -403,7 +406,7 @@ around the cylinder; 160 of the cut cells had volume fractions less than
 For comparison, this is also the time shown in \cite{mjb-hel-rjl:hbox2}. 
 Here and in \cite{mjb-hel-rjl:hbox2}, the solution in front of the cylinder 
 where the
-maximum density is found is better behaved with the one-step methods than with
+maximum density is located, behaves better with the one-step methods than with
 MOL.  The method of lines solution is smoother around the boundary than our
 MUSCL variant. 
 %(see Figure \ref{fig:cylbndry}).
@@ -418,14 +421,15 @@ MUSCL variant.
 \includegraphics[width=0.50\linewidth,trim=10 10 200 10,clip]{figs/MOL_302cells.png}
 }
 \caption{\sf Density profile of Mach 2 shock reflection around a cylinder,
-at time T = 0.25.  Left computation used MUSCL, right used MOL. 
+at time $T = 0.25$.  Left computation uses MUSCL, right uses MOL. 
 There are 52 contours between 1.3 and 6.5.
-Both schemes robustly compute the solution. They do a reasonably good job
-producing a smooth solution around the cylinder, 
-but interestingly, the profiles are rather different from each other.
+Both schemes robustly compute the solution. 
+%They do a reasonably good job
+%producing a smooth solution around the cylinder, 
+%but interestingly, the profiles are rather different from each other.
 The subsonic region in front of the cylinder is better behaved with MUSCL.
 \label{fig:cyl1}}
-\vspace*{-.2in}
+\vspace*{-.1in}
 \end{figure}
 
 Figure \ref{fig:cylbndry}
@@ -439,13 +443,16 @@ clearly.
 \begin{figure}[h]
 \centering
 %\includegraphics[width=0.48\linewidth,trim=20 20 20 30,clip]{figs/densityCompare_302_normalvs3by3.png}
-\hspace*{-.5in}
+\hspace*{-.2in}
 \includegraphics[height=2.7in]{figs/MM_densityBndry.pdf}
 \hspace*{.3in}
 %\includegraphics[width=0.48\linewidth,trim=20 20 20 30,clip]{figs/pressureCompare_302_normalvs3by3.png}
 %\includegraphics[height=2.7in,trim=120 70 230 50,clip]{figs/pressureWithZoom.pdf}
 \caption{\sf The density profile  around the cylinder for the MUSCL and MOL schemes 
-at time t=0.25.  The MOL scheme has smoother results.}
+at time $T=0.25$.  The methods give somewhat different profiles at the
+local minima, but the shock is  located at the same position.
+Both methods  are remarkably smooth considering the
+irregularity of the cut cell mesh.}
 \label{fig:cylbndry}
 % fig in amrclaw-amrcart/example/cylinder_Mach2 directory on juniper
 % using sortedcyl.dat (coied from bndry01.dat) in the various _output dirs
@@ -496,7 +503,7 @@ We obtain qualitatively comparable results to those in \cite{rkdg5} on
 the same grid resolution. We also show for comparison the results using 
 $\Delta x = \Delta y = 1/480$, also done in \cite{rkdg5}. Again, the
 improvement is very similar. Finally, in Figure \ref{fig:wedgeBndry} we
-show the density along the boundary for the two resolutions. Despite the
+show the density along the boundary for three resolutions. Despite the
 irregularity of the cut cells, the solution is very smooth. The smallest
 cut cell in the coarser grid has volume fraction 1.65e-6. On the finest
 grid the smallest volume fraction is 2.95e-7. 

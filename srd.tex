@@ -32,6 +32,7 @@
 \newcommand{\htil}{\widetilde{h}}
 \newcommand{\hh}{\widehat{h}}
 \newcommand{\commentout}[1]{}
+\newcommand{\keywords}[1]{\textbf{Keywords: } #1}
 \DeclareMathAlphabet\mathbfcal{OMS}{cmsy}{b}{n}
 
 \begin{document}
@@ -52,7 +53,7 @@ State redistribution is a postprocessing technique applied after each time
 step or stage of the base finite volume scheme, using a time step
 that is proportional to the volume of the full cells.  The idea is to 
 stabilize the cut cells by temporarily merging them into larger, 
-possibly overlapping, neighborhoods, 
+possibly overlapping neighborhoods, 
 then replacing the cut cell values with a stabilized value
 that maintains conservation and accuracy.
 We present examples of state redistribution using two base schemes:
@@ -64,6 +65,8 @@ reduce the accuracy of the base scheme and
 that it successfully captures shocks in a non-oscillatory manner.
 \end{abstract}
 
+\keywords{cut cells; small cell problem; embedded boundary finite volume scheme}
+
 \input{intro.tex}
 \input{srdintro.tex}
 \input{base.tex}
@@ -73,12 +76,16 @@ that it successfully captures shocks in a non-oscillatory manner.
 %\input{hoalg.tex}
 
 
-%\subsection*{Acknowledgments} 
-%This work was supported in part by Grant Number
-
-
-\newpage
 \small
+\subsection*{Acknowledgments} 
+We thank Michael Aftosmis, Sandra May, and Marian Nemec 
+for carefully reading the manuscript and many helpful suggestions.
+This research was partially supported by the U.S. Department of
+Energy under contract DE-FG02-88ER25053.
+
+
+
+%\newpage
 \bibliography{references}
 \bibliographystyle{plain}
 

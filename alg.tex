@@ -9,8 +9,12 @@ preserve these important properties.
 \subsection{State redistribution preprocessing}\label{sec:preprocessing}
 
 
-In this section, we describe mesh dependent quantities that will be used when applying 
-SRD. This is the two-dimensional analogue of the one-dimensional 
+In this section, we describe mesh dependent quantities that will be used when 
+applying SRD. 
+Each cut cell needs two pieces of information: the 
+cells that belong to its own merging neighborhood,
+and how many neighborhoods it belongs to.
+This is the two-dimensional analogue of the one-dimensional 
 nonuniform grid preprocessing presented in Section \ref{sec:srd1d}, now done on cut cell grids.
 The preprocessing determines these quantities: merging neighborhoods and overlap counts, 
 weighted volumes and centroids.
@@ -33,13 +37,13 @@ Centered merging associates cut cells with neighbors that are
 %at most one cell away. 
 symmetrically located in each direction around the cell.
 These cells are located in the $3 \times 3$ tile centered on the small cell.  Figure \ref{fig:neighborhoods}
-illustrates this for cut cell $(i+3,j+1)$, where the centered neighborhood is highlighted in green.
+illustrates this for cut cell $(i+4,j+1)$, where the centered neighborhood is highlighted in green.
 
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.5\linewidth]{figs/neighborhoods.pdf}
     \caption{\sf On the left, a small cell is merged with a cell in the direction closest to the 
-    	boundary normal.  On the right, a small cell is merged with neighbors that are at most one cell away, i.e., cells located in the $3\times3$ tile centered on $(i+3,j+1)$.}
+    	boundary normal.  On the right, a small cell is merged with neighbors that are at most one cell away, i.e., cells located in the $3\times3$ tile centered on $(i+4,j+1)$.}
     \label{fig:neighborhoods}
 \end{figure}
 
@@ -160,7 +164,7 @@ The weighted centroid of the merging neighborhood is defined as
 
 In general, the weighted volume is not the physical volume of 
 the merging neighborhood 
-and it is not overlapped by any other neighborhoods 
+unless the neighborhood  is not overlapped by any other neighborhoods 
 (for example, cells $-3$ and $3$ in Figure 2).  Similarly, the weighted and physical 
 centroids are different unless the overlap count on each cell in the neighborhood is the 
 same, $N_{r,s} = N_{p,q} ~ \forall (r,s), (p,q) \in M_{i,j} $.  
@@ -197,7 +201,7 @@ centroids of the neighborhood.
 
 
 In this section, we describe postprocessing on two-dimensional meshes with overlapping neighborhoods.
-This is the analogue of postprocessing on one-dimensional nonuniform grids in Section \ref{sec:srd1d}.
+This is the analogue of postprocessing on one dimensional nonuniform grids in Section \ref{sec:srd1d}.
 The SRD stabilization is applied after each stage for the method of lines (Section \ref{sec:mol}) 
 or time step for the MUSCL scheme (Section \ref{sec:muscl}), denoted generically as
 \begin{equation} \label{eq:stage_step}
@@ -333,7 +337,7 @@ where $W_{i,j}$ is the list of indices of the neighborhoods that overlap cell $(
 
 \noindent\textit{Note }: The final update formula \eqref{eqn:final_update_linear} can easily be implemented with a 
 nested for loop as in Algorithm \ref{alg:finalupdate},  
-instead of computing the set $W_{i,j}$ in \eqref{eqn:final_update_linear} or \eqref{eqn:final_update_linear2}.  
+instead of computing the set $W_{i,j}$ in \eqref{eqn:final_update_linear}.  
 The outer loop iterates over the merging neighborhoods $(i,j)$ and the inner loop iterates over each cell $(r,s)$ in neighborhood $(i,j)$.  Each merging neighborhood $(i,j)$ gives a contribution $ \hat{q}_{i,j}(x_{r,s}, y_{r,s})/N_{r,s} $ to the cells $(r,s)$ that belong to it. 
 \begin{algorithm}[H]
 		\caption{\sf Final solution update} \label{alg:finalupdate}
@@ -462,7 +466,7 @@ Using \eqref{eqn:linear3}, \eqref{eqn:qrecon1} becomes
     \label{eqn:qrecon2}
     \hat{q}_{i,j}(x,y) = f(x,y).
 \end{equation}
-By \eqref{eqn:final_update_linear2}, the final solution update is
+By \eqref{eqn:final_update_linear}, the final solution update is
 \begin{equation} 
 U^{n+1}_{i,j} = \frac{1}{N_{i,j}}\sum_{(r,s) \in W_{i,j}}f(x_{i,j},y_{i,j}).
 \end{equation}
@@ -483,10 +487,10 @@ In this section, we show that the total mass of the numerical solution before an
 M_{i,j}}\frac{1}{N_{r,s}} V_{r,s} \widehat q_{i,j}(x_{r,s},y_{r,s}) ,
 \end{equation}
 where $\widehat q_{i,j}(x)$ is that neighborhood's polynomial reconstruction defined in \eqref{eq:qrecon}.
-Evaluating the integral in \eqref{eq:mi} and using the definition
+Using the definition
 of $\widehat{q}_{i,j}(x,y)$, we have
 \begin{equation}\label{eq:mi1}
-\sum_{i,j} V_{i,j} U^{n+1}_{i,j} = \sum_{i,j} \in M_{i,j} \widehat {Q}_{i,j} 
+\sum_{i,j} V_{i,j} U^{n+1}_{i,j} = \sum_{i,j} \widehat {Q}_{i,j} 
 \widehat {V}_{i,j}.
 \end{equation}
 Using the definition of the weighted average \eqref{tiledef}, we have

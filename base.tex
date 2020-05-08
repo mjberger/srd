@@ -74,12 +74,13 @@ Numerical evaluation of the amplification factor that results from a linear stab
 \Delta t   \left( \frac{|a|}{\Delta x} + \frac{|b|}{\Delta y} \right)\leq 1.
 \end{equation}
 %We have verified \eqref{eq:vn1} by numerical evaluation of the amplification factor that results from a linear stability analysis.
-For a discrete maximum principle to be satisfied, a tight time step restriction 
+For a discrete maximum principle to be satisfied, a tighter 
+time step restriction 
 \begin{equation}
 \Delta t  \left( \frac{2\Delta x + 2 \Delta y}{\Delta x \Delta y} \right) \sqrt{a^2 + b^2}\leq 1 .
 \end{equation}
-is required, in addition to a limiter to prevent new extrema.
-For the Euler equations, the advective speeds $q$ and $b$ are replaced
+is required \cite{giuliani2018analysis}, in addition to a limiter to prevent new extrema.
+For the Euler equations, the advective speeds $a$ and $b$ are replaced
 by the largest magnitude $x$ and $y$ velocities  plus sound speed.
 
 For this method, we apply SRD stabilization to the stage updates

@@ -1,0 +1,28 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+
+\title{Novelties}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+The purpose of this research is to develop a simple and robust algorithm 
+to solve the small cell problem on cut cell meshes.
+Our algorithm, called \textit{state redistribution}, stabilizes second order 
+finite volume schemes on cut cell meshes and allows the use of a time step 
+proportional to the size of a full cell.  
+This is a novel technique that only requires cell centroids, volumes, and 
+standard connectivity information already available in many cut cell codes.
+
+State redistribution is applied to the numerical solution after each step 
+or stage of an explicit time stepping scheme.
+The cut cells are temporarily merged into 
+larger, possibly overlapping, neighborhoods using a weighted convex
+combination of neighboring cells.
+Next, the solution on the cut cells is replaced with a stabilized 
+value determined from the nearby merging neighborhoods.
+Our approach is linearity preserving, conservative, and does not reduce the accuracy of the underlying finite volume method.
+
+\end{document}
