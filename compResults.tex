@@ -195,7 +195,7 @@ We march to steady state, until the maximum density update is
 below $10^{-10}$.  
 The solution is smooth, so no limiters are needed.
 The exact solution is used to set the ghost cells at the inflow and
-outflow boundaries. The domain size is $[0,1.43]$ by $[0.0,1.4301]$ 
+outflow boundaries, as well as the initial conditions. The domain size is $[0,1.43]$ by $[0.0,1.4301]$ 
 (slightly different to prevent mesh  degeneracies).  
 The density profile and computational domain is illustrated in Figure
 \ref{fig:ssvFig}.
@@ -205,7 +205,7 @@ This example will demonstrate the accuracy of SRD.
 We also use this example to compare the accuracy of different
 formulations for the cut cell and SRD neighborhood  gradients, since
 as noted previously, gradients are an important part of this algorithm.
-Table \ref{tab:ssv} we compares the accuracy of three such formulations.
+Table \ref{tab:ssv} compares the accuracy of three such formulations.
 For first order accurate gradients, we use a linear least squares 
 reconstruction for both the irregular cell gradient (cut cells and their one-away neighbors) 
 described in Section \ref{sec:limit}, and the SRD gradients, which 
@@ -278,7 +278,7 @@ neighborhoods with irregular shapes.
         gradients, pointwise quadratic, and fully second order accurate gradients is shown. 
         Pointwise quadratic gradients have half of the error than first order gradients. 
         Truly second order accurate gradients are even better,
-        especially on coarser grids. The convergence rate is given in
+        especially on coarser grids. The ratio of the errors  is given in
         parentheses. \label{tab:ssv}}
 \end{table}
 }
@@ -298,15 +298,14 @@ the difference in the errors is solely due to the irregular cell
 reconstruction scheme.
 
 \begin{figure}[h]
-	\begin{center}
-		\includegraphics[height=3.0in]{figs/gradientConv.pdf}
-		\caption{\sf Convergence in the L1 norm of the error in the entire 
-			domain  (solid line), and along the boundary (dashed line).
-			The reference line has slope 2 next to the domain error. The convergence
-			rate at the boundary is between 1.38 and 1.5
-			along the boundary.
-			\label{fig:ssv}}
-	\end{center}
+\begin{center}
+\includegraphics[height=3.0in]{figs/gradientConv.pdf}
+\caption{\sf Convergence in the L1 norm of the error in the entire 
+domain  (solid line), and along the boundary (dashed line).
+The reference line has slope 2 next to the domain error. The convergence
+rate at the boundary is between 1.38 and 1.5.
+\label{fig:ssv}}
+\end{center}
 \end{figure}
 
 
@@ -387,6 +386,12 @@ completely irregular mesh.
 
 A cylinder with radius $0.15$ is centered at
 (0.5,0.5), and the shock is initially located at $x = 0.2$.
+We set the exact solution for the inflow conditions on the left of the
+domain, and use extrapolation boundary conditions for the top, bottom
+and outflow boundary conditions.  We use reflecting
+boundary conditions at the top and bottom of the domain, where the
+solution from the inside of domain is reflected to the ghost cells, and
+the normal velocity is negated. 
 For this example we compare results using the MUSCL scheme and
 the Method of Lines as the base schemes, both using local Lax Friedrichs for the Riemann
 solver. Both methods use second order accurate gradients. The BJ 
@@ -463,9 +468,14 @@ irregularity of the cut cell mesh.}
 \subsection{Double Mach Reflection problem}\label{sec:dm}
 We present one final standard test case for embedded
 boundary meshes. We reflect a Mach 10 shock obliquely over a wedge, 
-where the shock and wall form a $60^{\circ}$ angle.  
+where the shock and wall form a $30^{\circ}$ angle.  
 The problem domain is $[0,3.0]\times[0,1.75]$, with an angled wall 
 passing through the point $(1/6,0)$. 
+The entire bottom of the domain including the flat part uses
+uses the cut cell boundary representation.
+We use exact inflow conditions $(\rho,u,v,p) = (8.0,8.25,0.0,116.5)$, and 
+constant extrapolation at the top boundary and for the outflow, since
+the simulation stops befoe the shock hits either boundary.
 We use the MUSCL scheme, with the interior slopes 
 computed using monotonized central differences. The irregular cells and
 SRD neighborhoods use second order accurate 

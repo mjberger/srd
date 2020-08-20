@@ -20,7 +20,7 @@ The preprocessing determines these quantities: merging neighborhoods and overlap
 weighted volumes and centroids.
 %These three steps can be part of a preprocessing step since they do not
 %depend on the computed solution. 
-For moving geometries, they would need to be be recomputed
+For moving geometries, they would need to be recomputed
 when the geometry is modified.
 
 \subsubsection*{Merging neighborhoods}
@@ -56,7 +56,11 @@ volume of the neighborhood is at least half the volume  of an uncut cell, i.e.,
 \end{equation}
 where $M_{i,j}$ denotes the set of cell indices that belong to 
 merging neighborhood $(i,j)$.    
-In one dimension it has been shown \cite{mjb:stability2} that a cut cell at the boundary 
+Perhaps surprisingly, although the neighborhood volume is only half of the
+regular volume, there is no reduction in the allowable stable time step.
+A theorem to this effect in
+one dimension \cite{mjb:stability2} shows in the first order case 
+that a cut cell at the boundary 
 that is at least half the regular cell size  is stable using a full time step $\Delta t$.  
 We have not encountered any issues with this choice in two dimensions.
 
@@ -414,9 +418,10 @@ In this section, we show that second order accurate state redistribution preserv
 One might wonder about this since the centroids and solution averages are weighted in this unusual way.
 In addition, the local truncation error does not imply the order of
 accuracy of the scheme  as it does on regular meshes \cite{Kreiss:white2}. 
-Here we simply show that a
-linear function remains exact after SRD, if the base scheme is linearly
-exact.
+Here we simply prove the following:
+
+{\bf Claim 1:}  a linear function remains exact after SRD, if the base scheme 
+is linearly exact.
 %If all cells had the same number of neighborhoods in \eqref{34} the $N_{ij}$ would all cancel. 
 %Since they do not, it is harder to have an intuition about this.
 
@@ -481,7 +486,13 @@ which shows that second order accurate state redistribution preserves linear fun
 
 
 \subsection{Conservation}\label{sec:cons}
-In this section, we show that the total mass of the numerical solution before and after state redistribution does not change.  It follows from the final update in \eqref{eqn:final_update_linear} that the total mass after state redistribution is
+In this section, we show that the total mass of the numerical solution before and after state redistribution does not change.  
+In other words we prove 
+
+{\bf Claim 2:}  State redistribution is conservative, if the base method
+is.
+
+It follows from the final update in \eqref{eqn:final_update_linear} that the total mass after state redistribution is
 \begin{equation}\label{eq:mi}
 \sum_{i,j} V_{i,j} U^{n+1}_{i,j} = \sum_{i,j} \sum_{(r,s) \in
 M_{i,j}}\frac{1}{N_{r,s}} V_{r,s} \widehat q_{i,j}(x_{r,s},y_{r,s}) ,

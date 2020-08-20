@@ -11,7 +11,7 @@ For the examples in this section we will solve the linear advection equation
 \begin{equation}\label{eq:hpde}
 u_t + au_x = 0, \quad a>0
 \end{equation}
-on the nonuniform grid, called the base grid. Equation \eqref{eq:hpde} is
+on a nonuniform grid, called the base grid. Equation \eqref{eq:hpde} is
 discretized  using the  first order
 accurate upwind scheme 
 \begin{equation}\label{eq:unstable1d}
@@ -33,7 +33,7 @@ in Figure \ref{fig:ng1}(b) with two small cells at $i = -1$ and $1$.
 \includegraphics[width=0.5\linewidth,trim=15 0 25 0,clip]{figs/overlapping.pdf}
 }
 \vspace*{.1in}
-\caption{\sf Model problem in one space dimension on nonuniform base grid.
+\caption{\sf Model problem in one space dimension on a nonuniform base grid.
 On the left there is one small cell at $i=0$. The right grid has two small 
 cells  at $i = -1$ and $1$.  The small and large cell 
 sizes are $\alpha h$ ($0<\alpha < 1$), and $h$, respectively. \label{fig:ng1}}
@@ -201,7 +201,9 @@ in \eqref{eq:finalupdate}.  This hints at the stability of our modified scheme.
 The state redistribution algorithm allows us to take full time steps as if there were no 
 small cells in the grid.  However, it can be seen that the multipliers of $U^n_{i-1}$ and $U^n_{i+1}$ 
 in \eqref{eq:finalupdate} are negative when $\alpha$ is small enough.  This means that our scheme is not 
-monotone and thus not total variation diminishing.  We note that this is also the case 
+monotone and is also not total variation diminishing (TVD). However TVD is
+not possible in many cases of interest.  In particular, we note that this is 
+also the case 
 with flux redistribution, which has been successfully used in higher dimensions and more
 complicated problems.  
 The computational examples in Section \ref{sec:compResults} show that

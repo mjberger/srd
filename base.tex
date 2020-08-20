@@ -7,6 +7,8 @@ We are interested in solving hyperbolic conservation laws
 \end{aligned}
 \end{equation}
 on the domain $\Omega \subset \mathbb{R}^2$ where $\mathbf{u}(x,y,t) \in \Omega \times [0,T]$ is a vector of conserved quantities, $T$ is the final time, and $\mathbfcal{F} = [\mathbf{F}, \mathbf{G}]$ is the flux function.  We discretize $\Omega$ into a cut cell mesh of cells $\Omega_{i,j}$.  A typical cut cell mesh, called the base grid, is given in Figure \ref{fig:2dfig}.  On the domain interior, $\Omega_{i,j}$ are Cartesian cells (quadrilaterals) of size $\Delta x$ in the $x$ direction and $\Delta y$ in the $y$ direction.  On the domain boundary there is a border of irregular polygonal cells, called cut cells.  
+A line segment is used in each cut cell to represent
+the intersection with the geometry.
 We use cell-centered discretizations in this work.
 
 
