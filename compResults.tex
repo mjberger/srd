@@ -411,8 +411,8 @@ around the cylinder; 160 of the cut cells had volume fractions less than
 For comparison, this is also the time shown in \cite{mjb-hel-rjl:hbox2}. 
 Here and in \cite{mjb-hel-rjl:hbox2}, the solution in front of the cylinder 
 where the
-maximum density is located, behaves better with the one-step methods than with
-MOL.  The method of lines solution is smoother around the boundary than our
+maximum density is located, behaves better with the more diffusive one-step method than with
+MOL.  The method of lines solution is slightly smoother around the boundary than our
 MUSCL variant. 
 %(see Figure \ref{fig:cylbndry}).
 
@@ -432,7 +432,8 @@ Both schemes robustly compute the solution.
 %They do a reasonably good job
 %producing a smooth solution around the cylinder, 
 %but interestingly, the profiles are rather different from each other.
-The subsonic region in front of the cylinder is better behaved with MUSCL.
+The subsonic region in front of the cylinder is better behaved with the more
+diffusive MUSCL scheme.
 \label{fig:cyl1}}
 \vspace*{-.1in}
 \end{figure}
